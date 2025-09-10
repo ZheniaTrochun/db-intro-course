@@ -23,7 +23,7 @@
 
 1. Клонуйте цей репозиторій:
    ```
-   git clone <url-репозиторію>
+   git clone https://github.com/ZheniaTrochun/db-intro-course.git
    cd db-intro-course
    ```
 

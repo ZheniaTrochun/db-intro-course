@@ -22,7 +22,7 @@ Before you begin, ensure you have the following installed on your system:
 
 1. Clone this repository:
    ```
-   git clone <repository-url>
+   git clone https://github.com/ZheniaTrochun/db-intro-course.git
    cd db-intro-course
    ```
 
