@@ -1,85 +1,82 @@
-# Introduction to Databases Course Repository
+# Репозиторій курсу "Бази даних"
 
-This repository contains resources and environment setup for the Introduction to Databases course.
+Цей репозиторій містить ресурси та налаштування середовища для курсу по базам даних.
 
-## Overview
+## Огляд
 
-This repository provides a ready-to-use database environment using Docker containers. It includes:
+Цей репозиторій надає готове до використання середовище бази даних з використанням Docker контейнерів.  
+Середовище включає:
 
-- PostgreSQL database server
-- pgAdmin web interface for database management
+- Сервер бази даних PostgreSQL
+- Веб-інтерфейс pgAdmin для управління базою даних
 
-## Prerequisites
+## Передумови
 
-Before you begin, ensure you have the following installed on your system:
+Перед початком роботи переконайтеся, що встановлено наступні інструменти:
 
 - [Docker](https://www.docker.com/get-started)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Getting Started
+## Початок роботи
 
-### Setting Up the Environment
+### Налаштування середовища
 
-1. Clone this repository:
+1. Клонуйте цей репозиторій:
    ```
-   git clone <repository-url>
+   git clone <url-репозиторію>
    cd db-intro-course
    ```
 
-2. Start the Docker containers:
+2. Запустіть контейнери:
    ```
    docker-compose up -d
    ```
 
-3. To stop the containers:
+3. Щоб зупинити контейнери виконайте:
    ```
    docker-compose down
    ```
 
-## Services
+## Сервіси
 
 ### PostgreSQL
 
-- **Port**: 5432
-- **Username**: postgres
-- **Password**: password123
-- **Initialization Scripts**: Place your SQL scripts in the `init-scripts` directory to have them executed when the container starts
+- **Порт**: 5432
+- **Ім'я користувача**: postgres
+- **Пароль**: password123
+- **Скрипти ініціалізації**: Розмістіть ваші SQL-скрипти в директорії `init-scripts`, щоб вони виконувалися при запуску контейнера
 
 ### pgAdmin
 
 - **URL**: http://localhost:8080
-- **Email**: root@kpi.edu
-- **Password**: password123
+- **Електронна пошта**: root@kpi.edu
+- **Пароль**: password123
 
-## Connecting to the Database
+## Підключення до бази даних
 
-### Using pgAdmin
+### Використання pgAdmin
 
-1. Open http://localhost:8080 in your browser
-2. Log in with the credentials mentioned above
-3. Add a new server with the following details:
-   - Name: Any name you prefer
-   - Host: postgres
-   - Port: 5432
-   - Username: postgres
-   - Password: password123
+1. Відкрийте http://localhost:8080 у вашому браузері
+2. Увійдіть, використовуючи вказані вище облікові дані
+3. Додайте новий сервер з наступними деталями:
+   - Назва: Будь-яка назва на ваш вибір
+   - Хост: postgres
+   - Порт: 5432
+   - Ім'я користувача: postgres
+   - Пароль: password123
 
-### Using Command Line
+### Використання командного рядка
 
 ```bash
 docker exec -it db-intro-course_postgres_1 psql -U postgres
 ```
 
-## Data Persistence
+## Збереження даних
 
-The database data is persisted in Docker volumes:
-- `postgres_data`: PostgreSQL data
-- `pgadmin_data`: pgAdmin configuration
+Дані бази даних зберігаються в Docker volume:
+- `postgres_data`: Дані PostgreSQL
+- `pgadmin_data`: Конфігурація pgAdmin
 
-## Course Materials
+## Матеріали курсу
 
-Additional course materials and assignments will be added to this repository throughout the semester.
-
-## License
-
-This project is licensed for educational purposes only.
+Додаткові матеріали курсу та завдання будуть додані до цього репозиторію протягом семестру.
