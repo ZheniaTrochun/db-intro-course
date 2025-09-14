@@ -2,6 +2,15 @@
 
 This repository contains resources and environment setup for the Introduction to Databases course.
 
+## Course Materials
+
+Lecture materials are available in the [lections](lectures/) directory:
+
+- [Lecture 1 - Introduction](lectures/1%20-%20intro)
+- [Lecture 2 - ER Diagrams](lectures/2%20-%20ER%20diagrams)
+
+Additional course materials and assignments will be added to this repository throughout the semester.
+
 ## Overview
 
 This repository provides a ready-to-use database environment using Docker containers. It includes:
@@ -75,10 +84,6 @@ docker exec -it db-intro-course_postgres_1 psql -U postgres
 The database data is persisted in Docker volumes:
 - `postgres_data`: PostgreSQL data
 - `pgadmin_data`: pgAdmin configuration
-
-## Course Materials
-
-Additional course materials and assignments will be added to this repository throughout the semester.
 
 ## License
 
