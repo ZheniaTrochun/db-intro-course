@@ -174,7 +174,7 @@ CREATE EXTENSION IF NOT EXISTS vector;
 
 ![campus_er_diagram.png](imgs/db_diagram.png)
 
-Всі запити створення таблиць також знаходяться у [файлі](../../init-scripts/create-campus-tables.sql).
+Всі запити створення таблиць також знаходяться у [файлі](../../scripts/create-campus-tables.sql).
 
 ```sql 
 CREATE TABLE IF NOT EXISTS contact_data
