@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS contact_data
 (
     contact_data_id serial PRIMARY KEY,
-    email varchar(32) NOT NULL,
-    phone varchar(32) NOT NULL
+    email varchar(32) NOT NULL UNIQUE,
+    phone varchar(32) NOT NULL UNIQUE
 );
 
 -- workaround for missing `IF NOT EXISTS` for types creation
@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS student
     student_id serial PRIMARY KEY,
     name varchar(32) NOT NULL,
     surname varchar(32) NOT NULL,
+    profession SMALLINT,
     contact_data_id integer not null references contact_data(contact_data_id),
     group_id integer not null references student_group(group_id)
 );

@@ -9,6 +9,7 @@ Lecture materials are available in the [lections](lectures/) directory:
 - [Lecture 1 - Introduction](lectures/1%20-%20intro)
 - [Lecture 2 - ER Diagrams](lectures/2%20-%20ER%20diagrams)
 - [Lecture 3 - Tables, rows, columns](lectures/3%20-%20Tables,%20rows,%20columns)
+- [Lecture 4 - SQL part 1](lectures/4%20-%20DML%20basics)
 
 Additional course materials and assignments will be added to this repository throughout the semester.
 
