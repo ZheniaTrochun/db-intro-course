@@ -54,5 +54,14 @@ SELECT
 FROM enrolment;
 
 -- перевести студентів з МА-92 до ПС-91
+SELECT * from student_group where NAME in ('МА-92', 'ПС-91');
+select * from student where group_id = 3;
+update student set group_id = 7 WHERE group_id = 3;
+
 -- деактивувати курс комп мереж
+select * from course;
+update course set is_active = FALSE where course_id = 10;
+
 -- видалити курс з кібербезпеки
+select * from course;
+delete from course where course_id = 12;
