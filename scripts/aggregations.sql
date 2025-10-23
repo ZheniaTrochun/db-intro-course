@@ -50,12 +50,43 @@ GROUP BY s.name, s.surname, g.name
 ORDER BY group_name ASC, student_rank ASC;
 
 -- порахувати успішність студентів залежно від року навчання
---
+
+select 
+c.student_year, 
+s.name || ' ' || s.surname as full_name,
+round(coalesce(avg(e.grade), 0), 2) as student_avg,
+row_number() over (partition by c.student_year order by coalesce(avg(e.grade), 0) desc) as student_rank
+from student s 
+left join enrolment e using(student_id)
+left join course c using(course_id)
+group by c.student_year, s.name, s.surname
+order by c.student_year asc, student_avg desc;
+
 -- для кожного з студентів знайти його середній бал у порівнянні з середнім балом по групі
---
+
+select 
+s.name || ' ' || s.surname as full_name, 
+g.name as group_name,
+round(coalesce(avg(e.grade), 0), 2) as student_avg,
+round(coalesce(avg(coalesce(avg(e.grade), 0)) over (partition by g.group_id),0), 2) as group_avg
+from student s 
+left join enrolment e using(student_id)
+left join student_group g using(group_id)
+group by s.student_id, s.name, s.surname, g.group_id, g.name
+order by group_avg desc, student_avg desc;
+
 -- порахувати статистику записів на курси для кожного року навчання:
 --      кількість курсів
 --      кількість записів
 --      кількість студентів, що вже отримали бали
+
+select 
+c.student_year,
+count(distinct course_id) as course_count,
+count(student_id) as total_enrollments,
+count(distinct student_id) filter (where e.grade > 0) as graded_students
+from course c
+left join enrolment e using(course_id)
+group by c.student_year;
 
 
