@@ -1,4 +1,17 @@
 -- Для кожного курсу знайти в якому мінімальному семестрі він може читатись
+WITH RECURSIVE course_dependencies_depth AS (
+    SELECT course_id,  1 AS level
+    FROM course c
+    WHERE NOT EXISTS(SELECT 1 FROM course_prerequisite cp WHERE c.course_id = cp.course_id)
+    UNION ALL
+    SELECT cp.course_id AS course_id, cdd.level + 1 AS level
+    FROM course_prerequisite cp
+        INNER JOIN course_dependencies_depth cdd ON cp.prerequisite_course_id = cdd.course_id
+)
+SELECT c.name, cdd.level
+FROM course c
+    INNER JOIN course_dependencies_depth cdd USING (course_id)
+ORDER BY cdd.level DESC;
 
 -- Знайти всіх студентів, які записані на більше курсів ніж в середньому студенти
 WITH student_course_number AS (
