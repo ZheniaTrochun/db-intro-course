@@ -8,10 +8,13 @@ WITH RECURSIVE course_dependencies_depth AS (
     FROM course_prerequisite cp
         INNER JOIN course_dependencies_depth cdd ON cp.prerequisite_course_id = cdd.course_id
 )
-SELECT c.name, cdd.level
+SELECT course_id,
+       c.name,
+       MAX(cdd.level) as min_year
 FROM course c
     INNER JOIN course_dependencies_depth cdd USING (course_id)
-ORDER BY cdd.level DESC;
+GROUP BY course_id, c.name
+ORDER BY course_id;
 
 -- Знайти всіх студентів, які записані на більше курсів ніж в середньому студенти
 WITH student_course_number AS (
