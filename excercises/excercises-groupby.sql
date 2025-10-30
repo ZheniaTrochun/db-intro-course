@@ -7,8 +7,8 @@ GROUP BY student_year
 HAVING avg(grade) IS NOT NULL
 ORDER BY student_year;
 -- для кожного з студентів знайти його середній бал у порівнянні з середнім балом по групі
-SELECT DISTINCT
-    student_id,
+SELECT
+    DISTINCT student_id,
     s.name || ' ' || surname AS full_name,
     round(avg(grade) OVER (PARTITION BY student_id), 1) AS avg_student_grade,
     sg.name,
@@ -26,7 +26,7 @@ SELECT
     student_year,
     count(DISTINCT course_id) AS number_of_courses,
     count(*) AS number_of_enrolments,
-    count(student_id) FILTER ( WHERE grade IS NOT NULL) AS number_of_students_with_grade
+    count(DISTINCT student_id) FILTER ( WHERE grade IS NOT NULL) AS number_of_students_with_grade
 FROM enrolment e
     INNER JOIN course c USING (course_id)
 GROUP BY student_year
