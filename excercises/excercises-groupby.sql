@@ -24,7 +24,7 @@ ORDER BY g.name ASC;
 
 SELECT
 	c.student_year, 
-	COUNT(DISTINCT(c.name)) as course_count, 
+	COUNT(DISTINCT(c.course_id)) as course_count, 
 	COUNT( e.student_id) as enrolment_count, 
 	COUNT(DISTINCT student_id) FILTER(WHERE e.grade IS NOT NULL) AS number_of_students_with_grades
 FROM course c
