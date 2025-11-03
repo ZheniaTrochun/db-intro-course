@@ -121,7 +121,7 @@ FROM table1 t1, table2 t2;
 - Використовуються для вибірки рядків з першої таблиці, які не мають відповідників у другій.
 - Реалізуються через `LEFT JOIN` із додатковою умовою `WHERE second_table.id IS NULL`.
 
-![img_8.png](img_8.png)
+![img_7.png](imgs/img_7.png)
 
 ---
 
@@ -174,7 +174,7 @@ SELECT name FROM teacher;
 - Повертає лише ті рядки, які є в обох множинах.
 - Для включення дублікатів - `INTERSECT ALL`.
 
-![img_5.png](imgs/img_1.png)
+![img_5.png](imgs/img.png)
 
 ---
 

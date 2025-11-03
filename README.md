@@ -19,6 +19,8 @@
 - [Лекція 3 - Таблиці, рядки, колонки](lectures/3%20-%20Tables,%20rows,%20columns)
 - [Лекція 4 - SQL частина 1](lectures/4%20-%20DML%20basics)
 - [Лекція 5 - SQL частина 2 - JOIN та операції над множинами](lectures/5%20-%20JOINs%20and%20set%20operations)
+- [Лекція 6 - SQL частина 3 - GROUP BY та віконні функції](lectures/6%20-%20GROUP%20BY%20and%20window%20functions)
+- [Лекція 7 - SQL частина 4 - Підзапити та CTE](lectures/7%20-%20Subqueries%20and%20CTE)
 
 Додаткові матеріали курсу та завдання будуть додані до цього репозиторію протягом семестру.
 
