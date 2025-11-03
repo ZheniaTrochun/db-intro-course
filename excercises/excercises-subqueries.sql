@@ -39,12 +39,9 @@ ORDER BY course_number DESC;
 WITH avg_student_grade_for_course AS (
     SELECT student_id,
            course_id,
-           avg(grade) AS avg_student_grade
+           avg(grade) OVER (PARTITION BY course_id) AS avg_student_grade
     FROM enrolment
-        INNER JOIN student USING (student_id)
-        INNER JOIN course USING (course_id)
     WHERE grade IS NOT NULL
-    GROUP BY course_id, student_id
     ORDER BY course_id, avg(grade)
 ),
     student_ranks AS (
