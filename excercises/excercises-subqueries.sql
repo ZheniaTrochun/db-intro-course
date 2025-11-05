@@ -36,22 +36,13 @@ WHERE course_number > avg_number
 ORDER BY course_number DESC;
 
 -- Знайти топ-3 студенти у кожному курсі за отриманими балами
-WITH avg_student_grade_for_course AS (
-    SELECT student_id,
-           course_id,
-           avg(grade) OVER (PARTITION BY course_id) AS avg_student_grade
-    FROM enrolment
-    WHERE grade IS NOT NULL
-    ORDER BY course_id, avg(grade)
-),
-    student_ranks AS (
+WITH student_ranks AS (
     SELECT
         c.name AS course_name,
         s.name || ' ' || s.surname AS student_full_name,
-        avg_student_grade,
-        ROW_NUMBER() OVER (PARTITION BY c.name ORDER BY avg_student_grade DESC) AS rank
+        ROW_NUMBER() OVER (PARTITION BY c.name) AS rank
     FROM student s
-        INNER JOIN avg_student_grade_for_course USING (student_id)
+        INNER JOIN enrolment e USING (student_id)
         INNER JOIN course c USING (course_id)
     ORDER BY course_id, rank
 )
