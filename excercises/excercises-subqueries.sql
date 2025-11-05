@@ -40,15 +40,14 @@ WITH student_ranks AS (
     SELECT
         c.name AS course_name,
         s.name || ' ' || s.surname AS student_full_name,
-        round(avg(grade), 1) AS avg_student_grade,
-        ROW_NUMBER() OVER (PARTITION BY c.name ORDER BY avg(grade) DESC) AS rank
+        grade,
+        ROW_NUMBER() OVER (PARTITION BY c.name ORDER BY grade DESC) AS rank
     FROM student s
         INNER JOIN enrolment e USING (student_id)
         INNER JOIN course c USING (course_id)
     WHERE grade IS NOT NULL
-    GROUP BY c.name, s.name, s.surname
-    ORDER BY c.name, rank
 )
 SELECT *
 FROM student_ranks
-WHERE rank <= 3;
+WHERE rank <= 3
+ORDER BY course_name, rank;
