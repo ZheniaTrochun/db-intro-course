@@ -40,7 +40,7 @@ WITH student_ranks AS (
     SELECT
         c.name AS course_name,
         s.name || ' ' || s.surname AS student_full_name,
-        ROW_NUMBER() OVER (PARTITION BY c.name) AS rank
+        ROW_NUMBER() OVER (PARTITION BY c.name ORDER BY c.name) AS rank
     FROM student s
         INNER JOIN enrolment e USING (student_id)
         INNER JOIN course c USING (course_id)
