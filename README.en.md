@@ -13,6 +13,7 @@ Lecture materials are available in the [lections](lectures/) directory:
 - [Lecture 5 - SQL part 2 - JOINs and set operations](lectures/5%20-%20JOINs%20and%20set%20operations)
 - [Lecture 6 - SQL part 3 - GROUP BY and Window Functions](lectures/6%20-%20GROUP%20BY%20and%20window%20functions)
 - [Lecture 7 - SQL part 4 - Subqueries and CTE](lectures/7%20-%20Subqueries%20and%20CTE)
+- [Lecture 8-9 - Indices](lectures/8-9%20-%20Indices)
 
 Additional course materials and assignments will be added to this repository throughout the semester.
 
