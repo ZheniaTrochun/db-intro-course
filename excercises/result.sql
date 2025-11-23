@@ -1,66 +1,120 @@
+-- Успішність студентів залежно від року навчання
+-- SELECT 
+--     c.student_year,
+--     COUNT(DISTINCT e.student_id) AS student_count,
+--     COUNT(e.grade) AS grade_count,
+--     ROUND(AVG(e.grade), 2) AS avg_grade,
+--     MIN(e.grade) AS min_grade,
+--     MAX(e.grade) AS max_grade
+-- FROM course c
+-- JOIN enrolment e ON c.course_id = e.course_id
+-- WHERE e.grade IS NOT NULL
+-- GROUP BY c.student_year
+-- ORDER BY c.student_year;
+
+-- -----------
+-- для кожного з студентів знайти його середній бал у порівнянні з середнім балом по групі
+
+-- WITH student_avg AS (
+--     SELECT 
+--         s.student_id,
+--         s.name,
+--         s.surname,
+--         s.group_id,
+--         ROUND(AVG(e.grade), 2) AS student_avg_grade
+--     FROM student s
+--     JOIN enrolment e ON s.student_id = e.student_id
+--     WHERE e.grade IS NOT NULL
+--     GROUP BY s.student_id, s.name, s.surname, s.group_id
+-- ),
+-- group_avg AS (
+--     SELECT 
+--         s.group_id,
+--         ROUND(AVG(e.grade), 2) AS group_avg_grade
+--     FROM student s
+--     JOIN enrolment e ON s.student_id = e.student_id
+--     WHERE e.grade IS NOT NULL
+--     GROUP BY s.group_id
+-- )
+-- SELECT 
+--     sa.student_id,
+--     sa.name || ' ' || sa.surname AS student_full_name,
+--     sg.name AS group_name,
+--     sa.student_avg_grade,
+--     ga.group_avg_grade,
+--     ROUND(sa.student_avg_grade - ga.group_avg_grade, 2) AS difference
+-- FROM student_avg sa
+-- JOIN group_avg ga ON sa.group_id = ga.group_id
+-- JOIN student_group sg ON sa.group_id = sg.group_id
+-- ORDER BY difference DESC;
+
+
+-- ----
+-- порахувати статистику записів на курси для кожного року навчання:
+
+-- SELECT 
+--     c.student_year,
+--     COUNT(DISTINCT c.course_id) AS course_count,
+--     COUNT(e.student_id) AS enrolment_count,
+--     COUNT(e.grade) AS students_with_grades
+-- FROM course c
+-- LEFT JOIN enrolment e ON c.course_id = e.course_id
+-- GROUP BY c.student_year
+-- ORDER BY c.student_year;
+
+ -- ----
+-- Для кожного курсу знайти в якому мінімальному семестрі він може читатись
+
+-- SELECT
+--     course_id,
+--     name AS "course_name",
+--     student_year AS "year_stud",
+--     (student_year - 1) * 2 + 1 AS "min_semester"
+-- FROM course
+-- ORDER BY "min_semester", course_id;
+
+-- ----
+-- Студенти, записані на більше курсів, ніж в середньому
+
 -- SELECT
 --     s.student_id,
 --     s.name,
 --     s.surname,
---     s.group_id AS "Group",
---     ROUND(AVG(e.grade), 2) AS "Student Avg Grade",
---     ROUND(AVG(AVG(e.grade)) OVER (PARTITION BY s.group_id), 2) AS "Group Avg Grade",
---     ROUND(AVG(e.grade) - AVG(AVG(e.grade)) OVER (PARTITION BY s.group_id), 2) AS "Difference from Group Avg"
+--     COUNT(e.course_id) AS "course_count"
 -- FROM student s
 -- JOIN enrolment e ON s.student_id = e.student_id
--- WHERE e.grade IS NOT NULL
--- GROUP BY s.student_id, s.name, s.surname, s.group_id
--- ORDER BY s.group_id, "Difference from Group Avg" DESC;
-
--- -----------
-
--- SELECT s.group_id AS "Study Group", ROUND(AVG(e.grade), 2) AS "Average Grade"
--- FROM student s
--- JOIN enrolment e ON s.student_id = e.student_id
--- WHERE e.grade IS NOT NULL
--- GROUP BY s.group_id
--- ORDER BY s.group_id;
-
+-- GROUP BY s.student_id, s.name, s.surname
+-- HAVING COUNT(e.course_id) > (
+--     SELECT AVG(course_count)
+--     FROM (
+--         SELECT COUNT(course_id) AS course_count
+--         FROM enrolment
+--         GROUP BY student_id
+--     ) AS student_course_counts
+-- )
+-- ORDER BY "course_count" DESC;
 
 -- ----
+-- Знайти топ-3 студенти у кожному курсі за отриманими балами
 
--- SELECT course_id, name, student_year AS "Minimum Study Year"
--- FROM course
--- ORDER BY student_year, course_id;
-
- -- ----
-
-
--- SELECT s.group_id AS "Study Group", 
-    -- COUNT(DISTINCT e.course_id) AS "Total Courses", 
-    -- COUNT(e.student_id) AS "Total Enrollments", 
-    -- COUNT(DISTINCT CASE WHEN e.grade IS NOT NULL THEN s.student_id END) AS "Students with Grades"
--- FROM student s
--- JOIN enrolment e ON s.student_id = e.student_id
--- GROUP BY s.group_id
--- ORDER BY s.group_id;
-
--- ----
-
-
--- SELECT c.name AS course_name, s.name AS student_name, s.surname AS student_surname, ranked.grade
--- FROM
---     (
---         SELECT
---             e.course_id,
---             e.student_id,
---             e.grade,
---             RANK() OVER (PARTITION BY e.course_id ORDER BY e.grade DESC) AS rank_in_course
---         FROM
---             enrolment e
---     ) ranked
--- JOIN student s ON s.student_id = ranked.student_id
--- JOIN course c ON c.course_id = ranked.course_id
--- WHERE ranked.rank_in_course <= 3
--- ORDER BY c.name, ranked.rank_in_course, ranked.grade DESC;
-
--- ----
-
--- SELECT course_id, name, student_year AS "Study Year", (course.student_year - 1) * 2 + 1 AS "Minimum Semester Calculation"
--- FROM course
--- ORDER BY "Minimum Semester Calculation", course_id;
+-- WITH ranked_students AS (
+--     SELECT 
+--         c.course_id,
+--         c.name AS course_name,
+--         s.student_id,
+--         s.name || ' ' || s.surname AS student_full_name,
+--         e.grade,
+--         DENSE_RANK() OVER (PARTITION BY c.course_id ORDER BY e.grade DESC) AS rank
+--     FROM course c
+--     JOIN enrolment e ON c.course_id = e.course_id
+--     JOIN student s ON e.student_id = s.student_id
+--     WHERE e.grade IS NOT NULL
+-- )
+-- SELECT 
+--     course_name,
+--     student_full_name,
+--     grade,
+--     rank
+-- FROM ranked_students
+-- WHERE rank <= 3
+-- ORDER BY course_id, rank;
