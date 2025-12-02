@@ -4,7 +4,7 @@ This repository contains resources and environment setup for the Introduction to
 
 ## Course Materials
 
-Lecture materials are available in the [lections](lectures/) directory:
+Lecture materials are available in the [lectures](lectures/) directory:
 
 - [Lecture 1 - Introduction](lectures/1%20-%20intro)
 - [Lecture 2 - ER Diagrams](lectures/2%20-%20ER%20diagrams)
