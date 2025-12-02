@@ -15,6 +15,7 @@ Lecture materials are available in the [lections](lectures/) directory:
 - [Lecture 7 - SQL part 4 - Subqueries and CTE](lectures/7%20-%20Subqueries%20and%20CTE)
 - [Lecture 8-9 - Indices](lectures/8-9%20-%20Indices)
 - [Lecture 10 - Transactions](lectures/10%20-%20Transactions)
+- [Lecture 11 - Normalisation](lectures/11%20-%20Normalisation)
 
 Additional course materials and assignments will be added to this repository throughout the semester.
 
