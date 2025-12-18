@@ -6,7 +6,7 @@ GROUP BY c.student_year
 ORDER BY c.student_year
 -- для кожного з студентів знайти його середній бал у порівнянні з середнім балом по групі
 SELECT
-s.student_id,
+DISTINCT s.student_id,
 s.surname || ' ' || s.name AS "Студент",
 g.name AS "Група",
 ROUND(AVG(e.grade) OVER (PARTITION BY s.student_id), 1) AS "Середній бал студента",
@@ -15,8 +15,8 @@ FROM student s
 JOIN student_group g USING (group_id)
 JOIN enrolment e USING (student_id)
 WHERE e.grade IS NOT NULL
+ORDER BY s.student_id
 -- порахувати статистику записів на курси для кожного року навчання:
 --      кількість курсів
 --      кількість записів
 --      кількість студентів, що вже отримали бали
-
