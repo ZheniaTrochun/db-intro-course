@@ -1,5 +1,9 @@
 -- порахувати успішність студентів залежно від року навчання
---
+SELECT c.student_year, ROUND(AVG(e.grade),1) as "Середня оцінка" 
+FROM course c
+JOIN enrolment e USING(course_id)
+GROUP BY c.student_year
+ORDER BY c.student_year
 -- для кожного з студентів знайти його середній бал у порівнянні з середнім балом по групі
 --
 -- порахувати статистику записів на курси для кожного року навчання:
