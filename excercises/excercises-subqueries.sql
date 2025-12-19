@@ -1,4 +1,28 @@
 -- Для кожного курсу знайти в якому мінімальному семестрі він може читатись
+WITH RECURSIVE course_levels AS (
+    SELECT
+        course_id,
+        name,
+        student_year::integer AS min_semester -- т.к greatest повретає integer, а student_year є smallint, потрібно закастити
+    FROM course
+    WHERE course_id NOT IN (SELECT course_id FROM course_prerequisite)
+    
+    UNION ALL
+    
+    SELECT
+        c.course_id,
+        c.name,
+        greatest(c.student_year, cl.min_semester + 1)
+    FROM course AS c
+    JOIN course_prerequisite AS prereq ON c.course_id = prereq.course_id
+    JOIN course_levels AS cl ON prereq.prerequisite_course_id = cl.course_id
+)
+SELECT
+    name,
+    MAX(min_semester) AS earliest_semester
+FROM course_levels
+GROUP BY name
+ORDER BY earliest_semester;
 -- Знайти всіх студентів, які записані на більше курсів ніж в середньому студенти\
 WITH enrollment_stats AS (
     SELECT 
