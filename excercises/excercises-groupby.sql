@@ -13,7 +13,8 @@ ORDER BY start_year;
 SELECT DISTINCT
     s.name || ' ' || s.surname AS full_name,
     ROUND(AVG(grade) OVER (PARTITION BY s.student_id), 1) AS my_avg,
-    AVG(grade) OVER (PARTITION BY s.group_id) AS group_avg
+    --в рядку 16 додав round,щоб менше знаків після коми було(неуважно зробив в минулий раз) 
+    ROUND(AVG(grade) OVER (PARTITION BY s.group_id), 1) AS group_avg
 FROM student s
     JOIN enrolment e ON s.student_id = e.student_id
     JOIN student_group g ON s.group_id = g.group_id
