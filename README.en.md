@@ -16,6 +16,7 @@ Lecture materials are available in the [lectures](lectures/) directory:
 - [Lecture 8-9 - Indices](lectures/8-9%20-%20Indices)
 - [Lecture 10 - Transactions](lectures/10%20-%20Transactions)
 - [Lecture 11 - Normalisation](lectures/11%20-%20Normalisation)
+- [Lecture 12 - Migrations](lectures/12%20-%20Migrations)
 
 Additional course materials and assignments will be added to this repository throughout the semester.
 
