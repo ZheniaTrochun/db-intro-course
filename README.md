@@ -14,17 +14,18 @@
 
 Матеріали лекцій доступні в директорії [lectures](lectures/):
 
-- [Лекція 1 - Вступ](lectures/1%20-%20intro)
-- [Лекція 2 - ER діаграми](lectures/2%20-%20ER%20diagrams)
-- [Лекція 3 - Таблиці, рядки, колонки](lectures/3%20-%20Tables,%20rows,%20columns)
-- [Лекція 4 - SQL частина 1](lectures/4%20-%20DML%20basics)
-- [Лекція 5 - SQL частина 2 - JOIN та операції над множинами](lectures/5%20-%20JOINs%20and%20set%20operations)
-- [Лекція 6 - SQL частина 3 - GROUP BY та віконні функції](lectures/6%20-%20GROUP%20BY%20and%20window%20functions)
-- [Лекція 7 - SQL частина 4 - Підзапити та CTE](lectures/7%20-%20Subqueries%20and%20CTE)
-- [Лекція 8-9 - Індекси](lectures/8-9%20-%20Indices)
+- [Лекція 1 - Вступ](lectures/01%20-%20intro)
+- [Лекція 2 - ER діаграми](lectures/02%20-%20ER%20diagrams)
+- [Лекція 3 - Таблиці, рядки, колонки](lectures/03%20-%20Tables,%20rows,%20columns)
+- [Лекція 4 - SQL частина 1](lectures/04%20-%20DML%20basics)
+- [Лекція 5 - SQL частина 2 - JOIN та операції над множинами](lectures/05%20-%20JOINs%20and%20set%20operations)
+- [Лекція 6 - SQL частина 3 - GROUP BY та віконні функції](lectures/06%20-%20GROUP%20BY%20and%20window%20functions)
+- [Лекція 7 - SQL частина 4 - Підзапити та CTE](lectures/07%20-%20Subqueries%20and%20CTE)
+- [Лекція 8-9 - Індекси](lectures/08-09%20-%20Indices)
 - [Лекція 10 - Транзакції](lectures/10%20-%20Transactions)
 - [Лекція 11 - Нормалізація](lectures/11%20-%20Normalisation)
 - [Лекція 12 - Міграції](lectures/12%20-%20Migrations)
+- [Лекція 13 - Денормалізація](lectures/13%20-%20Denormalisation)
 
 Додаткові матеріали курсу та завдання будуть додані до цього репозиторію протягом семестру.
 
