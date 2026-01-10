@@ -1,3 +1,5 @@
 .idea/
 *.iml
 data/
+excercises/test_runner/venv
+excercises/test_runner/test_results
