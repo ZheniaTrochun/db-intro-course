@@ -11,13 +11,13 @@ if [ ! -f ./test_runner/venv ]; then
 fi
 
 docker-compose -f ./test_runner/docker-compose.tests.yml exec db bash -c 'pg_restore -U postgres --clean -d postgres < /tmp/dumps/base.dump > /dev/null 2>&1'
-python3 ./test_runner/test.py --snapshot_name base --port 5434
+PG_PORT="5434" pytest --html=test_results/report.html --json-report --json-report-file=test_results/report.json --snapshot base --no-header -v
 
 docker-compose -f ./test_runner/docker-compose.tests.yml exec db bash -c 'pg_restore -U postgres --clean -d postgres < /tmp/dumps/10k.dump > /dev/null 2>&1'
-python3 ./test_runner/test.py --snapshot_name 10k --port 5434
+PG_PORT="5434" pytest --html=test_results/report.html --json-report --json-report-file=test_results/report.json --snapshot 10k --no-header -v
 
 docker-compose -f ./test_runner/docker-compose.tests.yml exec db bash -c 'pg_restore -U postgres --clean -d postgres < /tmp/dumps/100k.dump > /dev/null 2>&1'
-python3 ./test_runner/test.py --snapshot_name 100k --port 5434
+PG_PORT="5434" pytest --html=test_results/report.html --json-report --json-report-file=test_results/report.json --snapshot 100k --no-header -v
 
 deactivate
 
