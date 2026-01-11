@@ -1,19 +1,8 @@
 from pathlib import Path
 
-import psycopg
 import polars as pl
 import pytest
 import warnings
-
-
-def get_db_connection(connection_configs: dict[str, str]):
-    return psycopg.connect(
-        dbname=connection_configs.get("PG_DB", "postgres"),
-        user=connection_configs.get("PG_USER", "postgres"),
-        password=connection_configs.get("PG_PASSWORD", "postgres123"),
-        host=connection_configs.get("PG_HOST", "localhost"),
-        port=connection_configs.get("PG_PORT", "5432")
-    )
 
 
 def read_query_from_file(path: str) -> str:
@@ -21,12 +10,7 @@ def read_query_from_file(path: str) -> str:
         return f.read()
 
 
-def execute_query(sql: str, connection_configs: dict[str, str]) -> pl.DataFrame:
-    try:
-        connection = get_db_connection(connection_configs)
-    except Exception as e:
-        pytest.fail(f"Error connecting to database: {e}")
-
+def execute_query(sql: str, connection) -> pl.DataFrame:
     with connection.cursor() as cursor:
         cursor.execute(sql)
 
@@ -46,13 +30,14 @@ def sanitize_sql(sql: str) -> str:
 
     separate_queries = [query.strip() for query in sql_without_comments.split(";") if query.strip() != ""]
     if len(separate_queries) > 1:
-        warnings.warn("WARNING: SQL contains multiple queries. Only the last one will be executed.")
+        print(separate_queries)
+        warnings.warn("SQL file contains multiple queries. Only the last one will be executed.")
         return separate_queries[-1]
     else:
         return sql_without_comments.strip()
 
 
-def execute(exercise_group: str, exercise: str, connection_configs: dict[str, str]) -> pl.DataFrame:
+def execute(exercise_group: str, exercise: str, db_connection) -> pl.DataFrame:
     base_path = Path(__file__).parent.parent.parent
     script_path = base_path / exercise_group / f"{exercise}.sql"
 
@@ -67,10 +52,9 @@ def execute(exercise_group: str, exercise: str, connection_configs: dict[str, st
 
     if sanitized_sql.strip() == "":
         pytest.skip(f"SQL for {exercise_group} / {exercise} is empty.")
-        return pl.DataFrame({})
     else:
         print("Executing query:")
         print(sanitized_sql)
         print()
 
-        return execute_query(sanitized_sql, connection_configs)
+        return execute_query(sanitized_sql, db_connection)

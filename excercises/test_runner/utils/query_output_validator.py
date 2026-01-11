@@ -1,5 +1,5 @@
 from pathlib import Path
-
+import pytest
 import polars as pl
 
 
@@ -9,18 +9,14 @@ def cast_everything_to_string(dataframe: pl.DataFrame) -> pl.DataFrame:
     return dataframe.select([pl.col(c).cast(pl.Utf8) for c in cols])
 
 
-def get_n_diffs(a: pl.DataFrame, b: pl.DataFrame, n: int = 10) -> list[str]:
-    diffs = []
-    cols = a.columns
-    diffs.append(f"Columns: {cols}.")
-
-    for i in range(min(a.height, b.height)):
-        if a.row(i) != b.row(i):
-            diffs.append(f"Row {i}: {a.row(i)} != {b.row(i)}")
-        if len(diffs) >= n:
-            break
-
-    return diffs
+def print_diff(expected_result: pl.DataFrame, actual_result: pl.DataFrame) -> None:
+    print("DataFrames do not match.\n\n")
+    print(f"======== Expected result ========")
+    print(expected_result.head(5))
+    print()
+    print(f"======== Actual result ========")
+    print(actual_result.head(5))
+    print()
 
 
 def validate_query_output(
@@ -47,8 +43,12 @@ def validate_query_output(
     actual_result = cast_everything_to_string(actual_result)
 
     assert actual_result.height > 0, "SQL query returned 0 rows."
-    assert expected_result.height == actual_result.height, \
-        f"Number of rows mismatch. Expected: {expected_result.height}. Actual: {actual_result.height}."
+
+    is_rows_number_match = expected_result.height == actual_result.height
+
+    if not is_rows_number_match:
+        print_diff(expected_result, actual_result)
+        pytest.fail(f"Number of rows mismatch. Expected: {expected_result.height}. Actual: {actual_result.height}.")
 
     if not check_order:
         expected_result = expected_result.sort(by=expected_columns)
@@ -57,12 +57,5 @@ def validate_query_output(
     res = expected_result.equals(actual_result)
 
     if not res:
-        print("DataFrames do not match.\n\n")
-        print(f"======== Expected result ========")
-        print(expected_result.head(5))
-        print()
-        print(f"======== Actual result ========")
-        print(actual_result.head(5))
-        print()
-
-        assert False, f"Expected and actual results do not match."
+        print_diff(expected_result, actual_result)
+        pytest.fail(f"Expected and actual results do not match.")
