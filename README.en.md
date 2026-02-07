@@ -18,6 +18,8 @@ Lecture materials are available in the [lectures](lectures/) directory:
 - [Lecture 11 - Normalisation](lectures/11%20-%20Normalisation)
 - [Lecture 12 - Migrations](lectures/12%20-%20Migrations)
 - [Lecture 13 - Denormalisation](lectures/13%20-%20Denormalisation)
+- [Lecture 14 - Data storage on disk](lectures/14%20-%20Data%20storage%20on%20disk)
+- [Lecture 15 - Non-relational DBMS](lectures/15%20-%20Non-relational%20DBMS)
 
 Additional course materials and assignments will be added to this repository throughout the semester.
 
