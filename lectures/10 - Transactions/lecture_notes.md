@@ -76,17 +76,17 @@ COMMIT;
 ### 4.1 Dirty Write
 Транзакція перезаписує незбережені зміни іншої транзакції.
 
-![dirty_write.png](https://substackcdn.com/image/fetch/$s_!vSoj!,w_1456,c_limit,f_webp,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Ff4d3dd8d-a6ea-4393-a2e4-f9ac36e873c4_1848x1236.png)
+![img_1.png](imgs/img_1.png)
 
 ### 4.2 Dirty Read
 Транзакція читає дані, які інша транзакція ще не закомітила.
 
-![dirty_read.png](https://substackcdn.com/image/fetch/$s_!-eGm!,w_1456,c_limit,f_webp,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fef186bd6-2b3e-484a-bdd6-a7911d561aa0_1844x916.png)
+![img.png](imgs/img.png)
 
 ### 4.3 Non‑Repeatable Read
 Повторне читання того ж рядка повертає інше значення.
 
-![non_repeatable_read.png](https://substackcdn.com/image/fetch/$s_!6E7D!,w_1456,c_limit,f_webp,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa5ff5976-1ac5-4850-bed6-73a0212b9af4_1844x1076.png)
+![img_2.png](imgs/img_2.png)
 
 ### 4.4 Phantom Read
 Повторний SELECT повертає нові (або зниклі) рядки, яких не було раніше.
@@ -99,14 +99,14 @@ COMMIT;
 - обидві їх змінюють  
 - запис Б перезаписує результат А
 
-![lost_update.png](https://substackcdn.com/image/fetch/$s_!fhid!,w_1456,c_limit,f_webp,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fe2547d14-2fa3-4ad9-8e05-028822fd6526_1844x1236.png)
+![img_3.png](imgs/img_3.png)
 
 ### 4.6 Write Skew
 Типова ситуація зі зміною різних рядків при спільній умові.  
 Приклад з лекції:  
 двоє лікарів одночасно подають заявку піти додому -> обидва читають список лікарів -> обидва бачать, що на зміні 2 лікарі -> обидва зменшують кількість -> обох відпускають -> на зміні 0 лікарів.
 
-![write_skew.png](https://substackcdn.com/image/fetch/$s_!qwKo!,w_1456,c_limit,f_webp,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F16fcdcfa-9a22-475e-ab07-e53f3495948e_1844x1236.png)
+![img_4.png](imgs/img_4.png)
 
 ---
 

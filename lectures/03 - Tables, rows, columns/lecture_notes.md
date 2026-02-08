@@ -35,7 +35,7 @@
 
 Приклад:
 ```sql
-numeric(3,2) -- три цифри, з них дві після коми, може містит значення в проміжку [-9.99; 9.99]
+numeric(3,2) -- три цифри, з них дві після коми, може містити значення в проміжку [-9.99; 9.99]
 ```
 
 ### 2.2. Послідовності (Serial)
@@ -118,7 +118,7 @@ CREATE TABLE student (
     first_name VARCHAR(32) NOT NULL,
     last_name VARCHAR(32) NOT NULL,
     age INT CHECK (age > 0 AND age < 200),
-    group_id INTEGER REFERENCES group(group_id)
+    group_id INTEGER REFERENCES student_group(group_id)
 );
 ```
 
@@ -166,7 +166,7 @@ CREATE EXTENSION IF NOT EXISTS vector;
 
 ## 8. Практична частина лекції
 
-У практичній частині лекції, було перетворено ER діаграму, побудовану на [2-й лекції](https://www.datacamp.com/tutorial/pgvector-tutorial)
+У практичній частині лекції, було перетворено ER діаграму, побудовану на [2-й лекції](../02%20-%20ER%20diagrams/lecture_notes.md)
 
 ![campus_er_diagram.png](../2%20-%20ER%20diagrams/imgs/campus_er_diagram.png)
 
