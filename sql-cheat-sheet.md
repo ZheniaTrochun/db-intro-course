@@ -41,7 +41,7 @@ CREATE TABLE student (
 | Обмеження                    | Опис                                      |
 |------------------------------|-------------------------------------------|
 | `PRIMARY KEY`                | Унікальний ідентифікатор рядка            |
-| `FOREIGN KEY` / `REFERENCES` | Зовнішній ключ — зв'язок з іншою таблицею |
+| `FOREIGN KEY` / `REFERENCES` | Зовнішній ключ - зв'язок з іншою таблицею |
 | `NOT NULL`                   | Значення обов'язкове                      |
 | `UNIQUE`                     | Значення має бути унікальним              |
 | `DEFAULT value`              | Значення за замовчуванням                 |
@@ -167,7 +167,7 @@ WHERE grade BETWEEN 60 AND 90      -- включно
 -- Список значень
 WHERE group_id IN (1, 2, 3)
 
--- Шаблони (LIKE — чутливий до регістру, ILIKE — ні)
+-- Шаблони (LIKE - чутливий до регістру, ILIKE - ні)
 WHERE name LIKE 'А%'               -- починається з А
 WHERE name LIKE '%ко'              -- закінчується на "ко"
 WHERE name LIKE '_ван'             -- 1 довільний символ + "ван"
@@ -197,7 +197,7 @@ ORDER BY grade DESC NULLS LAST     -- NULL в кінці
 ## JOIN
 
 ```sql
--- INNER JOIN — тільки рядки зі збігами в обох таблицях
+-- INNER JOIN - тільки рядки зі збігами в обох таблицях
 SELECT s.name, g.name AS group_name
 FROM student s
 INNER JOIN student_group g ON s.group_id = g.group_id;
@@ -207,20 +207,20 @@ SELECT s.name, g.name AS group_name
 FROM student s
 INNER JOIN student_group g USING (group_id);
 
--- LEFT JOIN — всі рядки з лівої таблиці + збіги з правої
+-- LEFT JOIN - всі рядки з лівої таблиці + збіги з правої
 SELECT s.name, g.name AS group_name
 FROM student s
 LEFT JOIN student_group g ON s.group_id = g.group_id;
 
--- RIGHT JOIN — всі рядки з правої таблиці + збіги з лівої
--- FULL OUTER JOIN — всі рядки з обох таблиць
+-- RIGHT JOIN - всі рядки з правої таблиці + збіги з лівої
+-- FULL OUTER JOIN - всі рядки з обох таблиць
 
--- CROSS JOIN — декартів добуток (кожен з кожним)
+-- CROSS JOIN - декартів добуток (кожен з кожним)
 SELECT s.name, c.name
 FROM student s
 CROSS JOIN course c;
 
--- Anti-join — рядки БЕЗ збігів
+-- Anti-join - рядки БЕЗ збігів
 SELECT s.name
 FROM student s
 LEFT JOIN enrolment e ON s.student_id = e.student_id
@@ -273,7 +273,7 @@ FROM enrolment
 GROUP BY course_id
 HAVING AVG(grade) > 70;             -- фільтрація ПІСЛЯ агрегації
 
--- FILTER — умовна агрегація
+-- FILTER - умовна агрегація
 SELECT
     COUNT(*) AS total,
     COUNT(*) FILTER (WHERE grade >= 60) AS passed,
@@ -347,7 +347,7 @@ FROM (
 ) AS sub
 INNER JOIN student s USING (student_id);
 
--- EXISTS — перевірка існування
+-- EXISTS - перевірка існування
 SELECT * FROM course c
 WHERE EXISTS (
     SELECT 1 FROM enrolment e WHERE e.course_id = c.course_id
@@ -510,10 +510,10 @@ SELECT name,
     END AS result
 FROM enrolment;
 
--- COALESCE — перше NOT NULL значення
+-- COALESCE - перше NOT NULL значення
 SELECT COALESCE(phone, email, 'немає контакту') FROM contact_data;
 
--- NULLIF — повертає NULL якщо значення рівні
+-- NULLIF - повертає NULL якщо значення рівні
 SELECT NULLIF(grade, 0) FROM enrolment;   -- 0 стає NULL
 ```
 
