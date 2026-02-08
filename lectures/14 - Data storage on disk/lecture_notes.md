@@ -1,7 +1,5 @@
 # Лекція 14: Фізична організація даних на диску
 
----
-
 ## Теми лекції
 
 - Кортежі (Tuples) - внутрішня структура рядочків
@@ -472,7 +470,7 @@ WAL забезпечує швидкість та надійність запис
 
 ---
 
-## 9. Додаткові ресурси
+## 9. Додаткові матеріали
 
 - [Deep Dive into PostgreSQL: Pages, Tuples, and Updates](https://medium.com/@ductran999/deep-dive-into-postgresql-pages-tuples-and-updates-cf9122f5f743)
 - [Use The Index, Luke!](https://use-the-index-luke.com/) - дуже хороший ресурс про роботу індексів

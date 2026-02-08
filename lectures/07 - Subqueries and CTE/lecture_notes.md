@@ -1,4 +1,14 @@
-# Лекція: Підзапити та CTE (Common Table Expressions)
+# Лекція 7: Підзапити та CTE (Common Table Expressions)
+
+## Теми лекції
+
+- Підзапити (subqueries) та їх типи
+- Корельовані та некорельовані підзапити
+- Оператор EXISTS
+- Common Table Expressions (CTE)
+- Рекурсивні CTE
+
+---
 
 ## 1. Вступ
 Підзапит (subquery) — це запит, який вкладено всередину іншого SQL-запиту. Він може бути частиною операторів `SELECT`, `FROM`, `WHERE`, `HAVING`.  
