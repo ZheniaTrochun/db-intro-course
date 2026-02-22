@@ -335,7 +335,7 @@ create table if not exists enrolement
     student_id int not null references student(student_id),
     course_id int not null references course(course_id),
     grade int check (grade >= 0 and grade <= 100),
-    enrolemnt_date date not null default(now()),
+    enrolemnt_date date not null default now(),
     start_year smallint not null,
     status enrolment_status not null,
     primary key (student_id, course_id)
