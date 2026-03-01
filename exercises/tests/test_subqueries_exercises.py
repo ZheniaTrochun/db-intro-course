@@ -11,3 +11,11 @@ def test_students_with_many_enrolments(snapshot, db_connection):
 
 def test_top_3_students(snapshot, db_connection):
     sql_test_runner.run_single_exercise("subqueries", "top_3_students", snapshot, db_connection)
+
+
+def test_strictest_teachers(snapshot, db_connection):
+    sql_test_runner.run_single_exercise("subqueries", "strictest_teachers", snapshot, db_connection)
+
+
+def test_busiest_teachers(snapshot, db_connection):
+    sql_test_runner.run_single_exercise("subqueries", "top_3_students", snapshot, db_connection)
