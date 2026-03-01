@@ -65,6 +65,10 @@ jobs:
 
           overall_status="success"
 
+          total_passed=0
+          total_failed=0
+          total_skipped=0
+          
           for snapshot in base 10k 100k; do
             report="results/test-results-${snapshot}/report_base.json"
             if [ -f "$report" ]; then
@@ -72,11 +76,16 @@ jobs:
               failed=$(jq '.summary.failed // 0' "$report")
               skipped=$(jq '.summary.skipped // 0' "$report")
 
+              total_passed=$((total_passed + passed))
+              total_failed=$((total_failed + failed))
+              total_skipped=$((total_skipped + skipped))
+
               if [ "$failed" -gt 0 ]; then
                 status="❌"
-                overall_status="failure"
-              else
+              elif [ "$passed" -gt 0 ]; then
                 status="✅"
+              else
+                status="⚠️"
               fi
 
               comment+="| ${snapshot} | ${passed} | ${failed} | ${skipped} | ${status} |\n"
@@ -86,6 +95,7 @@ jobs:
             fi
           done
 
+          comment+="\n---\n"
           comment+="\n### Деталі\n\n"
 
           for snapshot in base 10k 100k; do
@@ -97,11 +107,12 @@ jobs:
                 case "$outcome" in
                   passed)  icon="✅" ;;
                   failed)  icon="❌" ;;
-                  skipped) icon="⏭️" ;;
+                  skipped) icon="⚠️" ;;
                   *)       icon="❓" ;;
                 esac
                 
-                echo "#### ${name}"
+                display_name="${name#test_}.sql"
+                echo "#### ${display_name}"
                 echo "${icon} ${outcome} in ${duration_fmt}s"
                 
                 if [ "$outcome" = "failed" ] && [ -n "$stdout" ]; then
@@ -119,8 +130,12 @@ jobs:
             fi
           done
 
-          if [ "$overall_status" = "success" ]; then
-            comment+="## Усі тести успішні"
+          if [ "$total_failed" -gt 0 ]; then
+            comment+="⚠️ **Деякі тести неуспішні.**"
+          elif [ "$total_passed" -gt 0 ] && [ "$total_skipped" -eq 0 ]; then
+            comment+="🎉 **Усі тести успішні!**"
+          elif [ "$total_passed" -gt 0 ]; then
+            comment+="✅ **Виконані вправи правильні.** Деякі вправи пропущено (не реалізовані)."
           fi
 
           {
