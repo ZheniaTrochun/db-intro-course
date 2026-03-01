@@ -4,3 +4,4 @@ pytest
 pytest-html
 pytest-json-report
 testcontainers[postgres]
+PyYAML

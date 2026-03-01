@@ -2,4 +2,4 @@ postgres:
   dbname: postgres
   user: postgres
   password: password123
-  version: 18
+  version: 17
