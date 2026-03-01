@@ -15,7 +15,7 @@ def snapshot(request):
 
 @pytest.fixture(scope="session")
 def postgres_container(snapshot):
-    path_to_dumps = Path(__file__).parent / "data"
+    path_to_dumps = Path(__file__).parent.parent.parent / "dumps"
 
     config = read_config()['postgres']
 
