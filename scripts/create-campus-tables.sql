@@ -136,9 +136,9 @@ create table if not exists course_teacher
 
 create table if not exists course_prerequisite
 (
-    course_id            int not null references course (course_id),
-    prequisite_course_id int not null references course (course_id),
-    primary key (course_id, prequisite_course_id)
+    course_id               int not null references course (course_id),
+    prerequisite_course_id  int not null references course (course_id),
+    primary key (course_id, prerequisite_course_id)
 );
 
 DO $$
@@ -148,12 +148,12 @@ BEGIN
     END IF;
 END$$;
 
-create table if not exists enrolement
+create table if not exists enrolment
 (
     student_id int not null references student(student_id),
     course_id int not null references course(course_id),
     grade int check (grade >= 0 and grade <= 100),
-    enrolemnt_date date not null default now(),
+    enrolment_date date not null default now(),
     start_year smallint not null,
     status enrolment_status not null,
     primary key (student_id, course_id)
