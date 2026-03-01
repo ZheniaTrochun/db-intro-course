@@ -8,7 +8,7 @@ def run_single_exercise(exercise_group: str, exercise: str, snapshot_name, db_co
     try:
         query_result = query_executor.execute(exercise_group, exercise, db_connection)
     except Exception as e:
-        print(f"\n\nError executing query: {e}")
+        print(f"\nError executing query: {e}")
         raise e
 
     base_dir = Path(__file__).parent.parent / "test_results" / exercise_group
@@ -23,5 +23,5 @@ def run_single_exercise(exercise_group: str, exercise: str, snapshot_name, db_co
             snapshot_name
         )
     except Exception as e:
-        print(f"\n\nError validating query output: {e}")
+        print(f"\nError validating query output: {e}")
         raise e
