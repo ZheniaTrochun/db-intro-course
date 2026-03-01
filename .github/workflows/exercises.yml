@@ -1,0 +1,136 @@
+name: Exercise Tests
+
+on:
+  pull_request:
+    paths:
+      - 'exercises/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        snapshot: [base, 10k, 100k]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        working-directory: exercises/tests
+        run: pip install -r requirements.txt
+
+      - name: Run tests (${{ matrix.snapshot }})
+        working-directory: exercises/tests
+        run: |
+          pytest \
+            --snapshot ${{ matrix.snapshot }} \
+            --json-report \
+            --json-report-file=test_results/report_base.json \
+            --no-header \
+            -v
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.snapshot }}
+          path: exercises/tests/test_results/
+
+  comment:
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          path: results
+          pattern: test-results-*
+
+      - name: Build comment body
+        id: build-comment
+        run: |
+          comment="## Результати тестів\n\n"
+          comment+="| Набір даних | Успіх | Фейл | Скіп | Статус |\n"
+          comment+="|-------------|-------|------|------|--------|\n"
+
+          overall_status="success"
+
+          for snapshot in base 10k 100k; do
+            report="results/test-results-${snapshot}/report_base.json"
+            if [ -f "$report" ]; then
+              passed=$(jq '.summary.passed // 0' "$report")
+              failed=$(jq '.summary.failed // 0' "$report")
+              skipped=$(jq '.summary.skipped // 0' "$report")
+
+              if [ "$failed" -gt 0 ]; then
+                status="❌"
+                overall_status="failure"
+              else
+                status="✅"
+              fi
+
+              comment+="| ${snapshot} | ${passed} | ${failed} | ${skipped} | ${status} |\n"
+            else
+              comment+="| ${snapshot} | - | - | - | ⚠️ Немає результатів |\n"
+              overall_status="failure"
+            fi
+          done
+
+          comment+="\n### Деталі\n\n"
+
+          for snapshot in base 10k 100k; do
+            report="results/test-results-${snapshot}/report_base.json"
+            if [ -f "$report" ]; then
+
+              jq -r '.tests[] | "\(.nodeid | split("::") | last)\t\(.outcome)\t\(.call.duration // 0)\t\(.call.stdout // "")"' "$report" | while IFS=$'\t' read -r name outcome duration stdout; do
+                duration_fmt=$(printf "%.2f" "$duration")
+                case "$outcome" in
+                  passed)  icon="✅" ;;
+                  failed)  icon="❌" ;;
+                  skipped) icon="⏭️" ;;
+                  *)       icon="❓" ;;
+                esac
+                
+                echo "#### ${name}"
+                echo "${icon} ${outcome} in ${duration_fmt}s"
+                
+                if [ "$outcome" = "failed" ] && [ -n "$stdout" ]; then
+                  echo ""
+                  echo "Stdout:"
+                  echo ""
+                  echo '```'
+                  echo "$stdout"
+                  echo '```'
+                  echo ""
+                fi
+              done >> /tmp/details_table_${snapshot}.txt
+
+              comment+="$(cat /tmp/details_table_${snapshot}.txt)\n"
+            fi
+          done
+
+          if [ "$overall_status" = "success" ]; then
+            comment+="## Усі тести успішні"
+          fi
+
+          {
+            echo "body<<EOF"
+            echo -e "$comment"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Post comment to PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: exercise-test-results
+          message: ${{ steps.build-comment.outputs.body }}
