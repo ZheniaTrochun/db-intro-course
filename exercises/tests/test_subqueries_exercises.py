@@ -9,13 +9,13 @@ def test_students_with_many_enrolments(snapshot, db_connection):
     sql_test_runner.run_single_exercise("subqueries", "students_with_many_enrolments", snapshot, db_connection)
 
 
-def test_top_3_students(snapshot, db_connection):
-    sql_test_runner.run_single_exercise("subqueries", "top_3_students", snapshot, db_connection)
+def test_top_5_students(snapshot, db_connection):
+    sql_test_runner.run_single_exercise("subqueries", "top_5_students", snapshot, db_connection)
 
 
-def test_strictest_teachers(snapshot, db_connection):
-    sql_test_runner.run_single_exercise("subqueries", "strictest_teachers", snapshot, db_connection)
+def test_above_average_students_per_group(snapshot, db_connection):
+    sql_test_runner.run_single_exercise("subqueries", "above_average_students_per_group", snapshot, db_connection)
 
 
 def test_busiest_teachers(snapshot, db_connection):
-    sql_test_runner.run_single_exercise("subqueries", "top_3_students", snapshot, db_connection)
+    sql_test_runner.run_single_exercise("subqueries", "busiest_teachers", snapshot, db_connection)

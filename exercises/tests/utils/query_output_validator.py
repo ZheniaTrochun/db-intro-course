@@ -3,19 +3,17 @@ import pytest
 import polars as pl
 
 
-def cast_everything_to_string(dataframe: pl.DataFrame) -> pl.DataFrame:
-    cols = dataframe.columns
-
-    return dataframe.select([pl.col(c).cast(pl.Utf8) for c in cols])
-
-
 def print_diff(expected_result: pl.DataFrame, actual_result: pl.DataFrame) -> None:
     print("DataFrames do not match.\n\n")
-    print(f"======== Expected result ========")
+    print(f"======== Expected result (first 5 rows) ========")
     print(expected_result.head(5))
     print()
-    print(f"======== Actual result ========")
+    print(f"======== Actual result (first 5 rows) ========")
     print(actual_result.head(5))
+    print()
+    print(f"======== Invalid rows (first 5 rows) ========")
+    cols = expected_result.columns
+    print(actual_result.with_row_index().filter(lambda row: not row[cols].equals(expected_result.row(row.index))).head(5))
     print()
 
 
@@ -25,7 +23,7 @@ def validate_query_output(
         actual_result: pl.DataFrame,
         snapshot_name: str = "base",
         check_order: bool = True
-) -> tuple[bool, str]:
+):
     snapshot_path = Path(__file__).parent.parent / "golden_snapshots" / exercise_group / f"{exercise}_{snapshot_name}.csv"
 
     assert snapshot_path.exists(), \
@@ -38,9 +36,6 @@ def validate_query_output(
 
     assert list(expected_columns).sort() == list(actual_columns).sort(), \
         f"Columns mismatch. Expected: {expected_columns}. Actual: {actual_columns}"
-
-    expected_result = cast_everything_to_string(expected_result)
-    actual_result = cast_everything_to_string(actual_result)
 
     assert actual_result.height > 0, "SQL query returned 0 rows."
 
