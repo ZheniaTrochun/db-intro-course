@@ -15,9 +15,13 @@ def run_single_exercise(exercise_group: str, exercise: str, snapshot_name, db_co
     os.makedirs(base_dir, exist_ok=True)
     query_result.write_csv(base_dir / f"{exercise}_{snapshot_name}.csv")
 
-    query_output_validator.validate_query_output(
-        exercise_group,
-        exercise,
-        query_result,
-        snapshot_name
-    )
+    try:
+        query_output_validator.validate_query_output(
+            exercise_group,
+            exercise,
+            query_result,
+            snapshot_name
+        )
+    except Exception as e:
+        print(f"\n\nError validating query output: {e}")
+        raise e

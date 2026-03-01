@@ -99,17 +99,23 @@ jobs:
           for snapshot in base 10k 100k; do
             report="results/test-results-${snapshot}/report_base.json"
             if [ -f "$report" ]; then
-              jq -r '.tests[] | select(.outcome == "failed") | "\(.nodeid | split("::") | last)\t\(.call.stdout // "")"' "$report" | while IFS=$'\t' read -r name stdout; do
-                display_name="${name#test_}.sql"
-                echo "#### ❌ ${display_name} (${snapshot})"
-                if [ -n "$stdout" ]; then
-                  echo ""
-                  echo '```'
-                  echo "$stdout"
-                  echo '```'
-                  echo ""
-                fi
-              done >> /tmp/failures_${snapshot}.txt
+              failed_count=$(jq '[.tests[] | select(.outcome == "failed")] | length' "$report")
+              for i in $(seq 0 $((failed_count - 1))); do
+                name=$(jq -r "[.tests[] | select(.outcome == \"failed\")][$i].nodeid | split(\"::\") | last" "$report")
+                stdout=$(jq -r "[.tests[] | select(.outcome == \"failed\")][$i].call.stdout // \"\"" "$report")
+
+                {
+                  display_name="${name#test_}.sql"
+                  echo "#### ❌ ${display_name} (${snapshot})"
+                  if [ -n "$stdout" ]; then
+                    echo ""
+                    echo '```'
+                    echo "$stdout"
+                    echo '```'
+                    echo ""
+                  fi
+                } >> /tmp/failures_${snapshot}.txt
+              done
 
               if [ -f /tmp/failures_${snapshot}.txt ] && [ -s /tmp/failures_${snapshot}.txt ]; then
                 failures+="$(cat /tmp/failures_${snapshot}.txt)\n"
