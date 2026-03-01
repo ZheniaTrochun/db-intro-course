@@ -1,3 +1,4 @@
+from functools import reduce
 from pathlib import Path
 import pytest
 import polars as pl
@@ -5,15 +6,34 @@ import polars as pl
 
 def print_diff(expected_result: pl.DataFrame, actual_result: pl.DataFrame) -> None:
     print("DataFrames do not match.\n\n")
-    print(f"======== Expected result (first 5 rows) ========")
-    print(expected_result.head(5))
-    print()
-    print(f"======== Actual result (first 5 rows) ========")
-    print(actual_result.head(5))
-    print()
-    print(f"======== Invalid rows (first 5 rows) ========")
+    # print(f"======== Expected result (first 5 rows) ========")
+    # print(expected_result.head(5))
+    # print()
+    # print(f"======== Actual result (first 5 rows) ========")
+    # print(actual_result.head(5))
+    print(f"======== Unmatched rows (first 5 rows) ========")
     cols = expected_result.columns
-    print(actual_result.with_row_index().filter(lambda row: not row[cols].equals(expected_result.row(row.index))).head(5))
+
+    compare_conditions = [pl.col(c) != pl.col(f"{c}_right") for c in cols]
+    compiled_filter = reduce(lambda a, b: a | b, compare_conditions)
+
+    not_matched_df = (actual_result.with_row_index()
+                      .join(expected_result.with_row_index(), on="index", how="inner")
+                      .filter(compiled_filter)
+                      .sort(by="index")
+                      .head(5))
+
+    actual_cols_to_select = [pl.col(c) for c in cols]
+    expected_cols_to_select = [pl.col(f"{c}_right").alias(c) for c in cols]
+
+    actual = not_matched_df.select([pl.col("index").alias("row_number")] + actual_cols_to_select)
+    expected = not_matched_df.select([pl.col("index").alias("row_number")] + expected_cols_to_select)
+
+    print("Expected:")
+    print(actual)
+    print()
+    print("To be equal to:")
+    print(expected)
     print()
 
 

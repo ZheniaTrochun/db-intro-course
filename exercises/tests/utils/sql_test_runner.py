@@ -5,7 +5,11 @@ import utils.query_executor as query_executor
 import os
 
 def run_single_exercise(exercise_group: str, exercise: str, snapshot_name, db_connection):
-    query_result = query_executor.execute(exercise_group, exercise, db_connection)
+    try:
+        query_result = query_executor.execute(exercise_group, exercise, db_connection)
+    except Exception as e:
+        print(f"\n\nError executing query: {e}")
+        raise e
 
     base_dir = Path(__file__).parent.parent / "test_results" / exercise_group
     os.makedirs(base_dir, exist_ok=True)
