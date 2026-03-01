@@ -95,14 +95,42 @@ jobs:
             fi
           done
 
+          failures=""
+          for snapshot in base 10k 100k; do
+            report="results/test-results-${snapshot}/report_base.json"
+            if [ -f "$report" ]; then
+              jq -r '.tests[] | select(.outcome == "failed") | "\(.nodeid | split("::") | last)\t\(.call.stdout // "")"' "$report" | while IFS=$'\t' read -r name stdout; do
+                display_name="${name#test_}.sql"
+                echo "#### ❌ ${display_name} (${snapshot})"
+                if [ -n "$stdout" ]; then
+                  echo ""
+                  echo '```'
+                  echo "$stdout"
+                  echo '```'
+                  echo ""
+                fi
+              done >> /tmp/failures_${snapshot}.txt
+
+              if [ -f /tmp/failures_${snapshot}.txt ] && [ -s /tmp/failures_${snapshot}.txt ]; then
+                failures+="$(cat /tmp/failures_${snapshot}.txt)\n"
+              fi
+            fi
+          done
+
+          if [ -n "$failures" ]; then
+            comment+="\n---\n"
+            comment+="\n### Помилки\n\n"
+            comment+="${failures}"
+          fi
+
           comment+="\n---\n"
-          comment+="\n### Деталі\n\n"
+          comment+="\n<details>\n<summary><b>Деталі</b></summary>\n\n"
 
           for snapshot in base 10k 100k; do
             report="results/test-results-${snapshot}/report_base.json"
             if [ -f "$report" ]; then
 
-              jq -r '.tests[] | "\(.nodeid | split("::") | last)\t\(.outcome)\t\(.call.duration // 0)\t\(.call.stdout // "")"' "$report" | while IFS=$'\t' read -r name outcome duration stdout; do
+              jq -r '.tests[] | "\(.nodeid | split("::") | last)\t\(.outcome)\t\(.call.duration // 0)"' "$report" | while IFS=$'\t' read -r name outcome duration; do
                 duration_fmt=$(printf "%.2f" "$duration")
                 case "$outcome" in
                   passed)  icon="✅" ;;
@@ -110,25 +138,18 @@ jobs:
                   skipped) icon="⚠️" ;;
                   *)       icon="❓" ;;
                 esac
-                
+
                 display_name="${name#test_}.sql"
                 echo "#### ${display_name}"
                 echo "${icon} ${outcome} in ${duration_fmt}s"
-                
-                if [ "$outcome" = "failed" ] && [ -n "$stdout" ]; then
-                  echo ""
-                  echo "Stdout:"
-                  echo ""
-                  echo '```'
-                  echo "$stdout"
-                  echo '```'
-                  echo ""
-                fi
               done >> /tmp/details_table_${snapshot}.txt
 
               comment+="$(cat /tmp/details_table_${snapshot}.txt)\n"
             fi
           done
+
+          comment+="\n</details>\n"
+          comment+="\n---\n"
 
           if [ "$total_failed" -gt 0 ]; then
             comment+="⚠️ **Деякі тести неуспішні.**"
