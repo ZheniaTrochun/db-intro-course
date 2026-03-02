@@ -35,7 +35,8 @@ create table if not exists student_group
 (
     group_id   serial primary key,
     name       char(7) not null check (name LIKE '__-%'),
-    start_year smallint
+    start_year smallint,
+    curator_id int references professor (professor_id)
 );
 
 DO $$
