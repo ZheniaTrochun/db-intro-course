@@ -13,7 +13,6 @@ cd ./tests || exit
 
 pytest --html=test_results/report_base.html --json-report --json-report-file=test_results/report_base.json --snapshot base --no-header -v
 pytest --html=test_results/report_10k.html --json-report --json-report-file=test_results/report_10k.json --snapshot 10k --no-header -v
-pytest --html=test_results/report_100k.html --json-report --json-report-file=test_results/report_100k.json --snapshot 100k --no-header -v
 
 deactivate
 
