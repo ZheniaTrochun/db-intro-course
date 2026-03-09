@@ -8,3 +8,14 @@
 --          - мінімальним роком (зростання), потім за назвою курсу
 
 -- Рішення:
+SELECT
+    c.id AS course_id,
+    c.name,
+    MIN(co.year) AS min_year
+FROM courses c
+JOIN course_offerings co
+    ON c.id = co.course_id
+GROUP BY c.id, c.name
+ORDER BY
+    min_year ASC,
+    c.name ASC;
