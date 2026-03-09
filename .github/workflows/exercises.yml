@@ -5,6 +5,10 @@ on:
     paths:
       - 'exercises/**'
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
