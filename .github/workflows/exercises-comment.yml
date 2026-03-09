@@ -1,60 +1,17 @@
-name: Exercise Tests
+name: Exercise Test Results
 
 on:
-  pull_request:
-    paths:
-      - 'exercises/**'
+  workflow_run:
+    workflows: ["Exercise Tests"]
+    types: [completed]
 
 permissions:
-  contents: read
-  issues: write
   pull-requests: write
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        snapshot: [base, 10k, 100k]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true
-
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-
-      - name: Install dependencies
-        working-directory: exercises/tests
-        run: pip install -r requirements.txt
-
-      - name: Run tests (${{ matrix.snapshot }})
-        working-directory: exercises/tests
-        run: |
-          pytest \
-            --snapshot ${{ matrix.snapshot }} \
-            --json-report \
-            --json-report-file=test_results/report_base.json \
-            --no-header \
-            -v
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-${{ matrix.snapshot }}
-          path: exercises/tests/test_results/
-
   comment:
     runs-on: ubuntu-latest
-    needs: test
-    if: always()
-    permissions:
-      pull-requests: write
+    if: github.event.workflow_run.pull_requests[0] != null
 
     steps:
       - name: Download all test results
@@ -62,6 +19,8 @@ jobs:
         with:
           path: results
           pattern: test-results-*
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Build comment body
         id: build-comment
@@ -75,9 +34,9 @@ jobs:
           total_passed=0
           total_failed=0
           total_skipped=0
-          
+
           for snapshot in base 10k 100k; do
-            report="results/test-results-${snapshot}/report_base.json"
+            report="results/test-results-${snapshot}/report_${snapshot}.json"
             if [ -f "$report" ]; then
               passed=$(jq '.summary.passed // 0' "$report")
               failed=$(jq '.summary.failed // 0' "$report")
@@ -104,7 +63,7 @@ jobs:
 
           failures=""
           for snapshot in base 10k 100k; do
-            report="results/test-results-${snapshot}/report_base.json"
+            report="results/test-results-${snapshot}/report_${snapshot}.json"
             if [ -f "$report" ]; then
               failed_count=$(jq '[.tests[] | select(.outcome == "failed")] | length' "$report")
               for i in $(seq 0 $((failed_count - 1))); do
@@ -140,7 +99,7 @@ jobs:
           comment+="\n<details>\n<summary><b>Деталі</b></summary>\n\n"
 
           for snapshot in base 10k 100k; do
-            report="results/test-results-${snapshot}/report_base.json"
+            report="results/test-results-${snapshot}/report_${snapshot}.json"
             if [ -f "$report" ]; then
 
               jq -r '.tests[] | "\(.nodeid | split("::") | last)\t\(.outcome)\t\(.call.duration // 0)"' "$report" | while IFS=$'\t' read -r name outcome duration; do
@@ -182,4 +141,5 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: exercise-test-results
+          number: ${{ github.event.workflow_run.pull_requests[0].number }}
           message: ${{ steps.build-comment.outputs.body }}
