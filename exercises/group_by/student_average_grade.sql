@@ -21,4 +21,4 @@ JOIN person p ON s.person_id = p.person_id
 JOIN student_group sg ON s.group_id = sg.group_id
 LEFT JOIN enrolment e ON s.student_id = e.student_id
 GROUP BY s.student_id, full_name, group_name, s.group_id
-ORDER BY group_name, full_name;
+ORDER BY group_name, full_name, s.student_id;
