@@ -28,6 +28,5 @@ JOIN professor prof ON ct.professor_id = prof.professor_id
 JOIN person pt ON prof.person_id = pt.person_id
 WHERE e.grade < 60 
   AND e.grade IS NOT NULL
-  AND ct.professor_role = 'лектор'
+  AND ct.professor_role = (enum_range(NULL::course_teacher_role))[1]
 ORDER BY e.grade ASC, group_name, student_name, course_name;
-

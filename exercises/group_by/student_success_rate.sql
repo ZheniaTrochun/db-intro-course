@@ -8,10 +8,9 @@
 
 -- Рішення:
 SELECT 
-    s.course AS student_year,
+    e.start_year AS student_year,
     ROUND(AVG(e.grade), 2) AS avg_year_grade
-FROM student s
-JOIN enrolment e ON s.student_id = e.student_id
+FROM enrolment e
 WHERE e.grade IS NOT NULL
-GROUP BY s.course
+GROUP BY student_year
 ORDER BY student_year;

@@ -13,6 +13,6 @@ SELECT
 FROM professor prof
 JOIN person p ON prof.person_id = p.person_id
 LEFT JOIN student_group sg ON prof.professor_id = sg.curator_id
-WHERE prof.status = 'викладає' 
+WHERE prof.status = (enum_range(NULL::professor_status))[1]
   AND sg.group_id IS NULL
 ORDER BY professor_name;
