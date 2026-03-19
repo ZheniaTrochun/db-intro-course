@@ -13,12 +13,20 @@
 SELECT 
     s.student_id,
     p.first_name || ' ' || p.last_name AS full_name,
-    ROUND(AVG(e.grade), 2)::NUMERIC(38,2) AS avg_student_grade,
+    CAST(ROUND(AVG(e.grade), 2) AS NUMERIC(38,2)) AS avg_student_grade,
     sg.name AS group_name,
-    ROUND(AVG(AVG(e.grade)) OVER (PARTITION BY s.group_id), 2)::NUMERIC(38,2) AS avg_group_grade
+    CAST(ROUND(AVG(AVG(e.grade)) OVER (PARTITION BY s.group_id), 2) AS NUMERIC(38,2)) AS avg_group_grade
 FROM student s
 JOIN person p ON s.person_id = p.person_id
 JOIN student_group sg ON s.group_id = sg.group_id
 LEFT JOIN enrolment e ON s.student_id = e.student_id
-GROUP BY s.student_id, p.first_name, p.last_name, sg.name, s.group_id
-ORDER BY group_name, full_name, s.student_id;
+GROUP BY 
+    s.student_id, 
+    p.first_name, 
+    p.last_name, 
+    sg.name, 
+    s.group_id
+ORDER BY 
+    group_name, 
+    full_name, 
+    s.student_id;
