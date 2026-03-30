@@ -14,6 +14,7 @@
 -- Рішення:
 -- Рішення:
 -- Рішення:
+-- Рішення:
 select 
     ps.first_name || ' ' || ps.last_name as student_name,
     g.name as group_name,
@@ -31,9 +32,8 @@ join person pt on t.person_id = pt.person_id
 where e.grade < 60 
   and e.grade is not null
   and ct.professor_role = 'лектор'
-  and t.status = 'викладає'
 order by 
     e.grade asc, 
     g.name asc, 
     student_name asc, 
-    c.name asc;
+    c.name asc
