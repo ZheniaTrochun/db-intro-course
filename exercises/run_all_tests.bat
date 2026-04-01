@@ -33,7 +33,7 @@ if "%PYTHON_EXE%"=="" (
     exit /b
 )
 
-set VENV_DIR=tests\venv
+set VENV_DIR=exercises\tests\venv
 
 IF NOT EXIST "%VENV_DIR%\" (
     echo Creating virtual environment in "%VENV_DIR%"...
@@ -43,34 +43,41 @@ IF NOT EXIST "%VENV_DIR%\" (
 echo Activating environment...
 call "%VENV_DIR%\Scripts\activate.bat"
 
-IF NOT EXIST "%VENV_DIR%\.installed" (
-    echo Installing dependencies from tests\requirements.txt...
+    rem Check whether a representative package is installed in the venv; skip install if present
+echo Checking venv packages...
+python -m pip show polars > nul 2> nul
+if !ERRORLEVEL! equ 0 (
+    echo Dependencies already installed in venv.
+) else (
+    echo Installing dependencies from exercises\tests\requirements.txt...
     python -m pip install --upgrade pip > nul
-    pip install -r tests\requirements.txt
+    pip install -r exercises\tests\requirements.txt
     if !ERRORLEVEL! equ 0 (
-        echo. > "%VENV_DIR%\.installed"
+        echo Dependencies installed successfully.
     ) else (
         echo [ERROR] Failed to install dependencies.
         pause
         exit /b 1
     )
-) ELSE (
-    echo Dependencies are already installed.
 )
 
 IF NOT EXIST "config.yaml" (
-    IF EXIST "tests\config.yaml" (
+    IF EXIST "exercises\tests\config.yaml" (
         echo Copying config.yaml to working directory...
-        copy "tests\config.yaml" "config.yaml" > nul
+        copy "exercises\tests\config.yaml" "config.yaml" > nul
     ) ELSE (
-        echo [WARNING] config.yaml not found in root or tests folder!
+        echo [WARNING] config.yaml not found in exercises/tests folder!
     )
 )
 
 echo.
 echo === Running pytest ===
 set PYTHONUTF8=1
-pytest tests\
+
+cd exercises\tests || exit /b
+
+pytest --html=test_results/report_base.html --json-report --json-report-file=test_results/report_base.json --snapshot base --no-header -v
+pytest --html=test_results/report_10k.html --json-report --json-report-file=test_results/report_10k.json --snapshot 10k --no-header -v
 
 echo // Testing process completed
 pause
