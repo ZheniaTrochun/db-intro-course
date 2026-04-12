@@ -9,13 +9,12 @@
 
 -- Рішення:
 SELECT 
-    c.id AS course_id,
+    c.course_id AS course_id,
     c.name,
     (
-      
         SELECT MIN(e.start_year) 
         FROM enrolment e 
-        WHERE e.course_id = c.id
+        WHERE e.course_id = c.course_id
     ) AS min_year
 FROM course c
 ORDER BY 
