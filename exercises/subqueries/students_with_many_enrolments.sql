@@ -9,3 +9,31 @@
 --          - кількістю курсів студента (спадання), потім за іменем студента
 
 -- Рішення:
+WITH student_enrollments AS (
+    
+    SELECT 
+        s.id AS student_id,
+        p.first_name || ' ' || p.last_name AS full_name,
+        COUNT(e.course_id) AS course_number
+    FROM student s
+    JOIN person p ON s.person_id = p.id
+    JOIN enrolment e ON s.id = e.student_id
+    GROUP BY s.id, p.first_name, p.last_name
+),
+global_avg AS (
+    
+    SELECT ROUND(AVG(course_number), 2) AS avg_number
+    FROM student_enrollments
+)
+
+SELECT 
+    se.student_id,
+    se.full_name,
+    se.course_number,
+    ga.avg_number
+FROM student_enrollments se
+CROSS JOIN global_avg ga
+WHERE se.course_number > ga.avg_number
+ORDER BY 
+    se.course_number DESC, 
+    se.full_name ASC;
