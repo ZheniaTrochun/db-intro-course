@@ -14,7 +14,7 @@ SELECT
     ROUND(AVG(e.grade), 2) AS avg_grade
 FROM student_group sg
 JOIN student s ON sg.group_id = s.group_id
-JOIN enrolment e ON s.student_id = e.student_id
+LEFT JOIN enrolment e ON s.student_id = e.student_id
 GROUP BY sg.group_id, sg.name
 HAVING AVG(e.grade) > 75
 ORDER BY 
