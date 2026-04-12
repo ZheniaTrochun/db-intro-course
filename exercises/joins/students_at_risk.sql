@@ -19,13 +19,13 @@ SELECT
     e.grade,
     pp.first_name || ' ' || pp.last_name AS lecturer_name
 FROM enrolment e
-JOIN student s ON e.student_id = s.id
-JOIN person sp ON s.person_id = sp.id
-JOIN student_group sg ON s.group_id = sg.id
-JOIN course c ON e.course_id = c.id
-JOIN course_teacher ct ON c.id = ct.course_id
-JOIN professor pr ON ct.professor_id = pr.id
-JOIN person pp ON pr.person_id = pp.id
+JOIN student s ON e.student_id = s.student_id
+JOIN person sp ON s.person_id = sp.person_id
+JOIN student_group sg ON s.group_id = sg.group_id
+JOIN course c ON e.course_id = c.course_id
+JOIN course_teacher ct ON c.course_id = ct.course_id
+JOIN professor pr ON ct.professor_id = pr.professor_id
+JOIN person pp ON pr.person_id = pp.person_id
 WHERE e.grade IS NOT NULL 
   AND e.grade < 60
   AND ct.professor_role = 'лектор'
