@@ -12,10 +12,9 @@ SELECT
     c.course_id AS course_id,
     c.name,
     (
-        SELECT MIN(s.course) 
+        SELECT MIN(e.start_year) - (SELECT MIN(start_year) FROM enrolment) + 1
         FROM enrolment e 
-        JOIN student s ON e.student_id = s.student_id
-        WHERE e.course_id = c.course_id AND e.grade IS NOT NULL
+        WHERE e.course_id = c.course_id
     ) AS min_year
 FROM course c
 ORDER BY 
