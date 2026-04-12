@@ -10,7 +10,7 @@
 -- Рішення:
 SELECT 
     sg.name AS group_name,
-    COUNT(e.student_id) AS student_count,
+    COUNT(DISTINCT s.student_id) AS student_count,
     ROUND(AVG(e.grade), 2) AS avg_grade
 FROM student_group sg
 JOIN student s ON sg.group_id = s.group_id
