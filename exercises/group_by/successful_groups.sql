@@ -10,11 +10,11 @@
 -- Рішення:
 SELECT 
     sg.name AS group_name,
-    COUNT(DISTINCT s.student_id) AS student_count,
+    (SELECT COUNT(*) FROM student s2 WHERE s2.group_id = sg.group_id) AS student_count,
     ROUND(AVG(e.grade), 2) AS avg_grade
 FROM student_group sg
 JOIN student s ON sg.group_id = s.group_id
-LEFT JOIN enrolment e ON s.student_id = e.student_id
+JOIN enrolment e ON s.student_id = e.student_id
 GROUP BY sg.group_id, sg.name
 HAVING AVG(e.grade) > 75
 ORDER BY 
