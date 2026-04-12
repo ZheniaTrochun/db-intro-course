@@ -20,8 +20,7 @@ WITH student_avgs AS (
     FROM student s
     JOIN person p ON s.person_id = p.person_id
     JOIN student_group sg ON s.group_id = sg.group_id
-    JOIN enrolment e ON s.student_id = e.student_id
-    WHERE e.grade IS NOT NULL
+    LEFT JOIN enrolment e ON s.student_id = e.student_id
     GROUP BY s.student_id, p.first_name, p.last_name, s.group_id, sg.name
 ),
 group_avgs AS (
@@ -39,4 +38,6 @@ SELECT
     ROUND(ga.avg_group_grade, 2) AS avg_group_grade
 FROM student_avgs sa
 JOIN group_avgs ga ON sa.group_id = ga.group_id
-ORDER BY sa.group_name ASC, sa.full_name ASC;
+ORDER BY 
+    sa.group_name ASC, 
+    sa.full_name ASC;
