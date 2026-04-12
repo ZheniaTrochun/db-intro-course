@@ -43,5 +43,4 @@ JOIN group_avgs ga ON sa.group_id = ga.group_id
 WHERE sa.raw_avg_student_grade > ga.raw_avg_group_grade
 ORDER BY 
     sa.group_name ASC, 
-    avg_student_grade DESC, 
-    sa.full_name ASC;
+    avg_student_grade DESC;
