@@ -15,6 +15,7 @@ SELECT
 FROM student_group sg
 JOIN student s ON sg.group_id = s.group_id
 JOIN enrolment e ON s.student_id = e.student_id
+WHERE e.grade IS NOT NULL
 GROUP BY sg.group_id, sg.name
 HAVING AVG(e.grade) > 75
 ORDER BY 
