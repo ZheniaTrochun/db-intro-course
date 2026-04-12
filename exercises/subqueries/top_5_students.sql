@@ -13,14 +13,14 @@
 WITH RankedStudents AS (
     SELECT 
         c.name AS course_name,
-        s.id AS student_id,
+        s.student_id AS student_id,
         p.first_name || ' ' || p.last_name AS student_full_name,
         e.grade,
-        RANK() OVER (PARTITION BY c.id ORDER BY e.grade DESC) AS rank
+        RANK() OVER (PARTITION BY c.course_id ORDER BY e.grade DESC) AS rank
     FROM enrolment e
-    JOIN course c ON e.course_id = c.id
-    JOIN student s ON e.student_id = s.id
-    JOIN person p ON s.person_id = p.id
+    JOIN course c ON e.course_id = c.course_id
+    JOIN student s ON e.student_id = s.student_id
+    JOIN person p ON s.person_id = p.person_id
     WHERE e.grade IS NOT NULL
 )
 SELECT 
