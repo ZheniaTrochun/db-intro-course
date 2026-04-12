@@ -12,7 +12,7 @@ SELECT
     c.course_id AS course_id,
     c.name,
     (
-        SELECT MIN(e.start_year) 
+        SELECT MIN(e.year) 
         FROM enrolment e 
         WHERE e.course_id = c.course_id
     ) AS min_year
