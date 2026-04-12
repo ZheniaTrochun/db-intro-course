@@ -16,7 +16,7 @@ WITH RankedStudents AS (
         s.student_id AS student_id,
         p.first_name || ' ' || p.last_name AS student_full_name,
         e.grade,
-        RANK() OVER (PARTITION BY c.course_id ORDER BY e.grade DESC) AS rank
+        ROW_NUMBER() OVER (PARTITION BY c.course_id ORDER BY e.grade DESC) AS rank
     FROM enrolment e
     JOIN course c ON e.course_id = c.course_id
     JOIN student s ON e.student_id = s.student_id
