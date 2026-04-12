@@ -13,31 +13,31 @@
 -- Рішення:
 WITH student_avgs AS (
     SELECT 
-        s.student_id AS student_id,
+        s.student_id,
         p.first_name || ' ' || p.last_name AS full_name,
         s.group_id,
         sg.name AS group_name,
-        ROUND(AVG(e.grade), 2) AS avg_student_grade
+        AVG(e.grade) AS avg_student_grade
     FROM student s
     JOIN person p ON s.person_id = p.person_id
     JOIN student_group sg ON s.group_id = sg.group_id
     JOIN enrolment e ON s.student_id = e.student_id
+    WHERE e.grade IS NOT NULL
     GROUP BY s.student_id, p.first_name, p.last_name, s.group_id, sg.name
 ),
 group_avgs AS (
     SELECT 
-        s.group_id,
-        ROUND(AVG(e.grade), 2) AS avg_group_grade
-    FROM student s
-    JOIN enrolment e ON s.student_id = e.student_id
-    GROUP BY s.group_id
+        group_id,
+        AVG(avg_student_grade) AS avg_group_grade
+    FROM student_avgs
+    GROUP BY group_id
 )
 SELECT 
     sa.student_id,
     sa.full_name,
     sa.group_name,
-    sa.avg_student_grade,
-    ga.avg_group_grade
+    ROUND(sa.avg_student_grade, 2) AS avg_student_grade,
+    ROUND(ga.avg_group_grade, 2) AS avg_group_grade
 FROM student_avgs sa
 JOIN group_avgs ga ON sa.group_id = ga.group_id
 WHERE sa.avg_student_grade > ga.avg_group_grade
