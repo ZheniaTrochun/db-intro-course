@@ -8,3 +8,13 @@
 --          - середнім балом (спадання), потім за назвою групи
 
 -- Рішення:
+SELECT 
+    g.name AS group_name,
+    COUNT(DISTINCT s.id) AS student_count,
+    ROUND(AVG(e.grade), 2) AS avg_grade
+FROM groups g
+JOIN students s ON g.id = s.group_id
+JOIN enrollments e ON s.id = e.student_id
+GROUP BY g.id, g.name
+HAVING AVG(e.grade) > 75
+ORDER BY avg_grade DESC, group_name ASC;

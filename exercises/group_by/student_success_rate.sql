@@ -7,3 +7,10 @@
 --          - роком навчання (зростання)
 
 -- Рішення:
+SELECT 
+    s.year AS student_year,
+    ROUND(AVG(e.grade), 2) AS avg_year_grade
+FROM students s
+JOIN enrollments e ON s.id = e.student_id
+GROUP BY s.year
+ORDER BY student_year ASC;
