@@ -12,7 +12,7 @@ SELECT
     c.course_id AS course_id,
     c.name,
     (
-        SELECT MIN(e.start_year - sg.entry_year + 1)
+        SELECT MIN(e.start_year - sg.start_year + 1)
         FROM enrolment e
         JOIN student s ON e.student_id = s.student_id
         JOIN student_group sg ON s.group_id = sg.group_id
