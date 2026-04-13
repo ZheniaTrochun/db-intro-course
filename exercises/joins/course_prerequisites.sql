@@ -1,3 +1,4 @@
+
 -- Завдання:
 --      Сформувати список усіх курсів разом з їхніми пре-реквізитами
 --      Очікувані колонки результату:
@@ -8,3 +9,11 @@
 --          - назвою курсу, потім за назвою пре-реквізиту
 
 -- Рішення:
+SELECT 
+    c.name AS course_name,
+    pre.name AS prerequisite_name
+FROM course c
+LEFT JOIN course_prerequisite cp ON c.course_id = cp.course_id
+LEFT JOIN course pre ON cp.prerequisite_course_id = pre.course_id
+ORDER BY course_name, prerequisite_name;
+
