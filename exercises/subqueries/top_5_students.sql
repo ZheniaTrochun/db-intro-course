@@ -10,3 +10,24 @@
 --          - назвою курсу, потім за рангом (зростання), потім за іменем студента
 
 -- Рішення:
+WITH student_ranks AS (
+    SELECT 
+        c.name AS course_name,
+        s.id AS student_id,
+        s.first_name || ' ' || s.last_name AS student_full_name,
+        e.grade,
+        DENSE_RANK() OVER (PARTITION BY c.id ORDER BY e.grade DESC) AS rank
+    FROM enrollments e
+    JOIN students s ON e.student_id = s.id
+    JOIN courses c ON e.course_id = c.id
+    WHERE e.grade IS NOT NULL
+)
+SELECT 
+    course_name,
+    student_id,
+    student_full_name,
+    grade,
+    rank
+FROM student_ranks
+WHERE rank <= 5
+ORDER BY course_name ASC, rank ASC, student_full_name ASC;
