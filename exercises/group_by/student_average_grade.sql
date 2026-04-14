@@ -11,8 +11,11 @@
 
 -- Рішення:
 
+-- IO-45 Bondarchuk Mykhailo
+-- знайти середній бал
+
 WITH student_performance AS (
-    -- Крок 1: Рахуємо середній бал для кожного з 1000 студентів
+
     SELECT
         s.student_id,
         p.first_name || ' ' || p.last_name AS full_name,
@@ -33,10 +36,10 @@ WITH student_performance AS (
 SELECT
     student_id,
     full_name,
-    -- Крок 2: Округляємо та приводимо до потрібного типу
+
     ROUND(student_avg::numeric, 2)::numeric(38,2) AS avg_student_grade,
     group_name,
-    -- Крок 3: Рахуємо середнє по групі на основі середніх балів студентів
+
     ROUND(AVG(student_avg) OVER (PARTITION BY group_id)::numeric, 2)::numeric(38,2) AS avg_group_grade
 FROM
     student_performance
