@@ -14,26 +14,30 @@
 -- Рішення:
 
 -- Рішення:
+
 SELECT
-    s.first_name || ' ' || s.last_name AS student_name,
+    s_per.first_name || ' ' || s_per.last_name AS student_name,
     g.name AS group_name,
     c.name AS course_name,
-    e.grade,
-    t.first_name || ' ' || t.last_name AS lecturer_name
-FROM enrolments e
-JOIN students s
-    ON e.student_id = s.id
-JOIN groups g
-    ON s.group_id = g.id
-JOIN courses c
-    ON e.course_id = c.id
-JOIN teachers t
-    ON c.teacher_id = t.id
-WHERE e.grade < 60
-  AND e.grade IS NOT NULL
-  AND c.teacher_id IS NOT NULL
-ORDER BY
-    e.grade ASC,
-    group_name ASC,
-    student_name ASC,
-    course_name ASC;
+    e.grade AS grade,
+    t_per.first_name || ' ' || t_per.last_name AS lecturer_name
+FROM enrolment e
+JOIN student st
+    ON e.student_id = st.student_id
+JOIN person s_per
+    ON st.person_id = s_per.person_id
+JOIN student_group g
+    ON st.group_id = g.group_id
+JOIN course c
+    ON e.course_id = c.course_id
+JOIN course_teacher ct
+    ON c.course_id = ct.course_id
+JOIN professor t
+    ON ct.professor_id = t.professor_id
+JOIN person t_per
+    ON t.person_id = t_per.person_id
+WHERE e.grade IS NOT NULL
+  AND e.grade < 60
+  AND ct.professor_role = 'лектор'
+ORDER BY e.grade ASC, g.name,
+        student_name, c.name

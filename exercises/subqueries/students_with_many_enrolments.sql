@@ -15,7 +15,7 @@ WITH student_counts AS (
         s.first_name || ' ' || s.last_name AS full_name,
         COUNT(e.course_id) AS course_number
     FROM students s
-    JOIN enrolments e
+    JOIN enrollments e
         ON s.id = e.student_id
     GROUP BY s.id, full_name
 ),

@@ -20,7 +20,7 @@ WITH ranked_students AS (
             PARTITION BY e.course_id
             ORDER BY e.grade DESC
         ) AS rank
-    FROM enrolments e
+    FROM enrollments e
     JOIN students s
         ON e.student_id = s.id
     JOIN courses c

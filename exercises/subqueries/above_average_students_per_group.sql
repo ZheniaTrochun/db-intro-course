@@ -15,7 +15,7 @@ WITH student_avg AS (
     SELECT
         student_id,
         ROUND(AVG(grade), 2) AS avg_student_grade
-    FROM enrolments
+    FROM enrollments
     WHERE grade IS NOT NULL
     GROUP BY student_id
 ),
@@ -23,7 +23,7 @@ group_avg AS (
     SELECT
         s.group_id,
         ROUND(AVG(e.grade), 2) AS avg_group_grade
-    FROM enrolments e
+    FROM enrollments e
     JOIN students s ON e.student_id = s.id
     WHERE e.grade IS NOT NULL
     GROUP BY s.group_id

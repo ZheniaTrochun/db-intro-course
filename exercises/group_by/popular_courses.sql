@@ -13,10 +13,8 @@ SELECT
     COUNT(e.student_id) AS student_count,
     ROUND(AVG(e.grade), 2) AS avg_grade
 FROM courses c
-JOIN enrolments e
+JOIN enrollments e
     ON c.id = e.course_id
 GROUP BY c.id, c.name
-HAVING student_count > 100
-ORDER BY
-    student_count DESC,
-    course_name ASC;
+HAVING COUNT(e.student_id) > 100
+ORDER BY student_count DESC, course_name ASC;
