@@ -28,4 +28,4 @@ WHERE e.grade IS NOT NULL
   AND e.grade < 60
   AND ct.professor_role = 'лектор'
 ORDER BY e.grade ASC, g.name,
-        student_name, c.name
+        student_name, c.name;

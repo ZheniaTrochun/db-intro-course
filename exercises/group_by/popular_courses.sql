@@ -15,4 +15,4 @@ FROM course c
 JOIN enrolment e using(course_id)
 GROUP BY course_id
 
-ORDER BY student_count DESC, course_name
+ORDER BY student_count DESC, course_name;
