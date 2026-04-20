@@ -11,3 +11,38 @@
 --          - назвою групи, потім за середнім балом студента (спадання), потім за іменем студента
 
 -- Рішення:
+WITH StudentRaw AS (
+    SELECT
+        s.student_id,
+        p.first_name || ' ' || p.last_name AS full_name,
+        s.group_id,
+        AVG(e.grade::numeric) AS s_avg
+    FROM student s
+    JOIN person p ON s.person_id = p.person_id
+    JOIN enrolment e ON s.student_id = e.student_id
+    WHERE e.grade IS NOT NULL
+    GROUP BY s.student_id, p.first_name, p.last_name, s.group_id
+),
+GroupRaw AS (
+    SELECT
+        s.group_id,
+        AVG(e.grade::numeric) AS g_avg
+    FROM student s
+    JOIN enrolment e ON s.student_id = e.student_id
+    WHERE e.grade IS NOT NULL
+    GROUP BY s.group_id
+)
+SELECT
+    sa.student_id,
+    sa.full_name,
+    sg.name AS group_name,
+    ROUND(sa.s_avg, 2)::numeric(38,2) AS avg_student_grade,
+    ROUND(ga.g_avg, 2)::numeric(38,2) AS avg_group_grade
+FROM StudentRaw sa
+JOIN GroupRaw ga ON sa.group_id = ga.group_id
+JOIN student_group sg ON sa.group_id = sg.group_id
+WHERE sa.s_avg > ga.g_avg
+ORDER BY
+    group_name ASC,
+    avg_student_grade DESC,
+    full_name ASC;

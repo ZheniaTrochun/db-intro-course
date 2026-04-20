@@ -6,7 +6,7 @@ import warnings
 
 
 def read_query_from_file(path: str) -> str:
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
 
