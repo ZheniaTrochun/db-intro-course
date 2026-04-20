@@ -17,3 +17,4 @@ pytest --html=test_results/report_10k.html --json-report --json-report-file=test
 deactivate
 
 cd ..
+read -p "Тести завершено. Натисни Enter для виходу..."
