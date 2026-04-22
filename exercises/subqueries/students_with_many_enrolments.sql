@@ -9,3 +9,17 @@
 --          - кількістю курсів студента (спадання), потім за іменем студента
 
 -- Рішення:
+
+WITH StudWithManyEnr AS(
+    SELECT s.student_id, per.first_name || ' ' || per.last_name AS full_name,
+           COUNT(e.course_id) AS course_number
+    FROM student s
+    INNER JOIN person per USING(person_id)
+    INNER JOIN enrolment e USING(student_id)
+    GROUP BY s.student_id, full_name
+)
+SELECT student_id, full_name, course_number,
+    ROUND((SELECT AVG(course_number) FROM StudWithManyEnr), 2) AS avg_number
+FROM StudWithManyEnr
+WHERE course_number > (SELECT AVG(course_number) FROM StudWithManyEnr)
+ORDER BY course_number DESC, full_name;

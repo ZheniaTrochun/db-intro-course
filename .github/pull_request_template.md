@@ -10,7 +10,7 @@
 - [ ] `subqueries/above_average_students_per_group.sql`
 - [ ] `subqueries/busiest_teachers.sql`
 - [ ] `subqueries/min_semester_for_course.sql`
-- [ ] `subqueries/students_with_many_enrolments.sql`
+- [ ] `subqueries/students_with_many_enrollments.sql`
 - [ ] `subqueries/top_5_students.sql`
 
 ### Перевірка
