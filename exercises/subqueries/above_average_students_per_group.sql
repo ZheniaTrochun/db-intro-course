@@ -11,39 +11,49 @@
 --          - назвою групи, потім за середнім балом студента (спадання), потім за іменем студента
 
 -- Рішення:
-WITH student_avg AS (
+
+WITH avg_scores AS (
     SELECT
-        student_id,
-        ROUND(AVG(grade), 2) AS avg_student_grade
-    FROM enrollments
-    WHERE grade IS NOT NULL
-    GROUP BY student_id
+        s.student_id,
+        p.first_name || ' ' || p.last_name AS full_name,
+        s.group_id,
+        AVG(e.grade)::numeric AS avg_val
+    FROM student s
+    JOIN person p USING(person_id)
+    JOIN enrolment e USING(student_id)
+    WHERE e.grade IS NOT NULL
+    GROUP BY s.student_id, p.first_name, p.last_name, s.group_id
 ),
 group_avg AS (
     SELECT
         s.group_id,
-        ROUND(AVG(e.grade), 2) AS avg_group_grade
-    FROM enrollments e
-    JOIN students s ON e.student_id = s.id
+        AVG(e.grade)::numeric AS group_avg
+    FROM student s
+    JOIN enrolment e USING(student_id)
     WHERE e.grade IS NOT NULL
     GROUP BY s.group_id
+),
+filtered AS (
+    SELECT
+        avg_sc.student_id,
+        avg_sc.full_name,
+        sg.name AS group_name,
+        avg_sc.avg_val,
+        gp.group_avg
+    FROM avg_scores avg_sc
+    JOIN group_avg gp USING(group_id)
+    JOIN student_group sg USING(group_id)
+    WHERE avg_sc.avg_val > gp.group_avg
 )
-
 SELECT
-    s.id AS student_id,
-    s.first_name || ' ' || s.last_name AS full_name,
-    g.name AS group_name,
-    sa.avg_student_grade,
-    ga.avg_group_grade
-FROM students s
-JOIN groups g
-    ON s.group_id = g.id
-JOIN student_avg sa
-    ON s.id = sa.student_id
-JOIN group_avg ga
-    ON s.group_id = ga.group_id
-WHERE sa.avg_student_grade > ga.avg_group_grade
+    (ROW_NUMBER() OVER (ORDER BY group_name ASC, avg_val DESC, full_name ASC, student_id ASC) - 1)::int AS row_number,
+    student_id,
+    full_name,
+    group_name,
+    ROUND(avg_val, 2)::float8 AS avg_student_grade,
+    ROUND(group_avg, 2)::float8 AS avg_group_grade
+FROM filtered
 ORDER BY
-    group_name ASC,
-    avg_student_grade DESC,
-    full_name ASC;
+    group_name ASC, avg_val DESC, full_name ASC;
+
+-- idk why it's sorting in the wrong way :(

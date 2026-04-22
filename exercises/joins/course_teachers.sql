@@ -12,12 +12,9 @@
 
 SELECT c.name AS course_name, per.first_name || ' ' || per.last_name as teacher_name, ct.professor_role as role
 FROM course c
-INNER JOIN course_teacher ct
-    ON c.course_id = ct.course_id
-INNER JOIN professor pr
-    ON ct.professor_id = pr.professor_id
-INNER JOIN person per
-    ON pr.person_id = per.person_id
+INNER JOIN course_teacher ct ON c.course_id = ct.course_id
+INNER JOIN professor pr ON ct.professor_id = pr.professor_id
+INNER JOIN person per ON pr.person_id = per.person_id
 
 WHERE c.status = 'активний'
-ORDER BY c.name ASC , ct.professor_role ASC;
+ORDER BY c.name, ct.professor_role;
