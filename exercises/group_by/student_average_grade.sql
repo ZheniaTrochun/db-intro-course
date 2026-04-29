@@ -17,4 +17,4 @@ FROM enrolment e
 	JOIN person p on s.person_id = p.person_id
 	JOIN student_group sg on s.group_id = sg.group_id
 	GROUP BY s.student_id, p.first_name, p.last_name, sg.name, sg.group_id
-ORDER BY group_name, full_name;
+ORDER BY group_name, full_name, student_id desc;
