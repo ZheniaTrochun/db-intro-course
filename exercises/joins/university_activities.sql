@@ -11,3 +11,23 @@
 --          - назвою курсу, потім за типом активності, потім за іменем
 
 -- Рішення:
+SELECT p.first_name || ' ' || p.last_name as full_name,
+       c.name as course_name,
+       'запис на курс' as activity_type
+    FROM enrolment as e
+JOIN student s ON e.student_id = s.student_id
+JOIN person p ON s.person_id = p.person_id
+JOIN course c ON e.course_id = c.course_id
+WHERE c.status = 'активний'
+
+UNION ALL
+
+SELECT p_pr.first_name || ' ' || p_pr.last_name as full_name,
+       c.name as course_name,
+       'викладання курсу' as activity_type
+    FROM course_teacher as ct
+JOIN professor pr ON ct.professor_id = pr.professor_id
+JOIN person p_pr ON pr.person_id = p_pr.person_id
+JOIN course c ON ct.course_id = c.course_id
+WHERE c.status = 'активний'
+ORDER BY course_name, activity_type, full_name;

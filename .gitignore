@@ -1,6 +1,0 @@
-.idea/
-*.iml
-data/
-exercises/tests/venv
-exercises/tests/test_results
-exercises/test_results
