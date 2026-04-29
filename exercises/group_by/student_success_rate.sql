@@ -7,3 +7,10 @@
 --          - роком навчання (зростання)
 
 -- Рішення:
+
+SELECT
+    start_year::int AS student_year,
+    ROUND(AVG(grade)::numeric, 2)::numeric(38,2) AS avg_year_grade
+FROM enrolment
+GROUP BY start_year
+ORDER BY student_year ASC;
