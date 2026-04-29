@@ -13,8 +13,8 @@
 SELECT s.student_id as student_id, p.first_name || ' ' || p.last_name as full_name, round(AVG(e.grade), 2) as avg_student_grade, 
 	sg.name as group_name, round((AVG(AVG(e.grade)) over (PARTITION BY s.group_id)), 2) as avg_group_grade
 FROM enrolment e
-	JOIN student s on e.student_id = s.student_id
-	JOIN person p on s.person_id = p.person_id
-	JOIN student_group sg on s.group_id = sg.group_id
+	JOIN student s USING (student_id)
+	JOIN person p USING (person_id)
+	JOIN student_group sg USING (group_id)
 	GROUP BY s.student_id, p.first_name, p.last_name, sg.name, sg.group_id
-ORDER BY group_name, full_name, student_id desc;
+ORDER BY group_name, full_name;
