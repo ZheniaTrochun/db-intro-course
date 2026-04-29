@@ -9,7 +9,7 @@
 --          - назвою курсу, потім за роллю викладача
 
 -- Рішення:
-SELECT c.name as "course_name", p.first_name || ' ' || p.last_name as "professor_name", ct.professor_role as "role"
+SELECT c.name as "course_name", p.first_name || ' ' || p.last_name as "teacher_name", ct.professor_role as "role"
 FROM course c
 	JOIN course_teacher ct
 		on c.course_id = ct.course_id
