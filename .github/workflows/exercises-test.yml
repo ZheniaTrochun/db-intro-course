@@ -8,6 +8,9 @@ on:
 permissions:
   contents: read
 
+env:
+  FIXTURE_RELEASE: exercises-fixture-v1
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -19,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          lfs: true
+          lfs: false
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
@@ -29,6 +32,15 @@ jobs:
       - name: Install dependencies
         working-directory: exercises/tests
         run: pip install -r requirements.txt
+
+      - name: Get dump (${{ matrix.snapshot }})
+        working-directory: dumps
+        run: |
+          if [ "${{ matrix.snapshot }}" == "base" ]; then
+            exit 0
+          else
+            curl -L --fail -o ${{ matrix.snapshot }}.dump https://github.com/ZheniaTrochun/db-intro-course/releases/download/${{ env.FIXTURE_RELEASE }}/${{ matrix.snapshot }}.dump
+          fi
 
       - name: Run tests (${{ matrix.snapshot }})
         working-directory: exercises/tests
@@ -46,3 +58,18 @@ jobs:
         with:
           name: test-results-${{ matrix.snapshot }}
           path: exercises/tests/test_results/
+
+  save-pr-number:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Save PR number
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: echo "$PR_NUMBER" > pr_number.txt
+
+      - name: Upload PR number
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-number
+          path: pr_number.txt
