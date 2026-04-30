@@ -67,6 +67,17 @@ IF NOT EXIST "config.yaml" (
     )
 )
 
+IF NOT EXIST "dumps\" mkdir dumps
+IF NOT EXIST "dumps\10k.dump" (
+    echo Downloading 10k.dump fixture...
+    curl -L --fail -o dumps\10k.dump https://github.com/ZheniaTrochun/db-intro-course/releases/download/exercises-fixture-v1/10k.dump
+    if !ERRORLEVEL! neq 0 (
+        echo [ERROR] Failed to download 10k.dump
+        pause
+        exit /b 1
+    )
+)
+
 echo.
 echo === Running pytest ===
 set PYTHONUTF8=1

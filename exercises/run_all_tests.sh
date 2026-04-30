@@ -9,6 +9,10 @@ else
   pip3 install -r ./tests/requirements.txt
 fi
 
+if [ ! -f ../dumps/10k.dump ]; then
+  curl -L --fail -o ../dumps/10k.dump https://github.com/ZheniaTrochun/db-intro-course/releases/download/exercises-fixture-v1/10k.dump
+fi
+
 cd ./tests || exit
 
 pytest --html=test_results/report_base.html --json-report --json-report-file=test_results/report_base.json --snapshot base --no-header -v
