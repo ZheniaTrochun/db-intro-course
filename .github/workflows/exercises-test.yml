@@ -14,8 +14,8 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     strategy:
+      fail-fast: false
       matrix:
         snapshot: [base, 10k, 100k]
 
