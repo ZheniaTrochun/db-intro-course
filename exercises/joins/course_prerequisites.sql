@@ -13,5 +13,5 @@ SELECT
     pr.name AS prerequisite_course_name
 FROM course c
 JOIN course_prerequisite cp ON c.course_id = cp.course_id
-JOIN course pr ON cp.prerequisite_id = pr.course_id
+JOIN course pr ON cp.prerequisite_course_id = pr.course_id
 ORDER BY course_name ASC, prerequisite_course_name ASC;

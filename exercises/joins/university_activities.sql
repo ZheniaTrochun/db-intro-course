@@ -12,14 +12,14 @@
 
 -- Рішення:
 SELECT 
-    p.first_name || ' ' || p.last_name AS person_name,
+    p.first_name || ' ' || p.last_name AS full_name,
     'student' AS activity_type
 FROM student s
 JOIN person p ON s.person_id = p.person_id
 UNION
 SELECT 
-    p.first_name || ' ' || p.last_name AS person_name,
+    p.first_name || ' ' || p.last_name AS full_name,
     'professor' AS activity_type
 FROM professor prof
 JOIN person p ON prof.person_id = p.person_id
-ORDER BY person_name ASC, activity_type ASC;
+ORDER BY full_name ASC, activity_type ASC;
