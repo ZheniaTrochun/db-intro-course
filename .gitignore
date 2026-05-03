@@ -1,8 +1,8 @@
 .idea/
 *.iml
 data/
-exercises/tests/venv
-exercises/tests/test_results
-exercises/test_results
+**/test_results
 dumps/*
 !dumps/base.dump
+**/venv
+**/__pycache__
