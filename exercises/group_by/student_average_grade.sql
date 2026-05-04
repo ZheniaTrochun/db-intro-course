@@ -15,7 +15,7 @@ WITH student_avg AS (
         s.student_id,
         p.first_name || ' ' || p.last_name AS full_name,
         s.group_id,
-        ROUND(AVG(e.grade), 2) AS avg_student_grade
+        AVG(e.grade) AS exact_student_grade
     FROM student s
     JOIN person p ON s.person_id = p.person_id
     JOIN enrolment e ON s.student_id = e.student_id
@@ -25,7 +25,7 @@ group_avg AS (
     SELECT 
         sa.group_id,
         sg.name AS group_name,
-        ROUND(AVG(sa.avg_student_grade), 2) AS avg_group_grade
+        ROUND(AVG(sa.exact_student_grade), 2) AS avg_group_grade
     FROM student_avg sa
     JOIN student_group sg ON sa.group_id = sg.group_id
     GROUP BY sa.group_id, sg.name
@@ -33,7 +33,7 @@ group_avg AS (
 SELECT 
     sa.student_id,
     sa.full_name,
-    sa.avg_student_grade,
+    ROUND(sa.exact_student_grade, 2) AS avg_student_grade,
     ga.group_name,
     ga.avg_group_grade
 FROM student_avg sa
