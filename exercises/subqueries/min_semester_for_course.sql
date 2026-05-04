@@ -8,8 +8,13 @@
 --          - мінімальним роком (зростання), потім за назвою курсу
 
 -- Рішення:
-SELECT DISTINCT
-    1 AS course_id,
-    status AS name,
-    1 AS min_year
-FROM course;
+SELECT 
+    c.course_id,
+    c.name,
+    MIN(s.course) AS min_year
+FROM course c
+JOIN enrolment e ON c.course_id = e.course_id
+JOIN student s ON e.student_id = s.student_id
+WHERE c.status = 'активний'
+GROUP BY c.course_id, c.name
+ORDER BY c.name ASC;
