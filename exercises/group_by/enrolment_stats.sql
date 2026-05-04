@@ -10,12 +10,11 @@
 
 -- Рішення:
 SELECT 
-    sg.start_year AS student_year,
+    s.student_year,
     COUNT(DISTINCT e.course_id) AS number_of_courses,
     COUNT(e.student_id) AS number_of_enrolments,
     COUNT(e.grade) AS number_of_students_with_grade
-FROM student_group sg
-JOIN student s ON sg.group_id = s.group_id
+FROM student s
 JOIN enrolment e ON s.student_id = e.student_id
-GROUP BY sg.start_year
+GROUP BY s.student_year
 ORDER BY student_year ASC;
