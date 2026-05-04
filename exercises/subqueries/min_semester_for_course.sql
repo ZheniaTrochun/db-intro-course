@@ -8,12 +8,37 @@
 --          - мінімальним роком (зростання), потім за назвою курсу
 
 -- Рішення:
+WITH RECURSIVE course_levels AS (
+    SELECT 
+        c.course_id, 
+        1 AS current_level
+    FROM course c
+    WHERE NOT EXISTS (
+        SELECT 1 
+        FROM course_prerequisite cp 
+        WHERE cp.course_id = c.course_id
+    )
+    
+    UNION ALL
+    SELECT 
+        cp.course_id, 
+        cl.current_level + 1
+    FROM course_prerequisite cp
+    INNER JOIN course_levels cl ON cl.course_id = cp.prerequisite_course_id
+),
+max_depth_per_course AS (
+    SELECT 
+        course_id, 
+        MAX(current_level) AS min_year
+    FROM course_levels
+    GROUP BY course_id
+)
 SELECT 
     c.course_id,
     c.name,
-    MIN(CAST(EXTRACT(YEAR FROM e.enrolment_date) - EXTRACT(YEAR FROM s.start_date) + 1 AS INTEGER)) AS min_year
+    md.min_year
 FROM course c
-JOIN enrolment e ON c.course_id = e.course_id
-JOIN student s ON e.student_id = s.student_id
-GROUP BY c.course_id, c.name
-ORDER BY min_year ASC, c.name ASC;
+INNER JOIN max_depth_per_course md ON c.course_id = md.course_id
+ORDER BY 
+    md.min_year ASC, 
+    c.name ASC;
