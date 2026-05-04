@@ -9,12 +9,4 @@
 --          - роком навчання (зростання)
 
 -- Рішення:
-SELECT 
-    (2024 - s.course) AS student_year,
-    COUNT(DISTINCT e.course_id) AS number_of_courses,
-    COUNT(e.student_id) AS number_of_enrolments,
-    COUNT(e.grade) AS number_of_students_with_grade
-FROM student s
-JOIN enrolment e ON s.student_id = e.student_id
-GROUP BY s.course
-ORDER BY student_year ASC; 
+SELECT * FROM student_group LIMIT 1;
