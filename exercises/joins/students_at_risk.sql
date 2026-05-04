@@ -12,3 +12,19 @@
 --          - оцінкою (зростання), потім за назвою групи, потім за іменем студента, потім за назвою курсу
 
 -- Рішення:
+SELECT
+    CONCAT(p.first_name, ' ', p.last_name) AS student_name,
+    sg.name AS group_name,
+    c.name AS course_name,
+    e.grade,
+    CONCAT(per.first_name, ' ', per.last_name) AS lecturer_name
+FROM enrolment e
+JOIN student s ON e.student_id = s.student_id
+JOIN course c ON e.course_id = c.course_id
+JOIN course_teacher ct ON c.course_id = ct.course_id
+JOIN professor pr ON ct.professor_id = pr.professor_id
+JOIN person p ON s.person_id = p.person_id
+JOIN person per ON pr.person_id = per.person_id
+JOIN student_group sg ON s.group_id = sg.group_id
+WHERE e.grade < 60 AND e.grade IS NOT NULL AND ct.professor_role = 'лектор'
+ORDER BY e.grade ASC, group_name, student_name, course_name

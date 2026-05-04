@@ -7,4 +7,23 @@
 --      Результат відсортувати за:
 --          - середнім балом (спадання), потім за назвою групи
 
+-- Комантар від студента:
+-- Було б добре уточнити, що треба кількість саме активних студентів у групі, 
+-- бо у початковій версії запиту я враховував навіть тих студентів, у котрих не було оцінок:)
+-- У початковому запиті не було рядку "WHERE e.grade IS NOT NULL"
+
+-- Зміни:
+-- Додано функцію CAST (... AS FLOAT), так як автоматичне тестування PR очікує саме FLOAT
+
 -- Рішення:
+SELECT
+    sg.name as group_name,
+    COUNT(DISTINCT s.student_id) AS student_count,
+    CAST(ROUND(AVG(e.grade), 2) AS FLOAT) AS avg_grade
+FROM enrolment e 
+JOIN student s ON e.student_id = s.student_id
+JOIN student_group sg ON s.group_id = sg.group_id
+WHERE e.grade IS NOT NULL
+GROUP BY sg.group_id, sg.name
+HAVING AVG(e.grade) > 75
+ORDER BY avg_grade DESC, group_name;
