@@ -11,11 +11,16 @@
 SELECT 
     c.course_id,
     c.name,
-    MIN(s.course) AS min_year
+    (SELECT MIN(s.course) 
+     FROM enrolment e
+     JOIN student s ON e.student_id = s.student_id
+     WHERE e.course_id = c.course_id AND e.grade IS NOT NULL) AS min_year
 FROM course c
-JOIN enrolment e ON c.course_id = e.course_id
-JOIN student s ON e.student_id = s.student_id
-GROUP BY c.course_id, c.name
+WHERE EXISTS (
+    SELECT 1 
+    FROM enrolment e 
+    WHERE e.course_id = c.course_id AND e.grade IS NOT NULL
+)
 ORDER BY 
     min_year ASC, 
     c.name ASC;
