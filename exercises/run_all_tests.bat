@@ -1,8 +1,6 @@
-@REM Дякую Кулікову Максиму, що підготував цей скрипт
-
 @echo off
 setlocal EnableDelayedExpansion
-cd /d "%~dp0.."
+cd /d "%~dp0"
 chcp 65001 > nul
 echo === Initialization ===
 
