@@ -8,4 +8,4 @@
 --          - мінімальним роком (зростання), потім за назвою курсу
 
 -- Рішення:
-SELECT * FROM enrolment LIMIT 1;
+SELECT DISTINCT status FROM enrolment LIMIT 5;
