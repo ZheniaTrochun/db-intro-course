@@ -8,9 +8,9 @@
 
 -- Рішення:
 SELECT 
-    s.admission_year AS student_year,
+    (2024 - s.course) AS student_year,
     ROUND(AVG(e.grade), 2) AS avg_year_grade
 FROM student s
 JOIN enrolment e ON s.student_id = e.student_id
-GROUP BY s.admission_year
-ORDER BY student_year ASC;
+GROUP BY s.course
+ORDER BY student_year ASC; 
