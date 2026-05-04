@@ -11,7 +11,7 @@
 -- Рішення:
 SELECT 
     c.name AS course_name,
-    p.first_name || ' ' || p.last_name AS professor_name,
+    p.first_name || ' ' || p.last_name AS teacher_name,
     ct.professor_role AS role
 FROM course c
 JOIN course_teacher ct ON c.course_id = ct.course_id
@@ -19,5 +19,5 @@ JOIN professor prof ON ct.professor_id = prof.professor_id
 JOIN person p ON prof.person_id = p.person_id
 WHERE c.status = 'активний'
 ORDER BY 
-    course_name ASC, 
+    course_name ASC,
     role ASC;
