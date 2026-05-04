@@ -7,10 +7,16 @@
 --          - роком навчання (зростання)
 
 -- Рішення:
+WITH stats_source AS (
+    SELECT 
+        start_year,
+        grade
+    FROM enrolment
+    WHERE grade IS NOT NULL
+)
 SELECT 
-    s.student_year,
-    ROUND(AVG(e.grade), 2) AS avg_year_grade
-FROM student s
-JOIN enrolment e ON s.student_id = e.student_id
-GROUP BY s.student_year
+    start_year AS student_year,
+    ROUND(AVG(grade), 2) AS avg_year_grade
+FROM stats_source
+GROUP BY start_year
 ORDER BY student_year ASC;
