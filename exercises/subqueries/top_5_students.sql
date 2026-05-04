@@ -22,7 +22,10 @@ FROM (
         s.student_id,
         p.first_name || ' ' || p.last_name AS student_full_name,
         e.grade,
-        ROW_NUMBER() OVER (PARTITION BY c.course_id ORDER BY e.grade DESC, s.student_id ASC) as rank
+        ROW_NUMBER() OVER (
+            PARTITION BY c.course_id 
+            ORDER BY e.grade DESC, p.first_name || ' ' || p.last_name ASC
+        ) as rank
     FROM course c
     JOIN enrolment e ON c.course_id = e.course_id
     JOIN student s ON e.student_id = s.student_id
