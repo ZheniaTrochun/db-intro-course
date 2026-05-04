@@ -10,18 +10,11 @@
 --          - за назвою групи, потім за іменем студента
 
 -- Рішення:
-SELECT 
-    c.name AS course_name,
-    COUNT(e.student_id) AS student_count,
-    ROUND(AVG(e.grade), 2) AS avg_grade
-FROM 
-    course c
-JOIN 
-    enrolment e ON c.course_id = e.course_id
-GROUP BY 
-    c.name
-HAVING 
-    COUNT(e.student_id) > 100
-ORDER BY 
-    student_count DESC, 
-    course_name ASC;
+SELECT s.student_id AS student_id, p.first_name || ' ' || p.last_name AS full_name,
+ROUND(AVG(e.grade), 2) AS avg_student_grade, sg.name AS group_name, ROUND((AVG(AVG(e.grade)) OVER (PARTITION BY s.group_id)), 2) AS avg_group_grade
+FROM enrolment e
+JOIN student s using(student_id)
+JOIN person p using(person_id)
+JOIN student_group sg ON s.group_id = sg.group_id
+GROUP BY s.student_id, p.first_name, p.last_name, sg.name, s.group_id
+ORDER BY group_name, full_name;
