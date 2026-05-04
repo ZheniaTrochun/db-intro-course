@@ -8,4 +8,8 @@
 --          - мінімальним роком (зростання), потім за назвою курсу
 
 -- Рішення:
-SELECT DISTINCT status FROM course;
+SELECT DISTINCT
+    1 AS course_id,
+    status AS name,
+    1 AS min_year
+FROM course;
