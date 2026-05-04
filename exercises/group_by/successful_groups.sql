@@ -26,5 +26,5 @@ JOIN student s ON e.student_id = s.student_id
 JOIN student_group sg ON s.group_id = sg.group_id
 WHERE e.grade IS NOT NULL
 GROUP BY group_name
-HAVING ROUND(AVG(e.grade), 2) > 75
+HAVING ROUND(AVG(e.grade), 2) >= 75
 ORDER BY avg_grade DESC, group_name;
