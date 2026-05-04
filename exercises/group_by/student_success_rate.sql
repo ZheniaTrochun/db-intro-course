@@ -7,3 +7,9 @@
 --          - роком навчання (зростання)
 
 -- Рішення:
+select 	
+	e.start_year as student_year,
+	round(avg(e.grade), 2) as avg_year_grade
+from enrolment e
+group by e.start_year
+order by e.start_year
