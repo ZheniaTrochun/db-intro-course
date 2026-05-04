@@ -40,8 +40,8 @@ SELECT
     ga.avg_group_grade
 FROM student_avg sa
 JOIN group_avg ga ON sa.group_id = ga.group_id
-WHERE sa.avg_student_grade > ga.avg_group_grade
+WHERE sa.avg_student_grade >= ga.avg_group_grade
 ORDER BY 
     ga.group_name ASC, 
     sa.avg_student_grade DESC, 
-    sa.student_id DESC; 
+    sa.student_id ASC;
