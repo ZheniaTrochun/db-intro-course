@@ -11,17 +11,11 @@
 SELECT 
     c.course_id,
     c.name,
-    (SELECT MIN(s.course)
-     FROM enrolment e
-     JOIN student s ON e.student_id = s.student_id
-     WHERE e.course_id = c.course_id) AS min_year
+    MIN(s.course) AS min_year
 FROM course c
-WHERE c.status = 'активний'
-  AND EXISTS (
-      SELECT 1 
-      FROM enrolment e 
-      WHERE e.course_id = c.course_id
-  )
+JOIN enrolment e ON c.course_id = e.course_id
+JOIN student s ON e.student_id = s.student_id
+GROUP BY c.course_id, c.name
 ORDER BY 
-    min_year ASC,
+    min_year ASC, 
     c.name ASC;
