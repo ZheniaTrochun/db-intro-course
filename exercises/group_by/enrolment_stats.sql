@@ -14,14 +14,15 @@
 -- Рішення:
 -- Рішення:
 -- Рішення:
+-- Рішення:
 SELECT 
-    start_year AS student_year,
-    COUNT(DISTINCT course_id) AS number_of_courses,
-    COUNT(student_id) AS number_of_enrolments,
-    COUNT(grade) AS number_of_students_with_grade
+    e.start_year AS student_year,
+    COUNT(DISTINCT e.course_id) AS number_of_courses,
+    COUNT(e.student_id) AS number_of_enrolments,
+    COUNT(e.grade) AS number_of_students_with_grade
 FROM 
-    enrolment
+    enrolment e
 GROUP BY 
-    start_year
+    e.start_year
 ORDER BY 
-    student_year ASC;
+    e.start_year ASC;
