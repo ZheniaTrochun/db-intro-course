@@ -24,13 +24,12 @@ WITH student_avg AS (
 ),
 group_avg AS (
     SELECT 
-        s.group_id,
+        sa.group_id,
         sg.name AS group_name,
-        ROUND(AVG(e.grade), 2) AS avg_group_grade
-    FROM student s
-    JOIN student_group sg ON s.group_id = sg.group_id
-    JOIN enrolment e ON s.student_id = e.student_id
-    GROUP BY s.group_id, sg.name
+        ROUND(AVG(sa.avg_student_grade), 2) AS avg_group_grade
+    FROM student_avg sa
+    JOIN student_group sg ON sa.group_id = sg.group_id
+    GROUP BY sa.group_id, sg.name
 )
 SELECT 
     sa.student_id,
@@ -44,4 +43,4 @@ WHERE sa.avg_student_grade > ga.avg_group_grade
 ORDER BY 
     ga.group_name ASC, 
     sa.avg_student_grade DESC, 
-    sa.full_name ASC;
+    sa.student_id ASC;
