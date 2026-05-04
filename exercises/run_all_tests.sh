@@ -1,12 +1,12 @@
 #!/bin/bash
 
 if [ ! -f ./tests/venv/bin/activate ]; then
-  python3 -m venv ./tests/venv
+  python -m venv ./tests/venv
   source ./tests/venv/bin/activate
-  pip3 install -r ./tests/requirements.txt
+  pip install -r ./tests/requirements.txt
 else
   source ./tests/venv/bin/activate
-  pip3 install -r ./tests/requirements.txt
+  pip install -r ./tests/requirements.txt
 fi
 
 if [ ! -f ../dumps/10k.dump ]; then
