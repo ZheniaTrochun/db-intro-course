@@ -15,6 +15,6 @@ SELECT
 FROM course c
 JOIN enrolment e ON c.course_id = e.course_id
 JOIN student s ON e.student_id = s.student_id
-WHERE c.status = 'активний'
+WHERE e.grade IS NOT NULL
 GROUP BY c.course_id, c.name
-ORDER BY c.name ASC;
+ORDER BY min_year ASC, c.name ASC;
