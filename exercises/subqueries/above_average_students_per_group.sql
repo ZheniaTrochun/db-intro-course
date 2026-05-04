@@ -44,4 +44,4 @@ WHERE sa.avg_student_grade >= ga.avg_group_grade
 ORDER BY 
     ga.group_name ASC, 
     sa.avg_student_grade DESC, 
-    sa.student_id ASC;
+    sa.full_name ASC;
