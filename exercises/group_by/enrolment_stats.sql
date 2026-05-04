@@ -9,12 +9,6 @@
 --          - роком навчання (зростання)
 
 -- Рішення:
--- Рішення:
--- Рішення:
--- Рішення:
--- Рішення:
--- Рішення:
--- Рішення:
 SELECT 
     e.start_year AS student_year,
     COUNT(DISTINCT e.course_id) AS number_of_courses,
