@@ -32,4 +32,4 @@ JOIN student_group g ON sg.group_id = g.group_id
 JOIN student s ON sg.student_id = s.student_id
 JOIN person p ON s.person_id = p.person_id
 WHERE ROUND(CAST(sg.avg_student_grade AS numeric), 2) > ROUND(CAST(gg.avg_group_grade AS numeric), 2)
-ORDER BY group_name, sg.avg_student_grade DESC, p.first_name, sg.student_id
+ORDER BY group_name, sg.avg_student_grade DESC, full_name, student_id
