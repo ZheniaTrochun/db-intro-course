@@ -20,7 +20,6 @@ WITH student_performance AS (
         p.first_name || ' ' || p.last_name AS full_name,
         sg.name AS group_name,
         s.group_id,
-
         AVG(e.grade) AS student_avg
     FROM student s
     JOIN person p ON s.person_id = p.person_id
@@ -37,4 +36,6 @@ SELECT
 FROM student_performance
 ORDER BY
     group_name ASC,
-    full_name ASC;
+    full_name ASC,
+    avg_student_grade ASC,
+    student_id ASC;
