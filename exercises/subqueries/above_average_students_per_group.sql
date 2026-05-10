@@ -15,7 +15,7 @@
 -- IO-45 Bondarchuk Mykhailo
 -- Студенти з балом, вищим за середній по групі
 
-ITH StudentAvg AS (
+WITH StudentAvg AS (
     SELECT e.student_id, s.group_id, AVG(e.grade) AS sa
     FROM enrolment e
     JOIN student s ON e.student_id = s.student_id
