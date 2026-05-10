@@ -14,9 +14,11 @@
 -- IO-45 Bondarchuk Mykhailo
 -- знайти середній бал
 
+-- IO-45 Bondarchuk Mykhailo
+
 SELECT
     s.student_id,
-    p.last_name || ' ' || p.first_name AS full_name,
+    p.first_name || ' ' || p.last_name AS full_name,
     CAST(ROUND(AVG(e.grade)::numeric, 2) AS DOUBLE PRECISION) AS avg_student_grade,
     sg.name AS group_name,
     CAST(ROUND(AVG(AVG(e.grade)) OVER (PARTITION BY s.group_id)::numeric, 2) AS DOUBLE PRECISION) AS avg_group_grade
@@ -27,3 +29,4 @@ LEFT JOIN enrolment e ON s.student_id = e.student_id
 GROUP BY s.student_id, p.first_name, p.last_name, sg.name, s.group_id
 ORDER BY
     group_name ASC,
+    full_name ASC;

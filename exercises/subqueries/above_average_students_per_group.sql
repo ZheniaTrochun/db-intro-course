@@ -38,7 +38,6 @@ JOIN GroupAvg ga ON sa.group_id = ga.group_id
 JOIN student s ON sa.student_id = s.student_id
 JOIN person p ON s.person_id = p.person_id
 JOIN student_group sg ON sa.group_id = sg.group_id
-
 WHERE ROUND(sa.sa::numeric, 2) > ROUND(ga.ga::numeric, 2)
 ORDER BY
     group_name ASC,
