@@ -27,5 +27,4 @@ LEFT JOIN enrolment e ON s.student_id = e.student_id
 GROUP BY s.student_id, p.first_name, p.last_name, sg.name, s.group_id
 ORDER BY
     group_name ASC,
-    full_name ASC,
-    s.student_id ASC;
+    full_name ASC;
