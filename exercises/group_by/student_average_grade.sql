@@ -14,28 +14,17 @@
 -- IO-45 Bondarchuk Mykhailo
 -- знайти середній бал
 
-WITH student_performance AS (
-    SELECT
-        s.student_id,
-        p.first_name || ' ' || p.last_name AS full_name,
-        sg.name AS group_name,
-        s.group_id,
-        AVG(e.grade) AS student_avg
-    FROM student s
-    JOIN person p ON s.person_id = p.person_id
-    JOIN student_group sg ON s.group_id = sg.group_id
-    LEFT JOIN enrolment e ON s.student_id = e.student_id
-    GROUP BY s.student_id, p.first_name, p.last_name, sg.name, s.group_id
-)
 SELECT
-    student_id,
-    full_name,
-    CAST(ROUND(student_avg::numeric, 2) AS DOUBLE PRECISION) AS avg_student_grade,
-    group_name,
-    CAST(ROUND(AVG(student_avg) OVER (PARTITION BY group_id)::numeric, 2) AS DOUBLE PRECISION) AS avg_group_grade
-FROM student_performance
+    s.student_id,
+    p.first_name || ' ' || p.last_name AS full_name,
+    CAST(ROUND(AVG(e.grade)::numeric, 2) AS DOUBLE PRECISION) AS avg_student_grade,
+    sg.name AS group_name,
+    CAST(ROUND(AVG(AVG(e.grade)) OVER (PARTITION BY s.group_id)::numeric, 2) AS DOUBLE PRECISION) AS avg_group_grade
+FROM student s
+JOIN person p ON s.person_id = p.person_id
+JOIN student_group sg ON s.group_id = sg.group_id
+LEFT JOIN enrolment e ON s.student_id = e.student_id
+GROUP BY s.student_id, p.first_name, p.last_name, sg.name, s.group_id
 ORDER BY
     group_name ASC,
-    full_name ASC,
-    avg_student_grade ASC,
-    student_id ASC;
+    full_name ASC;
