@@ -16,13 +16,13 @@
 -- Студенти з балом, вищим за середній по групі
 
 WITH StudentAvg AS (
-    SELECT e.student_id, s.group_id, AVG(e.grade) AS sa
+    SELECT e.student_id, s.group_id, AVG(CAST(e.grade AS DOUBLE PRECISION)) AS sa
     FROM enrolment e
     JOIN student s ON e.student_id = s.student_id
     GROUP BY e.student_id, s.group_id
 ),
 GroupAvg AS (
-    SELECT s.group_id, AVG(e.grade) AS ga
+    SELECT s.group_id, AVG(CAST(e.grade AS DOUBLE PRECISION)) AS ga
     FROM enrolment e
     JOIN student s ON e.student_id = s.student_id
     GROUP BY s.group_id
@@ -40,7 +40,8 @@ JOIN person p ON s.person_id = p.person_id
 JOIN student_group sg ON sa.group_id = sg.group_id
 WHERE sa.sa > ga.ga
 ORDER BY
-    group_name ASC,
-    avg_student_grade DESC,
-    full_name ASC;
+    sg.name ASC,
+    sa.sa DESC,
+    full_name ASC,
+    sa.student_id ASC;
 
