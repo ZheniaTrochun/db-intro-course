@@ -16,20 +16,10 @@ SELECT
     sg.name AS group_name,
     COUNT(DISTINCT s.student_id) AS student_count,
     CAST(ROUND(AVG(CAST(e.grade AS DOUBLE PRECISION))::numeric, 2) AS DOUBLE PRECISION) AS avg_grade
-FROM
-    student_group sg
-JOIN
-    student s ON sg.group_id = s.group_id
-JOIN
-    enrolment e ON s.student_id = e.student_id
-WHERE
-    e.grade IS NOT NULL
-GROUP BY
-    sg.group_id,
-    sg.name
-HAVING
-    AVG(CAST(e.grade AS DOUBLE PRECISION)) > 75
-ORDER BY
-    AVG(CAST(e.grade AS DOUBLE PRECISION)) DESC,
-    sg.name ASC,
-    sg.group_id ASC;
+FROM student_group sg
+JOIN student s ON sg.group_id = s.group_id
+JOIN enrolment e ON s.student_id = e.student_id
+WHERE e.grade IS NOT NULL
+GROUP BY sg.group_id, sg.name
+HAVING AVG(CAST(e.grade AS DOUBLE PRECISION)) > 75
+ORDER BY avg_grade DESC, group_name ASC, sg.group_id ASC;

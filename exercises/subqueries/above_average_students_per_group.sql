@@ -15,8 +15,7 @@
 -- IO-45 Bondarchuk Mykhailo
 -- Студенти з балом, вищим за середній по групі
 
-WITH StudentAvg AS (
-
+ITH StudentAvg AS (
     SELECT e.student_id, s.group_id, AVG(e.grade) AS sa
     FROM enrolment e
     JOIN student s ON e.student_id = s.student_id
@@ -32,7 +31,6 @@ SELECT
     sa.student_id,
     p.first_name || ' ' || p.last_name AS full_name,
     sg.name AS group_name,
-
     CAST(ROUND(sa.sa::numeric, 2) AS DOUBLE PRECISION) AS avg_student_grade,
     CAST(ROUND(ga.ga::numeric, 2) AS DOUBLE PRECISION) AS avg_group_grade
 FROM StudentAvg sa
@@ -46,4 +44,3 @@ ORDER BY
     sa.sa DESC,
     full_name ASC,
     sa.student_id ASC;
-
