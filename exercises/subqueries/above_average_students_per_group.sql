@@ -42,6 +42,6 @@ JOIN student_group sg ON sa.group_id = sg.group_id
 WHERE ROUND(sa.sa::numeric, 2) > ROUND(ga.ga::numeric, 2)
 ORDER BY
     group_name ASC,
-    avg_student_grade DESC,
+    sa.sa DESC,
     full_name ASC,
     sa.student_id ASC;
