@@ -15,7 +15,8 @@
 SELECT
     sg.name AS group_name,
     COUNT(DISTINCT s.student_id) AS student_count,
-    ROUND(AVG(e.grade), 2) AS avg_grade
+    -- Приводимо до типу f64 (Double Precision) для сумісності з тестами
+    CAST(ROUND(AVG(e.grade)::numeric, 2) AS DOUBLE PRECISION) AS avg_grade
 FROM
     student_group sg
 JOIN
