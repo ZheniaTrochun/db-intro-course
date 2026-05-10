@@ -15,13 +15,14 @@
 -- знайти середній бал
 
 WITH student_performance AS (
-
     SELECT
         s.student_id,
         p.first_name || ' ' || p.last_name AS full_name,
         sg.name AS group_name,
         s.group_id,
-        AVG(e.grade) AS student_avg
+
+
+        AVG(CAST(e.grade AS DOUBLE PRECISION)) AS student_avg
     FROM
         student s
     JOIN
@@ -37,12 +38,13 @@ SELECT
     student_id,
     full_name,
 
-    ROUND(student_avg::numeric, 2)::numeric(38,2) AS avg_student_grade,
+    CAST(ROUND(student_avg::numeric, 2) AS DOUBLE PRECISION) AS avg_student_grade,
     group_name,
 
-    ROUND(AVG(student_avg) OVER (PARTITION BY group_id)::numeric, 2)::numeric(38,2) AS avg_group_grade
+    CAST(ROUND(AVG(student_avg) OVER (PARTITION BY group_id)::numeric, 2) AS DOUBLE PRECISION) AS avg_group_grade
 FROM
     student_performance
 ORDER BY
     group_name ASC,
-    full_name ASC;
+    full_name ASC,
+    student_id ASC;
