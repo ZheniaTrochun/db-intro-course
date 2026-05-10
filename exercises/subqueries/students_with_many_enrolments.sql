@@ -14,7 +14,6 @@
 -- Знайти студентів, які записані на більше курсів, ніж в середньому
 
 WITH StudentCourseCount AS (
-
     SELECT
         s.student_id,
         p.first_name || ' ' || p.last_name AS full_name,
@@ -25,7 +24,6 @@ WITH StudentCourseCount AS (
     GROUP BY s.student_id, p.first_name, p.last_name
 ),
 GlobalAvg AS (
-
     SELECT AVG(course_number) AS avg_number
     FROM StudentCourseCount
 )
@@ -33,10 +31,10 @@ SELECT
     student_id,
     full_name,
     CAST(course_number AS BIGINT) AS course_number,
-
     CAST(ROUND((SELECT avg_number FROM GlobalAvg)::numeric, 2) AS DOUBLE PRECISION) AS avg_number
 FROM StudentCourseCount
 WHERE course_number > (SELECT avg_number FROM GlobalAvg)
 ORDER BY
     course_number DESC,
-    full_name ASC;
+    full_name ASC,
+    student_id ASC;
