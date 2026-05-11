@@ -11,37 +11,30 @@
 --          - назвою групи, потім за середнім балом студента (спадання), потім за іменем студента
 
 -- Рішення:
-WITH StudentAverages AS (
-    SELECT 
-        e.student_id, 
-        s.group_id, 
-        AVG(e.grade) AS s_avg
-    FROM enrolment e
-    JOIN student s ON e.student_id = s.student_id
-    WHERE e.grade IS NOT NULL
-    GROUP BY e.student_id, s.group_id
-),
-GroupAverages AS (
-    SELECT 
-        group_id, 
-        AVG(s_avg) AS g_avg
-    FROM StudentAverages
-    GROUP BY group_id
-)
+WITH student_grades AS (
+    SELECT s.student_id, 
+    s.group_id, 
+    AVG(e.grade) AS avg_student_grade
+    FROM student s
+    JOIN enrolment e ON s.student_id = e.student_id
+    GROUP BY s.student_id, s.group_id),
+	
+group_grades AS (
+    SELECT s.group_id, AVG(e.grade) AS avg_group_grade
+    FROM student s
+    JOIN enrolment e ON s.student_id = e.student_id
+    GROUP BY s.group_id)
 
-SELECT 
-    sa.student_id, 
+SELECT sg.student_id, 
     p.first_name || ' ' || p.last_name AS full_name, 
-    sg.name AS group_name,
-    ROUND(sa.s_avg::numeric, 2) AS avg_student_grade,
-    ROUND(ga.g_avg::numeric, 2) AS avg_group_grade
-FROM StudentAverages sa
-JOIN GroupAverages ga ON sa.group_id = ga.group_id
-JOIN student s  ON sa.student_id = s.student_id
-JOIN person p  ON s.person_id = p.person_id
-JOIN student_group sg ON sa.group_id = sg.group_id
-WHERE sa.s_avg > ga.g_avg
-ORDER BY 
-    group_name, 
-    avg_student_grade DESC, 
-    sa.student_id;
+    g.name AS group_name,
+ROUND(CAST(sg.avg_student_grade AS numeric), 2)::double precision AS avg_student_grade, 
+ROUND(CAST(gg.avg_group_grade AS numeric), 2)::double precision AS avg_group_grade
+    FROM student_grades sg
+JOIN group_grades gg ON sg.group_id = gg.group_id
+JOIN student_group g ON sg.group_id = g.group_id
+JOIN student s ON sg.student_id = s.student_id
+JOIN person p ON s.person_id = p.person_id
+WHERE ROUND(CAST(sg.avg_student_grade AS numeric), 2) > ROUND(CAST(gg.avg_group_grade AS numeric), 2)
+    
+ORDER BY group_name, sg.avg_student_grade DESC, full_name, student_id
