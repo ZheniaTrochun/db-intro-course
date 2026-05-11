@@ -18,6 +18,7 @@ WITH StudentAverages AS (
         AVG(e.grade) AS s_avg
     FROM enrolment e
     JOIN student s ON e.student_id = s.student_id
+    WHERE e.grade IS NOT NULL
     GROUP BY e.student_id, s.group_id
 ),
 GroupAverages AS (
