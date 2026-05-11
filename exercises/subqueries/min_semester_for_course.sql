@@ -8,21 +8,30 @@
 --          - мінімальним роком (зростання), потім за назвою курсу
 
 -- Рішення:
-WITH RECURSIVE course_levels AS (
-    SELECT course_id, 1 as lvl
+WITH RECURSIVE CourseHierarchy AS (
+    SELECT 
+        course_id, 
+        1 AS level
     FROM course
     WHERE course_id NOT IN (SELECT course_id FROM course_prerequisite)
 
-UNION ALL
+    UNION ALL
 
-    SELECT cp.course_id, cl.lvl + 1
-      FROM course_prerequisite as cp
-      JOIN course_levels cl ON cp.prerequisite_course_id = cl.course_id
+    SELECT 
+        cp.course_id, 
+        ch.level + 1
+    FROM course_prerequisite cp
+    JOIN CourseHierarchy ch ON cp.prerequisite_course_id = ch.course_id
 )
-
-SELECT c.course_id, c.name, MAX(cl.lvl) as min_year
-  FROM course as c
-  JOIN course_levels cl ON c.course_id = cl.course_id
-  
- GROUP BY c.course_id, c.name
- ORDER BY min_year, c.name;
+SELECT 
+    c.course_id, 
+    c.name, 
+    MAX(ch.level) AS min_year
+FROM course c
+JOIN CourseHierarchy ch ON c.course_id = ch.course_id
+GROUP BY 
+    c.course_id, 
+    c.name
+ORDER BY 
+    min_year, 
+    c.name;
