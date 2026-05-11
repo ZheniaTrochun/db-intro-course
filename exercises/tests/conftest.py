@@ -45,5 +45,5 @@ def db_connection(postgres_container):
 
 
 def read_config():
-    with open("config.yaml", "r") as f:
+    with open("./config.yaml", "r") as f:
         return yaml.safe_load(f)
