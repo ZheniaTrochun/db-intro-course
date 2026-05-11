@@ -39,4 +39,5 @@ FROM AverageStats
 WHERE course_number > avg_number
 ORDER BY 
     course_number DESC, 
-    full_name;
+    full_name,
+    student_id; 
