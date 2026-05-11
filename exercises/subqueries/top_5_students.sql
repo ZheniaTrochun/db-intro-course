@@ -18,7 +18,7 @@ WITH ranked_students AS (
         e.grade,
         ROW_NUMBER() OVER (
             PARTITION BY c.course_id
-            ORDER BY e.grade DESC, p.first_name || ' ' || p.last_name
+            ORDER BY e.grade DESC, p.first_name || ' ' || p.last_name, s.student_id ASC
         ) AS rank
     FROM enrolment e
     JOIN course c ON e.course_id = c.course_id
@@ -29,4 +29,4 @@ WITH ranked_students AS (
 SELECT course_name, student_id, student_full_name, grade, rank
 FROM ranked_students
 WHERE rank <= 5
-ORDER BY course_name, rank, student_full_name;
+ORDER BY course_name, rank, student_full_name, student_id;
