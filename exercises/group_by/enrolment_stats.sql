@@ -9,3 +9,8 @@
 --          - роком навчання (зростання)
 
 -- Рішення:
+SELECT start_year AS student_year, COUNT(DISTINCT course_id) AS number_of_courses,
+COUNT(*) AS number_of_enrolments, COUNT(grade) AS number_of_students_with_grade
+FROM enrolment
+GROUP BY start_year
+ORDER BY start_year ASC;

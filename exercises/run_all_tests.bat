@@ -2,7 +2,7 @@
 
 @echo off
 setlocal EnableDelayedExpansion
-cd /d "%~dp0.."
+cd /d "%~dp0"
 chcp 65001 > nul
 echo === Initialization ===
 
@@ -70,24 +70,12 @@ IF NOT EXIST "config.yaml" (
 IF NOT EXIST "dumps\" mkdir dumps
 IF NOT EXIST "dumps\10k.dump" (
     echo Downloading 10k.dump fixture...
-    curl -L --fail -o dumps\10k.dump https://github.com/ZheniaTrochun/db-intro-course/releases/download/exercises-fixture-v2/10k.dump
+    curl -L --fail -o dumps\10k.dump https://github.com/ZheniaTrochun/db-intro-course/releases/download/exercises-fixture-v1/10k.dump
     if !ERRORLEVEL! neq 0 (
         echo [ERROR] Failed to download 10k.dump
         pause
         exit /b 1
     )
-)
-
-IF NOT EXIST "exercises\tests\golden_snapshots\10k\" (
-    echo Downloading golden snapshots for 10k...
-    curl -L --fail -o exercises\tests\golden_snapshots\10k.zip https://github.com/ZheniaTrochun/db-intro-course/releases/download/exercises-fixture-v2/10k.zip
-    if !ERRORLEVEL! neq 0 (
-        echo [ERROR] Failed to download 10k.zip
-        pause
-        exit /b 1
-    )
-    powershell -Command "Expand-Archive -Path 'exercises\tests\golden_snapshots\10k.zip' -DestinationPath 'exercises\tests\golden_snapshots'"
-    del exercises\tests\golden_snapshots\10k.zip
 )
 
 echo.

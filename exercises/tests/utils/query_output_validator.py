@@ -29,10 +29,10 @@ def print_diff(expected_result: pl.DataFrame, actual_result: pl.DataFrame) -> No
     actual = not_matched_df.select([pl.col("index").alias("row_number")] + actual_cols_to_select)
     expected = not_matched_df.select([pl.col("index").alias("row_number")] + expected_cols_to_select)
 
-    print("Actual:")
+    print("Expected:")
     print(actual)
     print()
-    print("Expected:")
+    print("To be equal to:")
     print(expected)
     print()
 
@@ -44,7 +44,7 @@ def validate_query_output(
         snapshot_name: str = "base",
         check_order: bool = True
 ):
-    snapshot_path = Path(__file__).parent.parent / "golden_snapshots" / snapshot_name / exercise_group / f"{exercise}_{snapshot_name}.csv"
+    snapshot_path = Path(__file__).parent.parent / "golden_snapshots" / exercise_group / f"{exercise}_{snapshot_name}.csv"
 
     assert snapshot_path.exists(), \
         f"Golden snapshot not found: {snapshot_path}"
