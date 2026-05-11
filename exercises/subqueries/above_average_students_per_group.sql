@@ -28,6 +28,7 @@ GroupAverages AS (
     FROM StudentAverages
     GROUP BY group_id
 )
+
 SELECT 
     sa.student_id, 
     p.first_name || ' ' || p.last_name AS full_name, 
@@ -35,9 +36,9 @@ SELECT
     ROUND(sa.s_avg::numeric, 2) AS avg_student_grade,
     ROUND(ga.g_avg::numeric, 2) AS avg_group_grade
 FROM StudentAverages sa
-JOIN GroupAverages  ga ON sa.group_id = ga.group_id
-JOIN student       s  ON sa.student_id = s.student_id
-JOIN person        p  ON s.person_id = p.person_id
+JOIN GroupAverages ga ON sa.group_id = ga.group_id
+JOIN student s  ON sa.student_id = s.student_id
+JOIN person p  ON s.person_id = p.person_id
 JOIN student_group sg ON sa.group_id = sg.group_id
 WHERE sa.s_avg > ga.g_avg
 ORDER BY 
