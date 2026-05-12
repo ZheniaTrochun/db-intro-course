@@ -11,12 +11,13 @@
 
 -- Рішення:
 
-SELECT s.student_id AS student_id, p.first_name || ' ' || p.last_name AS full_name,
-CAST(ROUND(AVG(e.grade), 2) AS DOUBLE PRECISION) AS avg_student_grade, sg.name AS group_name, 
-CAST(ROUND((AVG(AVG(e.grade)) OVER (PARTITION BY s.group_id)), 2) AS DOUBLE PRECISION) AS avg_group_grade
+SELECT s.student_id, 
+CONCAT(p.first_name, ' ', p.last_name) AS full_name,
+ROUND(AVG(e.grade), 2) AS avg_student_grade, sg.name AS group_name, 
+ROUND(AVG(AVG(e.grade)) OVER (PARTITION BY s.group_id), 2) AS avg_group_grade
 FROM enrolment e
-JOIN student s USING (student_id)
-JOIN person p USING (person_id)
-JOIN student_group sg ON s.group_id = sg.group_id
+INNER JOIN student s ON e.student_id = s.student_id
+INNER JOIN person p ON s.person_id = p.person_id
+INNER JOIN student_group sg ON s.group_id = sg.group_id
 GROUP BY s.student_id, p.first_name, p.last_name, sg.name, s.group_id
 ORDER BY group_name ASC, full_name ASC;
