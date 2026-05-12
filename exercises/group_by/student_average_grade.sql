@@ -25,4 +25,4 @@ CAST(ROUND(st.student_avg, 2) AS DOUBLE PRECISION) AS avg_student_grade, sg.name
 CAST(ROUND(AVG(st.student_avg) OVER (PARTITION BY st.group_id), 2) AS DOUBLE PRECISION) AS avg_group_grade
 FROM StudentStats st
 JOIN student_group sg ON st.group_id = sg.group_id
-ORDER BY group_name ASC, full_name ASC, st.student_id ASC;
+ORDER BY group_name ASC, full_name ASC, st.student_id DESC;
