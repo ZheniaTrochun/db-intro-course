@@ -11,20 +11,14 @@
 --          - назвою групи, потім за середнім балом студента (спадання), потім за іменем студента
 
 -- Рішення:
-SELECT 
-    s.first_name || ' ' || s.last_name AS student_name,
-    g.name AS group_name,
-    ROUND(avg_s.personal_avg, 2) AS average_grade
-FROM students s
-JOIN groups g ON s.group_id = g.id
-JOIN (
-    SELECT student_id, AVG(grade) as personal_avg 
-    FROM enrolments GROUP BY student_id
-) avg_s ON s.id = avg_s.student_id
+SELECT p.first_name || ' ' || p.last_name AS student_name, gr.name AS group_name, ROUND(avg_s.personal_avg, 2) AS average_grade
+FROM student st
+JOIN person p USING(person_id)
+JOIN student_group gr USING(group_id)
+JOIN (SELECT student_id, AVG(grade) as personal_avg FROM enrolment GROUP BY student_id) avg_s USING(student_id)
 WHERE avg_s.personal_avg > (
-    SELECT AVG(e2.grade)
-    FROM students s2
-    JOIN enrolments e2 ON s2.id = e2.student_id
-    WHERE s2.group_id = s.group_id
+    SELECT AVG(e2.grade) FROM student st2
+    JOIN enrolment e2 USING(student_id)
+    WHERE st2.group_id = st.group_id
 )
-ORDER BY group_name, average_grade DESC;
+ORDER BY group_name, average_grade DESC, student_name;

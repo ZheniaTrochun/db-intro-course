@@ -9,11 +9,8 @@
 --          - роком навчання (зростання)
 
 -- Рішення:
-SELECT 
-    study_year,
-    COUNT(*) AS total_enrolments,
-    ROUND(AVG(grade), 2) AS average_grade
-FROM students s
-JOIN enrolments e ON s.id = e.student_id
-GROUP BY study_year
-ORDER BY study_year;
+SELECT e.start_year AS student_year, COUNT(DISTINCT e.course_id) AS number_of_courses,
+       COUNT(*) AS number_of_enrolments, COUNT(*) FILTER (WHERE e.grade IS NOT NULL) AS number_of_students_with_grade
+FROM enrolment e
+GROUP BY e.start_year
+ORDER BY student_year;

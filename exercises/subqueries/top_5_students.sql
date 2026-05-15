@@ -10,16 +10,19 @@
 --          - назвою курсу, потім за рангом (зростання), потім за іменем студента, потім за ідентифікатором студента
 
 -- Рішення:
-SELECT student_name, study_year, total_points
+SELECT course_name, student_id, student_full_name, grade, rank
 FROM (
     SELECT 
-        s.first_name || ' ' || s.last_name AS student_name,
-        s.study_year,
-        SUM(e.grade) AS total_points,
-        ROW_NUMBER() OVER (PARTITION BY s.study_year ORDER BY SUM(e.grade) DESC) as rank
-    FROM students s
-    JOIN enrolments e ON s.id = e.student_id
-    GROUP BY s.id, s.study_year, s.first_name, s.last_name
-) AS ranked_students
+        c.name AS course_name,
+        s.student_id,
+        p.first_name || ' ' || p.last_name AS student_full_name,
+        e.grade,
+        DENSE_RANK() OVER (PARTITION BY c.course_id ORDER BY e.grade DESC, p.last_name, s.student_id) AS rank
+    FROM enrolment e
+    JOIN student s USING(student_id)
+    JOIN person p USING(person_id)
+    JOIN course c USING(course_id)
+    WHERE e.grade IS NOT NULL
+) ranked
 WHERE rank <= 5
-ORDER BY study_year ASC, total_points DESC;
+ORDER BY course_name, rank, student_full_name;і
