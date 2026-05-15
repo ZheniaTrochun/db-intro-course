@@ -16,5 +16,5 @@ JOIN student s using(group_id)
 JOIN enrolment e using(student_id)
 WHERE e.grade IS NOT NULL 
 GROUP BY s.group_id, gr.name
-HAVING AVG(e.grade) > 75 
+HAVING AVG(e.grade) > 80
 ORDER BY avg_grade DESC, group_name;
