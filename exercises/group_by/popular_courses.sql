@@ -8,3 +8,11 @@
 --          - кількістю студентів (спадання), потім за назвою курсу
 
 -- Рішення:
+SELECT 
+    c.name AS course_name,
+    COUNT(e.student_id) AS student_count
+FROM courses c
+JOIN enrolments e ON c.id = e.course_id
+GROUP BY c.id, c.name
+HAVING COUNT(e.student_id) > 100
+ORDER BY student_count DESC;
