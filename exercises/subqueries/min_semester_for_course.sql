@@ -8,3 +8,10 @@
 --          - мінімальним роком (зростання), потім за назвою курсу
 
 -- Рішення:
+SELECT 
+    c.name AS course_name,
+    (SELECT MIN(semester_number) 
+     FROM course_semesters cs 
+     WHERE cs.course_id = c.id) AS min_semester
+FROM courses c
+ORDER BY course_name;
