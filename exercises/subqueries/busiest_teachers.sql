@@ -11,10 +11,10 @@
 SELECT 
     p.first_name || ' ' || p.last_name AS professor_name,
     (SELECT SUM(c.credits) 
-     FROM courses c 
-     JOIN professor_course pc ON c.id = pc.course_id 
+     FROM campus.courses c 
+     JOIN campus.professor_course pc ON c.id = pc.course_id 
      WHERE pc.professor_id = p.id) AS total_credits
-FROM professors p
-WHERE p.id IN (SELECT professor_id FROM professor_course)
+FROM campus.professors p
+WHERE p.id IN (SELECT professor_id FROM campus.professor_course)
 ORDER BY total_credits DESC
 LIMIT 100;

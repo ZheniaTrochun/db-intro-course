@@ -17,10 +17,10 @@ SELECT
     c.name AS course_name,
     p.first_name || ' ' || p.last_name AS teacher_name,
     e.grade
-FROM students s
-JOIN enrolments e ON s.id = e.student_id
-JOIN courses c ON e.course_id = c.id
-JOIN professor_course pc ON c.id = pc.course_id
-JOIN professors p ON pc.professor_id = p.id
+FROM campus.students s
+JOIN campus.enrolments e ON s.id = e.student_id
+JOIN campus.courses c ON e.course_id = c.id
+JOIN campus.professor_course pc ON c.id = pc.course_id
+JOIN campus.professors p ON pc.professor_id = p.id
 WHERE e.grade < 60
 ORDER BY e.grade ASC;

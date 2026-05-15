@@ -11,11 +11,11 @@
 -- Рішення:
 SELECT 
     first_name || ' ' || last_name AS student_name,
-    (SELECT COUNT(*) FROM enrolments e WHERE e.student_id = s.id) AS enrolment_count
-FROM students s
-WHERE (SELECT COUNT(*) FROM enrolments e WHERE e.student_id = s.id) > (
+    (SELECT COUNT(*) FROM campus.enrolments e WHERE e.student_id = s.id) AS enrolment_count
+FROM campus.students s
+WHERE (SELECT COUNT(*) FROM campus.enrolments e WHERE e.student_id = s.id) > (
     SELECT AVG(counts.cnt) FROM (
-        SELECT COUNT(*) as cnt FROM enrolments GROUP BY student_id
+        SELECT COUNT(*) as cnt FROM campus.enrolments GROUP BY student_id
     ) counts
 )
 ORDER BY enrolment_count DESC;

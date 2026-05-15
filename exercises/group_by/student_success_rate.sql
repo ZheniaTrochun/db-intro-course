@@ -10,7 +10,7 @@
 SELECT 
     study_year,
     ROUND(AVG(grade), 2) AS success_rate
-FROM students s
-JOIN enrolments e ON s.id = e.student_id
+FROM campus.students s
+JOIN campus.enrolments e ON s.id = e.student_id
 GROUP BY study_year
 ORDER BY success_rate DESC;

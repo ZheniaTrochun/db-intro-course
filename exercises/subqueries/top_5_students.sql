@@ -17,9 +17,9 @@ FROM (
         s.study_year,
         SUM(e.grade) AS total_points,
         ROW_NUMBER() OVER (PARTITION BY s.study_year ORDER BY SUM(e.grade) DESC) as rank
-    FROM students s
-    JOIN enrolments e ON s.id = e.student_id
+    FROM campus.students s
+    JOIN campus.enrolments e ON s.id = e.student_id
     GROUP BY s.id, s.study_year, s.first_name, s.last_name
 ) AS ranked_students
 WHERE rank <= 5
-ORDER BY study_year, total_points DESC;
+ORDER BY study_year ASC, total_points DESC;

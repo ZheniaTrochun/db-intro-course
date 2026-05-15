@@ -13,7 +13,7 @@ SELECT
     c.name AS course_name,
     p.first_name || ' ' || p.last_name AS teacher_name,
     pc.role
-FROM courses c
-JOIN professor_course pc ON c.id = pc.course_id
-JOIN professors p ON pc.professor_id = p.id
+FROM campus.courses c
+JOIN campus.professor_course pc ON c.id = pc.course_id
+JOIN campus.professors p ON pc.professor_id = p.id
 ORDER BY course_name, teacher_name;

@@ -15,15 +15,15 @@ SELECT
     s.first_name || ' ' || s.last_name AS person_name,
     c.name AS course_name,
     'student' AS role
-FROM students s
-JOIN enrolments e ON s.id = e.student_id
-JOIN courses c ON e.course_id = c.id
+FROM campus.students s
+JOIN campus.enrolments e ON s.id = e.student_id
+JOIN campus.courses c ON e.course_id = c.id
 UNION ALL
 SELECT 
     p.first_name || ' ' || p.last_name AS person_name,
     c.name AS course_name,
     'professor' AS role
-FROM professors p
-JOIN professor_course pc ON p.id = pc.professor_id
-JOIN courses c ON pc.course_id = c.id
+FROM campus.professors p
+JOIN campus.professor_course pc ON p.id = pc.professor_id
+JOIN campus.courses c ON pc.course_id = c.id
 ORDER BY person_name, course_name;
