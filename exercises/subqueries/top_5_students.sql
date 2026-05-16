@@ -10,17 +10,20 @@
 --          - назвою курсу, потім за рангом (зростання), потім за іменем студента, потім за ідентифікатором студента
 
 -- Рішення:
-WITH ranked_students AS (
-SELECT c.name AS course_name, s.student_id, p.first_name || ' ' || p.last_name AS student_full_name, e.grade,
-ROW_NUMBER() OVER (
-PARTITION BY c.course_id
-ORDER BY e.grade DESC, p.first_name || ' ' || p.last_name, s.student_id ASC ) AS rank
-FROM enrolment e
-JOIN course c ON e.course_id = c.course_id
-JOIN student s ON e.student_id = s.student_id
-JOIN person p ON s.person_id = p.person_id
-WHERE e.grade IS NOT NULL )
-SELECT course_name, student_id, student_full_name, grade, rank
-FROM ranked_students
-WHERE rank <= 5
-ORDER BY course_name, rank, student_full_name, student_id;
+WITH StudentCourseCounts AS (
+SELECT s.student_id, p.first_name || ' ' || p.last_name AS full_name,
+COUNT(e.course_id) AS course_number
+FROM student s
+JOIN person p    ON p.person_id = s.person_id
+JOIN enrolment e ON e.student_id = s.student_id
+GROUP BY s.student_id, p.first_name, p.last_name
+),
+AverageStats AS (
+SELECT student_id, full_name, course_number,
+ROUND(AVG(course_number) OVER (), 2) AS avg_number
+FROM StudentCourseCounts
+)
+SELECT student_id, full_name, course_number, avg_number
+FROM AverageStats
+WHERE course_number > avg_number
+ORDER BY course_number DESC, full_name,student_id; 
