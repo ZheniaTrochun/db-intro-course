@@ -9,14 +9,35 @@
 --          - кількістю курсів студента (спадання), потім за іменем студента, потім за ідентифікатор студента
 
 -- Рішення:
-WITH student_courses AS (
-SELECT s.student_id, CONCAT(s.first_name, ' ', s.last_name) AS full_name, COUNT(e.course_id) AS course_number
-FROM student s
-JOIN enrolment e ON s.student_id = e.student_id
-GROUP BY s.student_id, s.first_name, s.last_name
+WITH StudentCourseCounts AS (
+    SELECT 
+        s.student_id, 
+        p.first_name || ' ' || p.last_name AS full_name,
+        COUNT(e.course_id) AS course_number
+    FROM student s
+    JOIN person p    ON p.person_id = s.person_id
+    JOIN enrolment e ON e.student_id = s.student_id
+    GROUP BY 
+        s.student_id, 
+        p.first_name, 
+        p.last_name
+),
+AverageStats AS (
+    SELECT 
+        student_id, 
+        full_name, 
+        course_number,
+        ROUND(AVG(course_number) OVER (), 2) AS avg_number
+    FROM StudentCourseCounts
 )
-SELECT student_id, full_name, course_number, ROUND(AVG(course_number) OVER (), 2) AS avg_number FROM student_courses
-WHERE course_number > (
-SELECT AVG(course_number) FROM student_courses
-)
-ORDER BY course_number DESC, full_name ASC, student_id ASC;
+SELECT 
+    student_id, 
+    full_name, 
+    course_number, 
+    avg_number
+FROM AverageStats
+WHERE course_number > avg_number
+ORDER BY 
+    course_number DESC, 
+    full_name,
+    student_id; 
