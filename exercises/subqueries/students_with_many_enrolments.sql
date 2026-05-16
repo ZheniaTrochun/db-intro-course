@@ -33,4 +33,5 @@ FROM student_courses sc
 WHERE sc.course_number > ca.avg_number
 ORDER BY
     sc.course_number DESC,
-    sc.full_name ASC;
+    sc.full_name ASC,
+    sc.student_id ASC;
