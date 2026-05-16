@@ -12,17 +12,15 @@
 --          - оцінкою (зростання), потім за назвою групи, потім за іменем студента, потім за назвою курсу
 
 -- Рішення:
-SELECT
-CONCAT(s.first_name, ' ', s.last_name) AS student_name, g.name AS group_name, c.name AS course_name, e.grade,
-CONCAT(p.first_name, ' ', p.last_name) AS lecturer_name
+SELECT p.first_name || ' ' || p.last_name AS student_name, sg.name AS group_name,
+c.name AS course_name, e.grade, pers.first_name || ' ' || pers.last_name AS lecturer_name
 FROM student s
-JOIN student_group g ON s.group_id = g.group_id
-JOIN enrolment e ON s.student_id = e.student_id
-JOIN course c ON e.course_id = c.course_id
-JOIN course_teacher ct ON c.course_id = ct.course_id
-JOIN professor prof ON ct.professor_id = prof.professor_id
-JOIN person p ON prof.person_id = p.person_id
-WHERE e.grade IS NOT NULL
-AND e.grade < 60
-AND ct.professor_role = 'лектор'
-ORDER BY e.grade ASC, group_name ASC, student_name ASC, course_name ASC;
+    LEFT JOIN person p ON p.person_id = s.person_id
+    LEFT JOIN student_group sg ON sg.group_id = s.group_id
+    LEFT JOIN enrolment e ON e.student_id = s.student_id
+    LEFT JOIN course c ON c.course_id = e.course_id
+    LEFT JOIN course_teacher cs ON cs.course_id = c.course_id
+    LEFT JOIN professor prof ON prof.professor_id = cs.professor_id
+    LEFT JOIN person pers ON pers.person_id = prof.person_id 
+WHERE e.grade < 60 AND e.grade IS NOT NULL AND cs.professor_role = U&'\043B\0435\043A\0442\043E\0440'
+ORDER BY e.grade ASC, sg.name, student_name, course_name;
