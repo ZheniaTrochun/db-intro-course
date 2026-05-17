@@ -11,3 +11,18 @@
 --          - назвою курсу, потім за типом активності, потім за іменем
 
 -- Рішення:
+SET client_encoding TO 'UTF8';
+SELECT p.first_name || ' ' || p.last_name AS full_name, c.name AS course_name, 'запис на курс' AS activity_type
+FROM enrolment e
+JOIN student s USING(student_id)
+JOIN person p USING(person_id)
+JOIN course c USING(course_id)
+WHERE c.status = 'активний'
+UNION ALL
+SELECT p.first_name || ' ' || p.last_name AS full_name, c.name AS course_name, 'викладання курсу' AS activity_type
+FROM course_teacher ct
+JOIN professor pr USING(professor_id)
+JOIN person p USING(person_id)
+JOIN course c USING(course_id)
+WHERE c.status = 'активний'
+ORDER BY course_name, activity_type, full_name;
