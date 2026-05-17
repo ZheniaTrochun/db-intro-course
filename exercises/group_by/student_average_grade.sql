@@ -23,7 +23,7 @@ SELECT
 FROM (
     SELECT
         s.student_id AS student_id,
-        p.first_name || ' ' || p.last_name AS full_name,
+        p.first_name  ||' '||  p.last_name AS full_name,
         ROUND(AVG(e.grade), 2) AS avg_student_grade,
         sg.name AS group_name,
         ROUND(AVG(AVG(e.grade)) OVER (PARTITION BY sg.group_id), 2) AS avg_group_grade
