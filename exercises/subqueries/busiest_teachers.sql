@@ -10,7 +10,7 @@
 -- Рішення:
 
 
-ІО-41 Кореняко Антон
+--ІО-41 Кореняко Антон
 
   with teacher_credits as (
     select p.person_id as person_id, sum(c.credits) as total_credits
