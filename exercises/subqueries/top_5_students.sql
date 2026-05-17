@@ -13,20 +13,31 @@
 
 --ІО-41 Кореняко Антон
 
-  with ranklist as (
-    select c.name as course_name, e.student_id, p.first_name || ' ' || p.last_name as full_name,
-    e.grade, row_number() over (partition by c.course_id
-    order by e.grade desc nulls last, (p.first_name || ' ' || p.last_name)) as student_rank
-    from enrolment e
-    join course c on e.course_id = c.course_id
-    join student s on e.student_id = s.student_id
-    join person p on s.person_id = p.person_id)
+  WITH RankedStudents AS (
+    SELECT
+        c.name AS course_name,
+        e.student_id,
+        p.first_name  ' '  p.last_name AS student_full_name,
+        e.grade,
+        ROW_NUMBER() OVER (
+            PARTITION BY c.course_id
 
-select rl.course_name, rl.student_id, rl.full_name as student_full_name, rl.grade as grade,
-rl.student_rank as rank
-
-from ranklist rl
-
-where rl.student_rank < 6
-
-order by course_name, student_rank, student_full_name
+            ORDER BY e.grade DESC NULLS LAST, (p.first_name  ' '  p.last_name) ASC, e.student_id ASC
+        ) AS rank
+    FROM enrolment e
+    JOIN student s ON e.student_id = s.student_id
+    JOIN person p ON s.person_id = p.person_id
+    JOIN course c ON e.course_id = c.course_id
+)
+SELECT
+    course_name,
+    student_id,
+    student_full_name,
+    grade,
+    CAST(rank AS BIGINT) AS rank
+FROM RankedStudents
+WHERE rank <= 5
+ORDER BY
+    course_name ASC,
+    rank ASC,
+    student_full_name ASC;
