@@ -24,4 +24,4 @@ having count(e.course_id) > (select avg(counts.cnt)
     from (select count(course_id) as cnt
        from enrolment group by student_id) as counts)
 
-order by course_number desc, full_name
+order by course_number desc, full_name, s.student_id
