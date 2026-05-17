@@ -17,7 +17,7 @@
 SELECT
     CONCAT(p.first_name, ' ', p.last_name) AS full_name,
     c.name AS course_name,
-    'ЗАПИС НА КУРС' AS activity_type
+    'запис на курс' AS activity_type
 FROM enrolment e
 JOIN student s ON e.student_id = s.student_id
 JOIN person p ON s.person_id = p.person_id
@@ -29,7 +29,7 @@ UNION ALL
 SELECT
     CONCAT(p.first_name, ' ', p.last_name) AS full_name,
     c.name AS course_name,
-    'ВИКЛАДАННЯ КУРСУ' AS activity_type
+    'викладання курсу' AS activity_type
 FROM course_teacher ct
 JOIN professor pr ON ct.professor_id = pr.professor_id
 JOIN person p ON pr.person_id = p.person_id
