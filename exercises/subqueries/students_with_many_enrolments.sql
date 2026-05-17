@@ -10,7 +10,7 @@
 
 -- Рішення:
 
-ІО-41 Кореняко Антон
+--ІО-41 Кореняко Антон
 
 select s.student_id as student_id, p.first_name || ' ' || p.last_name as full_name,
 count(e.course_id) as course_number, (select round(avg(counts.cnt), 2)
