@@ -10,3 +10,30 @@
 --          - назвою курсу, потім за рангом (зростання), потім за іменем студента, потім за ідентифікатором студента
 
 -- Рішення:
+WITH RankedStudents AS (
+    SELECT
+        c.name AS course_name,
+        e.student_id,
+        CONCAT(p.first_name, ' ', p.last_name) AS student_full_name,
+        e.grade,
+        ROW_NUMBER() OVER (
+            PARTITION BY c.course_id
+            ORDER BY e.grade DESC NULLS LAST, CONCAT(p.first_name, ' ', p.last_name) ASC, e.student_id ASC
+        ) AS rank
+    FROM enrolment e
+    JOIN student s ON e.student_id = s.student_id
+    JOIN person p ON s.person_id = p.person_id
+    JOIN course c ON e.course_id = c.course_id
+)
+SELECT
+    course_name,
+    student_id,
+    student_full_name,
+    grade,
+    CAST(rank AS BIGINT) AS rank
+FROM RankedStudents
+WHERE rank <= 5
+ORDER BY
+    course_name ASC,
+    rank ASC,
+    student_full_name ASC;
