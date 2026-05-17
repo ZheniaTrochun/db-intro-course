@@ -28,8 +28,7 @@ group_grades AS (
 )
 SELECT
     sg.student_id,
-    p.first_name  ' '
- p.last_name AS full_name,
+    p.first_name  ' '  p.last_name AS full_name,
     g.name AS group_name,
     CAST(ROUND(sg.avg_student_grade::numeric, 2) AS DOUBLE PRECISION) AS avg_student_grade,
     CAST(ROUND(gg.avg_group_grade::numeric, 2) AS DOUBLE PRECISION) AS avg_group_grade

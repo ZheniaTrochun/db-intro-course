@@ -15,8 +15,7 @@
 --ІО-41 Кореняко Антон
 
 SELECT
-    p.first_name  ' '
- p.last_name AS full_name,
+    p.first_name  ' '  p.last_name AS full_name,
     c.name AS course_name,
     'ЗАПИС НА КУРС' AS activity_type
 FROM enrolment e
@@ -28,8 +27,7 @@ WHERE c.status = 'active'
 UNION ALL
 
 SELECT
-    p.first_name  ' '
- p.last_name AS full_name,
+    p.first_name  ' '  p.last_name AS full_name,
     c.name AS course_name,
     'ВИКЛАДАННЯ КУРСУ' AS activity_type
 FROM course_teacher ct
