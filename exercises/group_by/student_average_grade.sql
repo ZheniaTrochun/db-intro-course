@@ -12,7 +12,7 @@
 -- Рішення:
 
 
-ІО-41 Кореняко Антон
+--ІО-41 Кореняко Антон
 
 select s.student_id as student_id, p.first_name || ' ' || p.last_name as full_name,
 round(avg(e.grade), 2) as avg_student_grade, sg.name as group_name,
