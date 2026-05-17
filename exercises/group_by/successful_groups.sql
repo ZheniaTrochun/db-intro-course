@@ -9,7 +9,7 @@
 
 -- Рішення:
 
-ІО-41 Кореняко Антон
+--ІО-41 Кореняко Антон
 
 select sg.name as group_name, count(distinct s.student_id) as student_count,
 round(avg(e.grade::numeric), 2) as avg_grade
