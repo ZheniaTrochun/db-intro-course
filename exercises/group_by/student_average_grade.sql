@@ -28,4 +28,4 @@ GROUP BY s.student_id, p.first_name, p.last_name, sg.group_id, sg.name
 ORDER BY
     group_name ASC,
     full_name ASC,
-    s.student_id ASC;
+    s.student_id DESC;
