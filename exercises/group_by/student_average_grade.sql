@@ -24,4 +24,4 @@ left join enrolment e on s.student_id = e.student_id
 join student_group sg on s.group_id = sg.group_id
 
 group by s.student_id, full_name, sg.group_id, group_name
-order by group_name, full_name
+order by group_name, full_name, s.student_id
