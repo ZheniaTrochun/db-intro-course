@@ -12,7 +12,7 @@
 
 -- Рішення:
 
-ІО-41 Кореняко Антон
+--ІО-41 Кореняко Антон
 
 select p.first_name || ' ' || p.last_name as full_name, c.name as course_name,
 'ЗАПИС НА КУРС' as activity_type
