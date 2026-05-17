@@ -18,4 +18,3 @@ count(*) as number_of_enrolments, count(grade) as number_of_students_with_grade
 from enrolment
 group by start_year
 order by start_year
-enrolment_stats.sql
