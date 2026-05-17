@@ -14,27 +14,33 @@
 
 --ІО-41 Кореняко Антон
 
-  with student_grades as (
-    select s.student_id, s.group_id, avg(e.grade) as avg_student_grade
-    from student s
-    join enrolment e on s.student_id = e.student_id
-    group by s.student_id, s.group_id),
-
-group_grades as (
-    select s.group_id, avg(e.grade) as avg_group_grade
-    from student s
-    join enrolment e on s.student_id = e.student_id
-    group by s.group_id)
-
-select sg.student_id, p.first_name || ' ' || p.last_name as full_name, g.name as group_name,
-round(sg.avg_student_grade::numeric, 2) as avg_student_grade, round(gg.avg_group_grade::numeric, 2) as avg_group_grade
-
-from student_grades sg
-join group_grades gg on sg.group_id = gg.group_id
-join student_group g on sg.group_id = g.group_id
-join student s on sg.student_id = s.student_id
-join person p on s.person_id = p.person_id
-
-where sg.avg_student_grade > gg.avg_group_grade
-
-order by group_name asc, avg_student_grade desc, full_name, sg.student_id
+  WITH student_grades AS (
+    SELECT s.student_id, s.group_id, AVG(e.grade) AS avg_student_grade
+    FROM student s
+    JOIN enrolment e ON s.student_id = e.student_id
+    GROUP BY s.student_id, s.group_id
+),
+group_grades AS (
+    SELECT s.group_id, AVG(e.grade) AS avg_group_grade
+    FROM student s
+    JOIN enrolment e ON s.student_id = e.student_id
+    GROUP BY s.group_id
+)
+SELECT
+    sg.student_id,
+    p.first_name  ' '
+ p.last_name AS full_name,
+    g.name AS group_name,
+    CAST(ROUND(sg.avg_student_grade::numeric, 2) AS DOUBLE PRECISION) AS avg_student_grade,
+    CAST(ROUND(gg.avg_group_grade::numeric, 2) AS DOUBLE PRECISION) AS avg_group_grade
+FROM student_grades sg
+JOIN group_grades gg ON sg.group_id = gg.group_id
+JOIN student_group g ON sg.group_id = g.group_id
+JOIN student s ON sg.student_id = s.student_id
+JOIN person p ON s.person_id = p.person_id
+WHERE ROUND(sg.avg_student_grade::numeric, 2) > ROUND(gg.avg_group_grade::numeric, 2)
+ORDER BY
+    group_name ASC,
+    sg.avg_student_grade DESC,
+    full_name ASC,
+    sg.student_id ASC;
