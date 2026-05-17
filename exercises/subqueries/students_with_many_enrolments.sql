@@ -9,3 +9,19 @@
 --          - кількістю курсів студента (спадання), потім за іменем студента, потім за ідентифікатор студента
 
 -- Рішення:
+
+ІО-41 Кореняко Антон
+
+select s.student_id as student_id, p.first_name || ' ' || p.last_name as full_name,
+count(e.course_id) as course_number, (select round(avg(counts.cnt), 2)
+    from (select count(course_id) as cnt
+       from enrolment group by student_id) as counts) as avg_number
+from student s
+join person p on s.person_id = p.person_id
+join enrolment e on s.student_id = e.student_id
+group by s.student_id, p.first_name, p.last_name
+having count(e.course_id) > (select avg(counts.cnt)
+    from (select count(course_id) as cnt
+       from enrolment group by student_id) as counts)
+
+order by course_number desc, full_name
