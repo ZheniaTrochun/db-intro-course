@@ -17,12 +17,11 @@
     SELECT
         c.name AS course_name,
         e.student_id,
-        p.first_name  ' '  p.last_name AS student_full_name,
+        CONCAT(p.first_name, ' ', p.last_name) AS student_full_name,
         e.grade,
         ROW_NUMBER() OVER (
             PARTITION BY c.course_id
-
-            ORDER BY e.grade DESC NULLS LAST, (p.first_name  ' '  p.last_name) ASC, e.student_id ASC
+            ORDER BY e.grade DESC NULLS LAST, CONCAT(p.first_name, ' ', p.last_name) ASC, e.student_id ASC
         ) AS rank
     FROM enrolment e
     JOIN student s ON e.student_id = s.student_id
