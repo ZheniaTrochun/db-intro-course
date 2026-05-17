@@ -15,25 +15,25 @@
 --ІО-41 Кореняко Антон
 
 SELECT
-    p.first_name || ' ' || p.last_name AS full_name,
+    CONCAT(p.first_name, ' ', p.last_name) AS full_name,
     c.name AS course_name,
     'ЗАПИС НА КУРС' AS activity_type
 FROM enrolment e
 JOIN student s ON e.student_id = s.student_id
 JOIN person p ON s.person_id = p.person_id
 JOIN course c ON e.course_id = c.course_id
-WHERE c.status = 'active'
+WHERE c.status = 'Активний'
 
 UNION ALL
 
 SELECT
-    p.first_name || ' ' || p.last_name AS full_name,
+    CONCAT(p.first_name, ' ', p.last_name) AS full_name,
     c.name AS course_name,
     'ВИКЛАДАННЯ КУРСУ' AS activity_type
 FROM course_teacher ct
 JOIN professor pr ON ct.professor_id = pr.professor_id
 JOIN person p ON pr.person_id = p.person_id
 JOIN course c ON ct.course_id = c.course_id
-WHERE c.status = 'active'
+WHERE c.status = 'Активний'
 
 ORDER BY course_name ASC, activity_type ASC, full_name ASC;
