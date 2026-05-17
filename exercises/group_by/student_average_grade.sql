@@ -45,4 +45,6 @@ FROM student_grades sg
 JOIN group_grades gg ON sg.group_id = gg.group_id
 ORDER BY
     sg.group_name ASC,
-    sg.full_name ASC;
+    sg.full_name ASC,
+    sg.avg_student_grade ASC,
+    sg.student_id ASC;
