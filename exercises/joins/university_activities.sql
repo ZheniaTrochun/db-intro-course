@@ -22,7 +22,7 @@ FROM enrolment e
 JOIN student s ON e.student_id = s.student_id
 JOIN person p ON s.person_id = p.person_id
 JOIN course c ON e.course_id = c.course_id
-WHERE c.status = 'Активний'
+WHERE c.status = 'активний'
 
 UNION ALL
 
@@ -34,6 +34,6 @@ FROM course_teacher ct
 JOIN professor pr ON ct.professor_id = pr.professor_id
 JOIN person p ON pr.person_id = p.person_id
 JOIN course c ON ct.course_id = c.course_id
-WHERE c.status = 'Активний'
+WHERE c.status = 'активний'
 
 ORDER BY course_name ASC, activity_type ASC, full_name ASC;
