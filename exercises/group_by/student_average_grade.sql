@@ -20,6 +20,7 @@ WITH student_grades AS (
         p.first_name || ' ' || p.last_name AS full_name,
         sg.group_id,
         sg.name AS group_name,
+        AVG(e.grade) AS raw_avg,
         ROUND(AVG(e.grade)::numeric, 2) AS avg_student_grade
     FROM student s
     JOIN person p ON s.person_id = p.person_id
@@ -30,7 +31,7 @@ WITH student_grades AS (
 group_grades AS (
     SELECT
         group_id,
-        ROUND(AVG(avg_student_grade)::numeric, 2) AS avg_group_grade
+        ROUND(AVG(raw_avg)::numeric, 2) AS avg_group_grade
     FROM student_grades
     GROUP BY group_id
 )
