@@ -9,7 +9,7 @@
 
 -- Рішення:
 
-ІО-41 Кореняко Антон
+--ІО-41 Кореняко Антон
 
 with recursive course_levels as (
     select c.course_id, c.name, 1 as min_year
