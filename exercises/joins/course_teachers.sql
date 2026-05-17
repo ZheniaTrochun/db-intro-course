@@ -10,7 +10,7 @@
 
 -- Рішення:
 
-ІО-41 Кореняко Антон
+--ІО-41 Кореняко Антон
 
   select c.name as course_name, ppr.first_name || ' ' || ppr.last_name as teacher_name,
 ct.professor_role as role
