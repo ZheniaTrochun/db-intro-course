@@ -16,7 +16,7 @@
 
 SELECT
     s.student_id AS student_id,
-    p.first_name || ' ' || p.last_name AS full_name,
+    CONCAT(p.first_name, ' ', p.last_name) AS full_name,
     CAST(ROUND(AVG(e.grade)::numeric, 2) AS DOUBLE PRECISION) AS avg_student_grade,
     sg.name AS group_name,
     CAST(ROUND(AVG(AVG(e.grade)) OVER (PARTITION BY sg.group_id)::numeric, 2) AS DOUBLE PRECISION) AS avg_group_grade
