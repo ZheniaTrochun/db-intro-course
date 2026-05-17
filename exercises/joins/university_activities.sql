@@ -14,25 +14,28 @@
 
 --ІО-41 Кореняко Антон
 
-select p.first_name || ' ' || p.last_name as full_name, c.name as course_name,
-'ЗАПИС НА КУРС' as activity_type
+SELECT
+    p.first_name  ' '
+ p.last_name AS full_name,
+    c.name AS course_name,
+    'ЗАПИС НА КУРС' AS activity_type
+FROM enrolment e
+JOIN student s ON e.student_id = s.student_id
+JOIN person p ON s.person_id = p.person_id
+JOIN course c ON e.course_id = c.course_id
+WHERE c.status = 'active'
 
-from enrolment e
-join student s on e.student_id = s.student_id
-join person p on s.person_id = p.person_id
-join course c on e.course_id = c.course_id
-where c.status = 'ACTIVE'
+UNION ALL
 
-union all
+SELECT
+    p.first_name  ' '
+ p.last_name AS full_name,
+    c.name AS course_name,
+    'ВИКЛАДАННЯ КУРСУ' AS activity_type
+FROM course_teacher ct
+JOIN professor pr ON ct.professor_id = pr.professor_id
+JOIN person p ON pr.person_id = p.person_id
+JOIN course c ON ct.course_id = c.course_id
+WHERE c.status = 'active'
 
-select p.first_name || ' ' || p.last_name as full_name, c.name as course_name,
-'ВИКЛАДАННЯ КУРСУ' as activity_type
-
-from course_teacher ct
-join professor pr on ct.professor_id = pr.professor_id
-join person p on pr.person_id = p.person_id
-join course c on ct.course_id = c.course_id
-
-where c.status = 'ACTIVE'
-
-order by course_name, activity_type, full_name
+ORDER BY course_name ASC, activity_type ASC, full_name ASC;
