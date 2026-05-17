@@ -9,7 +9,7 @@
 -- Рішення:
 
 
-ІО-41 Кореняко Антон
+--ІО-41 Кореняко Антон
 
   select start_year as student_year, round(avg(grade), 2) as avg_year_grade
 from enrolment
