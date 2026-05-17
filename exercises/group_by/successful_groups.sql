@@ -20,7 +20,7 @@ JOIN student s ON sg.group_id = s.group_id
 JOIN enrolment e ON s.student_id = e.student_id
 WHERE e.grade IS NOT NULL
 GROUP BY sg.group_id, sg.name
-HAVING ROUND(AVG(e.grade)::numeric, 2) > 75
+HAVING ROUND(AVG(e.grade)::numeric, 2) >= 75
 ORDER BY
     avg_grade DESC,
     group_name ASC;
