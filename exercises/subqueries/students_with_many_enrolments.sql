@@ -14,7 +14,7 @@
 
 SELECT
     s.student_id,
-    p.first_name  ' '  p.last_name AS full_name,
+    p.first_name || ' ' || p.last_name AS full_name,
     COUNT(e.course_id) AS course_number,
     CAST((SELECT ROUND(AVG(counts.cnt)::numeric, 2)
           FROM (SELECT COUNT(course_id) AS cnt FROM enrolment GROUP BY student_id) AS counts
