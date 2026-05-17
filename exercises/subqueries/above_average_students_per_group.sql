@@ -27,7 +27,7 @@ group_grades as (
     group by s.group_id)
 
 select sg.student_id, p.first_name || ' ' || p.last_name as full_name, g.name as group_name,
-round(sg.avg_student_grade, 2) as avg_student_grade, round(gg.avg_group_grade, 2) as avg_group_grade
+round(sg.avg_student_grade::numeric, 2) as avg_student_grade, round(gg.avg_group_grade::numeric, 2) as avg_group_grade
 
 from student_grades sg
 join group_grades gg on sg.group_id = gg.group_id
@@ -37,4 +37,4 @@ join person p on s.person_id = p.person_id
 
 where sg.avg_student_grade > gg.avg_group_grade
 
-order by group_name asc, avg_student_grade desc, full_name
+order by group_name asc, avg_student_grade desc, full_name, sg.student_id
