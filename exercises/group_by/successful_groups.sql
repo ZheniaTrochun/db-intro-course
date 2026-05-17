@@ -8,3 +8,17 @@
 --          - середнім балом (спадання), потім за назвою групи
 
 -- Рішення:
+
+ІО-41 Кореняко Антон
+
+select sg.name as group_name, count(distinct s.student_id) as student_count,
+round(avg(e.grade::numeric), 2) as avg_grade
+
+from student_group sg
+join student s on sg.group_id = s.group_id
+join enrolment e on s.student_id = e.student_id
+where e.grade is not null
+
+group by sg.group_id, sg.name
+having round(avg(e.grade::numeric), 2) > 75
+order by avg_grade desc, group_name
