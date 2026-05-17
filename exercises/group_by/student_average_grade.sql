@@ -20,5 +20,6 @@ from student s
 join person p on p.person_id = s.person_id
 join student_group sg on sg.group_id = s.group_id
 join enrolment e on e.student_id = s.student_id
-group by s.student_id, full_name, sg.group_id, sg.name
+where e.grade is not null
+group by s.student_id, p.first_name, p.last_name, sg.group_id, sg.name
 order by group_name, full_name
