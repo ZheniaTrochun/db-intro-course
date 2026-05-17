@@ -11,7 +11,7 @@
 
 -- Рішення:
 
-ІО-41 Кореняко Антон
+--ІО-41 Кореняко Антон
 
   with ranklist as (
     select c.name as course_name, e.student_id, p.first_name || ' ' || p.last_name as full_name,
