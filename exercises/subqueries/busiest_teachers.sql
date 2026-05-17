@@ -8,10 +8,13 @@
 --          - кількістю кредитів (спадання), потім за ім'ям
 
 -- Рішення:
-SELECT p.first_name || ' ' || p.last_name AS professor_name, 
-       (SELECT SUM(c.credits) FROM course c JOIN course_teacher ct USING(course_id) WHERE ct.professor_id = pr.professor_id) AS total_credits
+SELECT 
+    p.first_name || ' ' || p.last_name AS professor_name, 
+    SUM(c.credits) AS total_credits
 FROM professor pr
 JOIN person p ON pr.person_id = p.person_id
-WHERE pr.professor_id IN (SELECT professor_id FROM course_teacher)
+JOIN course_teacher ct ON pr.professor_id = ct.professor_id
+JOIN course c ON ct.course_id = c.course_id
+GROUP BY pr.professor_id, p.first_name, p.last_name
 ORDER BY total_credits DESC, professor_name
 LIMIT 100;
