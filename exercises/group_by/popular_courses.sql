@@ -11,7 +11,7 @@
 
 --ІО-41 Кореняко Антон
 
-  elect c.name as course_name, count(e.student_id) as student_count, round(avg(e.grade), 2) as avg_grade
+select c.name as course_name, count(e.student_id) as student_count, round(avg(e.grade), 2) as avg_grade
 from course c
 
     join enrolment e on c.course_id = e.course_id
