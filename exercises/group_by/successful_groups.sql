@@ -16,8 +16,7 @@ round(avg(e.grade::numeric), 2) as avg_grade
 
 from student_group sg
 join student s on sg.group_id = s.group_id
-join enrolment e on s.student_id = e.student_id
-where e.grade is not null
+left join enrolment e on s.student_id = e.student_id
 
 group by sg.group_id, sg.name
 having round(avg(e.grade::numeric), 2) > 75
