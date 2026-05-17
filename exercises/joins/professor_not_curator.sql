@@ -8,7 +8,7 @@
 
 -- Рішення:
 
-ІО-41 Кореняко Антон
+--ІО-41 Кореняко Антон
 
 select p.first_name || ' ' || p.last_name as professor_name, pr.job as job
 
