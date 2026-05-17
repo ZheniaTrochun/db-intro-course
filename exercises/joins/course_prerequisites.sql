@@ -10,7 +10,7 @@
 -- Рішення:
 
 
-ІО-41 Кореняко Антон
+--ІО-41 Кореняко Антон
 
 select c.name as course_name, c2.name as prerequisite_name
 
