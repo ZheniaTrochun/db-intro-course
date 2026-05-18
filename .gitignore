@@ -1,0 +1,11 @@
+.idea/
+*.iml
+data/
+**/test_results
+dumps/*
+!dumps/base.dump
+**/venv
+**/__pycache__
+exercises/tests/golden_snapshots/**
+!exercises/tests/golden_snapshots/base/
+!exercises/tests/golden_snapshots/base/**
