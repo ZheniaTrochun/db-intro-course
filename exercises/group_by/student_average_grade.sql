@@ -15,16 +15,30 @@
 --ІО-41 Кореняко Антон
 
 SELECT
-        s.student_id,
-        s.group_id,
-        p.first_name || ' ' || p.last_name AS full_name,
-        AVG(e.grade) AS student_avg
-    FROM student s
-    JOIN person p ON s.person_id = p.person_id
-    ROUND(AVG(st.student_avg) OVER (PARTITION BY st.group_id), 2) AS avg_group_grade
-FROM StudentStats st
-JOIN student_group sg ON st.group_id = sg.group_id
+    s.student_id,
+    p.first_name || ' ' || p.last_name AS full_name,
+    CAST(ROUND(AVG(e.grade)::numeric, 2) AS DOUBLE PRECISION) AS avg_student_grade,
+    sg.name AS group_name,
+    CAST(
+        ROUND(
+            AVG(AVG(e.grade)) OVER (PARTITION BY sg.group_id)::numeric,
+            2
+        ) AS DOUBLE PRECISION
+    ) AS avg_group_grade
+FROM student s
+JOIN person p
+    ON s.person_id = p.person_id
+JOIN student_group sg
+    ON s.group_id = sg.group_id
+LEFT JOIN enrolment e
+    ON s.student_id = e.student_id
+GROUP BY
+    s.student_id,
+    p.first_name,
+    p.last_name,
+    sg.group_id,
+    sg.name
 ORDER BY
     group_name ASC,
     full_name ASC,
-    student_id ASC;
+    s.student_id ASC;
