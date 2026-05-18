@@ -19,21 +19,14 @@ SELECT
     p.first_name || ' ' || p.last_name AS full_name,
     CAST(ROUND(AVG(e.grade)::numeric, 2) AS DOUBLE PRECISION) AS avg_student_grade,
     sg.name AS group_name,
-    CAST(
-        ROUND(
-            AVG(AVG(e.grade)) OVER (PARTITION BY sg.group_id)::numeric,
-            2
-        ) AS DOUBLE PRECISION
-    ) AS avg_group_grade
+    CAST(ROUND(AVG(AVG(e.grade)) OVER (PARTITION BY sg.group_id)::numeric, 2) AS DOUBLE PRECISION) AS avg_group_grade
 FROM student s
-JOIN person p
-    ON s.person_id = p.person_id
-JOIN student_group sg
-    ON s.group_id = sg.group_id
-LEFT JOIN enrolment e
-    ON s.student_id = e.student_id
+JOIN person p ON s.person_id = p.person_id
+JOIN student_group sg ON s.group_id = sg.group_id
+LEFT JOIN enrolment e ON s.student_id = e.student_id
 GROUP BY
     s.student_id,
+    p.person_id,
     p.first_name,
     p.last_name,
     sg.group_id,
