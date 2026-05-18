@@ -32,6 +32,6 @@ GROUP BY
     sg.group_id,
     sg.name
 ORDER BY
-    group_name ASC,
-    full_name ASC,
+    sg.name ASC,
+    (p.first_name || ' ' || p.last_name) ASC,
     s.student_id ASC;
