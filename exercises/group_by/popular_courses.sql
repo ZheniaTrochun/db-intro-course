@@ -8,3 +8,12 @@
 --          - кількістю студентів (спадання), потім за назвою курсу
 
 -- Рішення:
+SELECT
+    crs.name AS course_name,
+    COUNT(enr.student_id) AS student_count,
+    ROUND(AVG(enr.grade), 2) AS avg_grade
+FROM course crs
+INNER JOIN enrolment enr ON crs.course_id = enr.course_id
+GROUP BY crs.course_id, crs.name
+HAVING COUNT(enr.student_id) > 100
+ORDER BY student_count DESC, course_name;
