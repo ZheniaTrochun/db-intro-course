@@ -9,3 +9,13 @@
 --          - роком навчання (зростання)
 
 -- Рішення:
+-- Medgitova Sevil ІО-46
+
+SELECT
+    e.start_year AS student_year,
+    COUNT(DISTINCT e.course_id) AS number_of_courses,
+    COUNT(*) AS number_of_enrolments,
+    COUNT(e.grade) AS number_of_students_with_grade
+FROM enrolment e
+GROUP BY e.start_year
+ORDER BY e.start_year;

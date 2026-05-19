@@ -7,3 +7,12 @@
 --          - роком навчання (зростання)
 
 -- Рішення:
+-- Medgitova Sevil ІО-46
+
+SELECT
+    e.start_year AS student_year,
+    ROUND(AVG(e.grade)::numeric, 2) AS avg_year_grade
+FROM enrolment e
+WHERE e.grade IS NOT NULL
+GROUP BY e.start_year
+ORDER BY e.start_year ASC;

@@ -8,3 +8,29 @@
 --          - кількістю кредитів (спадання), потім за ім'ям
 
 -- Рішення:
+-- Medgitova Sevil ІО-46
+
+WITH teacher_credits AS (
+    SELECT
+        pr.professor_id,
+        p.first_name || ' ' || p.last_name AS full_name,
+        SUM(c.credits) AS total_credits
+    FROM professor pr
+    JOIN person p ON pr.person_id = p.person_id
+    JOIN course_teacher ct ON pr.professor_id = ct.professor_id
+    JOIN course c ON ct.course_id = c.course_id
+    GROUP BY pr.professor_id, p.first_name, p.last_name
+),
+avg_credits AS (
+    SELECT
+        ROUND(AVG(total_credits)::numeric, 2) AS avg_total_credits
+    FROM teacher_credits
+)
+SELECT
+    tc.full_name,
+    tc.total_credits,
+    ac.avg_total_credits
+FROM teacher_credits tc
+CROSS JOIN avg_credits ac
+ORDER BY tc.total_credits DESC, tc.full_name
+LIMIT 100;
