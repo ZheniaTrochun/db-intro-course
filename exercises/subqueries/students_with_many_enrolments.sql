@@ -9,7 +9,7 @@
 --          - кількістю курсів студента (спадання), потім за іменем студента, потім за ідентифікатор студента
 
 -- Рішення:
-select s.student_id, p.first_name, p.last_name, count(e.course_id) as enrolment_count
+select s.student_id, p.first_name || ' ' || p.last_name as full_name, count(e.course_id) as course_number
 from student s
 join person p on s.person_id = p.person_id
 join enrolment e on s.student_id = e.student_id
@@ -21,4 +21,4 @@ from enrolment
 group by student_id
 ) sub
 )
-order by enrolment_count desc;
+order by course_number desc
