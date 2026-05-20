@@ -8,13 +8,8 @@
 --          - мінімальним роком (зростання), потім за назвою курсу
 
 -- Рішення:
-select 
-c.course_id,
-c.name,
-min(sg.start_year) as min_year
+select c.course_id, c.name, min(e.start_year) as first_offered_year
 from course c
 join enrolment e on c.course_id = e.course_id
-join student s on e.student_id = s.student_id
-join student_group sg on s.group_id = sg.group_id
 group by c.course_id, c.name
-order by min_year asc, c.name asc
+order by c.course_id
