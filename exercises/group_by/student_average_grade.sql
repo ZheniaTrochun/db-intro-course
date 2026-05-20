@@ -10,7 +10,7 @@
 --          - за назвою групи, потім за іменем студента
 
 -- Рішення:
-select s.student_id, p.first_name, p.last_name, round(avg(e.grade), 2) as average_grade
+select s.student_id, p.first_name || ' ' || p.last_name as full_name, round(avg(e.grade), 2) as average_grade
 from student s
 join person p on s.person_id = p.person_id
 join enrolment e on s.student_id = e.student_id
