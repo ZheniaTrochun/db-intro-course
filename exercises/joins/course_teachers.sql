@@ -9,3 +9,10 @@
 --          - назвою курсу, потім за роллю викладача
 
 -- Рішення:
+
+SELECT c.name AS course_name, p.first_name || ' ' || p.last_name AS teacher_name, ct.professor_role::text AS role
+FROM course c
+JOIN course_teacher ct ON c.course_id = ct.course_id
+JOIN person p ON ct.professor_id = p.person_id
+WHERE c.status = (SELECT enumlabel FROM pg_enum WHERE enumtypid = 'course_status'::regtype ORDER BY enumsortorder LIMIT 1)
+ORDER BY course_name ASC, role ASC;

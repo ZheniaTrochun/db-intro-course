@@ -10,3 +10,25 @@
 --          - за назвою групи, потім за іменем студента
 
 -- Рішення:
+
+WITH student_avg AS (
+    SELECT 
+        s.student_id,
+        p.first_name || ' ' || p.last_name AS full_name,
+        s.group_id,
+        sg.name AS group_name,
+        AVG(e.grade) AS avg_grade
+    FROM student s
+    JOIN person p ON s.person_id = p.person_id
+    JOIN student_group sg ON s.group_id = sg.group_id
+    LEFT JOIN enrolment e ON s.student_id = e.student_id
+    GROUP BY s.student_id, p.first_name, p.last_name, s.group_id, sg.name
+)
+SELECT 
+    student_id,
+    full_name,
+    ROUND(avg_grade, 2) AS avg_student_grade,
+    group_name,
+    ROUND(AVG(avg_grade) OVER (PARTITION BY group_id), 2) AS avg_group_grade
+FROM student_avg
+ORDER BY group_name ASC, full_name ASC;
