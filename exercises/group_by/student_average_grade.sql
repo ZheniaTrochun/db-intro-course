@@ -21,7 +21,12 @@ WITH student_avg AS (
     JOIN student s USING(student_id)
     JOIN person p USING(person_id)
     JOIN student_group sg ON s.group_id = sg.group_id
-    GROUP BY s.student_id, p.first_name, p.last_name, s.group_id, sg.name
+    GROUP BY 
+        s.student_id, 
+        p.first_name, 
+        p.last_name, 
+        s.group_id, 
+        sg.name
 )
 SELECT 
     student_id,
@@ -32,4 +37,5 @@ SELECT
 FROM student_avg
 ORDER BY 
     group_name,
-    full_name;
+    full_name,
+    student_id;
