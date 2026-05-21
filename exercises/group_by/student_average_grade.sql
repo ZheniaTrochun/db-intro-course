@@ -17,9 +17,9 @@ WITH student_avg AS (
         s.group_id,
         sg.name AS group_name,
         AVG(e.grade) AS avg_student_grade
-    FROM enrolment e
-    JOIN student s USING(student_id)
-    JOIN person p USING(person_id)
+    FROM student s
+    JOIN person p ON s.person_id = p.person_id
+    LEFT JOIN enrolment e ON e.student_id = s.student_id
     JOIN student_group sg ON s.group_id = sg.group_id
     GROUP BY 
         s.student_id, 
@@ -37,5 +37,4 @@ SELECT
 FROM student_avg
 ORDER BY 
     group_name,
-    student_id,
-    full_name;
+    student_id;
