@@ -35,5 +35,6 @@ SELECT
 FROM counts_with_avg
 WHERE course_number > avg_number
 ORDER BY 
-    course_number DESC, 
-    full_name ASC;
+    course_number DESC,
+    full_name ASC,
+    student_id ASC;
