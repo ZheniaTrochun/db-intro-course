@@ -10,32 +10,32 @@
 --          - за назвою групи, потім за іменем студента
 
 -- Рішення:
-WITH student_counts AS (
+WITH student_avg AS (
     SELECT 
         s.student_id,
         p.first_name || ' ' || p.last_name AS full_name,
-        COUNT(e.course_id) AS course_number
-    FROM student s
-    JOIN person p ON p.person_id = s.person_id
-    LEFT JOIN enrolment e ON e.student_id = s.student_id
-    GROUP BY s.student_id, p.first_name, p.last_name
-),
-counts_with_avg AS (
-    SELECT 
-        student_id, 
-        full_name, 
-        course_number,
-        ROUND(AVG(course_number) OVER (), 2)::float AS avg_number
-    FROM student_counts
+        s.group_id,
+        sg.name AS group_name,
+        AVG(e.grade) AS avg_student_grade
+    FROM enrolment e
+    JOIN student s USING(student_id)
+    JOIN person p USING(person_id)
+    JOIN student_group sg ON s.group_id = sg.group_id
+    GROUP BY 
+        s.student_id, 
+        p.first_name, 
+        p.last_name, 
+        s.group_id, 
+        sg.name
 )
 SELECT 
-    student_id, 
-    full_name, 
-    course_number, 
-    avg_number
-FROM counts_with_avg
-WHERE course_number > avg_number
+    student_id,
+    full_name,
+    ROUND(avg_student_grade, 2)::float AS avg_student_grade,
+    group_name,
+    ROUND(AVG(avg_student_grade) OVER (PARTITION BY group_id), 2)::float AS avg_group_grade
+FROM student_avg
 ORDER BY 
-    course_number DESC,
-    full_name ASC,
-    student_id DESC;
+    group_name,
+    full_name,
+    student_id;
