@@ -37,5 +37,5 @@ SELECT
 FROM student_avg
 ORDER BY 
     group_name,
-    full_name,
-    student_id;
+    student_id,
+    full_name;
