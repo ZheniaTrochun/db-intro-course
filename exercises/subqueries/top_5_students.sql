@@ -10,3 +10,30 @@
 --          - назвою курсу, потім за рангом (зростання), потім за іменем студента, потім за ідентифікатором студента
 
 -- Рішення:
+WITH ranked AS (
+    SELECT
+        c.name                                 AS course_name,
+        s.student_id,
+        per.first_name || ' ' || per.last_name AS student_full_name,
+        e.grade,
+        RANK() OVER (
+            PARTITION BY e.course_id
+            ORDER BY e.grade DESC,
+                     per.first_name || ' ' || per.last_name,
+                     s.student_id
+        ) AS rank
+    FROM enrolment e
+    JOIN course c   ON c.course_id = e.course_id
+    JOIN student s  ON s.student_id = e.student_id
+    JOIN person per ON per.person_id = s.person_id
+    WHERE e.grade IS NOT NULL
+)
+SELECT
+    course_name,
+    student_id,
+    student_full_name,
+    grade,
+    rank
+FROM ranked
+WHERE rank <= 5
+ORDER BY course_name, rank, student_full_name, student_id;

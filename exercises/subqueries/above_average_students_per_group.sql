@@ -11,3 +11,33 @@
 --          - назвою групи, потім за середнім балом студента (спадання), потім за іменем студента
 
 -- Рішення:
+WITH student_avg AS (
+    SELECT
+        s.student_id,
+        per.first_name || ' ' || per.last_name AS full_name,
+        s.group_id,
+        ROUND(AVG(e.grade), 2)                 AS avg_student_grade
+    FROM enrolment e
+    JOIN student s  ON s.student_id = e.student_id
+    JOIN person per ON per.person_id = s.person_id
+    WHERE e.grade IS NOT NULL
+    GROUP BY s.student_id, per.first_name, per.last_name, s.group_id
+),
+group_avg AS (
+    SELECT
+        group_id,
+        ROUND(AVG(avg_student_grade), 2) AS avg_group_grade
+    FROM student_avg
+    GROUP BY group_id
+)
+SELECT
+    sa.student_id,
+    sa.full_name,
+    sg.name          AS group_name,
+    sa.avg_student_grade,
+    ga.avg_group_grade
+FROM student_avg sa
+JOIN group_avg ga     ON ga.group_id = sa.group_id
+JOIN student_group sg ON sg.group_id = sa.group_id
+WHERE sa.avg_student_grade > ga.avg_group_grade
+ORDER BY sg.name, sa.avg_student_grade DESC, sa.full_name;
