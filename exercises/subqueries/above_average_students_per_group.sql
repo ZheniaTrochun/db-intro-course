@@ -41,4 +41,4 @@ FROM student_avg sa
 JOIN group_avg ga     ON ga.group_id = sa.group_id
 JOIN student_group sg ON sg.group_id = sa.group_id
 WHERE sa.avg_student_grade > ga.avg_group_grade
-ORDER BY sg.name, sa.avg_student_grade DESC, sa.full_name;
+ORDER BY sg.name, sa.avg_student_grade DESC, sa.full_name, sa.student_id;
