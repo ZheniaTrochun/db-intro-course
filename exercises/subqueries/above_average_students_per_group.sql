@@ -17,18 +17,19 @@ WITH student_avg AS (
         per.first_name || ' ' || per.last_name AS full_name,
         s.group_id,
         ROUND(AVG(e.grade), 2)                 AS avg_student_grade
-    FROM enrolment e
-    JOIN student s  ON s.student_id = e.student_id
-    JOIN person per ON per.person_id = s.person_id
-    WHERE e.grade IS NOT NULL
+    FROM student s
+    JOIN person per       ON per.person_id = s.person_id
+    LEFT JOIN enrolment e ON e.student_id = s.student_id AND e.grade IS NOT NULL
     GROUP BY s.student_id, per.first_name, per.last_name, s.group_id
 ),
 group_avg AS (
     SELECT
-        group_id,
-        ROUND(AVG(avg_student_grade), 2) AS avg_group_grade
-    FROM student_avg
-    GROUP BY group_id
+        s.group_id,
+        ROUND(AVG(e.grade), 2) AS avg_group_grade
+    FROM student s
+    JOIN enrolment e ON e.student_id = s.student_id
+    WHERE e.grade IS NOT NULL
+    GROUP BY s.group_id
 )
 SELECT
     sa.student_id,

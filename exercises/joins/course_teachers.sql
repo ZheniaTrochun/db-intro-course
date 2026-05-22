@@ -11,7 +11,7 @@
 -- Рішення:
 SELECT
     c.name                                     AS course_name,
-    per.first_name || ' ' || per.last_name     AS professor_name,
+    per.first_name || ' ' || per.last_name     AS teacher_name,
     ct.professor_role                          AS role
 FROM course c
 JOIN course_teacher ct ON ct.course_id = c.course_id

@@ -21,7 +21,7 @@ JOIN person per ON per.person_id = s.person_id
 JOIN course c   ON c.course_id = e.course_id
 WHERE c.status = 'активний'
 
-UNION
+UNION ALL
 
 SELECT
     per.first_name || ' ' || per.last_name AS full_name,
