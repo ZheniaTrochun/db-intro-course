@@ -209,7 +209,7 @@ SELECT * FROM course WHERE NOT is_active;
 
 -- знайти всі групи потоку ІТ-1Х
 SELECT * FROM student_group;
-SELECT * FROM student_group WHERE name = 'ІТ-1%';
+SELECT * FROM student_group WHERE name LIKE 'ІТ-1%';
 
 -- знайти всіх викладачів, у кого рівень кваліфікації нижчий доктора філософії
 SELECT * FROM teacher WHERE qualification NOT IN ('доктор філософії', 'доктор наук') OR qualification IS NULL;

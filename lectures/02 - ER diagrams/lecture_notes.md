@@ -223,7 +223,7 @@ Docker дозволяє швидко розгортати бази даних у
 
 ```bash
 # Запустити контейнер 
-docker run <image> -p <port>:<port>
+docker run -p <port>:<port> <image>
 
 # Переглянути список створених контейнерів
 docker ps -a
