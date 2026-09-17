@@ -1,0 +1,28 @@
+model Tournament {
+  id              Int              @id() @default(autoincrement())
+  name            String
+  entryFee        Decimal          @default(0) @map("entry_fee") @db.Decimal(10, 2)
+  prizePool       Decimal          @default(0) @map("prize_pool") @db.Decimal(10, 2)
+  discipline      Discipline
+  format          Format
+  status          TournamentStatus @default(ANNOUNCED)
+  maxParticipants Int              @default(32) @map("max_participants")
+
+  clubId Int  @map("club_id")
+  club   Club @relation(fields: [clubId], references: [id], onDelete: Restrict)
+
+  directorId Int    @map("director_id")
+  director   Person @relation("TournamentDirector", fields: [directorId], references: [id], onDelete: Restrict)
+
+  registrations TournamentRegistration[]
+  matches       Match[]
+
+  registrationDeadline DateTime? @map("registration_deadline")
+  startDate            DateTime  @map("start_date")
+  endDate              DateTime? @map("end_date")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("tournaments")
+}

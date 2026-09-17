@@ -1,0 +1,20 @@
+model TournamentRegistration {
+  id Int @id() @default(autoincrement())
+
+  tournamentId Int        @map("tournament_id")
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  playerId Int    @map("player_id")
+  player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  seedNumber     Int?          @map("seed_number")
+  paymentStatus  PaymentStatus @default(PENDING) @map("payment_status")
+  finalPlacement Int?          @map("final_placement")
+  prizeWon       Decimal       @default(0) @map("prize_won") @db.Decimal(10, 2)
+
+  registeredAt DateTime @default(now()) @map("registered_at")
+
+  @@unique([tournamentId, playerId])
+  @@unique([tournamentId, seedNumber])
+  @@map("tournament_registrations")
+}

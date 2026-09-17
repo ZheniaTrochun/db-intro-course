@@ -1,0 +1,93 @@
+erDiagram
+    PERSON ||--o| PLAYER : "extends (1:1)"
+    PERSON ||--o{ TOURNAMENT : "directs (1:N)"
+    
+    CLUB ||--o{ BILLIARD_TABLE : "owns (1:N)"
+    CLUB ||--o{ TOURNAMENT : "hosts (1:N)"
+    
+    TOURNAMENT ||--o{ TOURNAMENT_REGISTRATION : "has (1:N)"
+    PLAYER ||--o{ TOURNAMENT_REGISTRATION : "registers (1:N)"
+    
+    TOURNAMENT ||--o{ MATCH : "contains (1:N)"
+    BILLIARD_TABLE |o--o{ MATCH : "hosts (0..1:N)"
+    
+    PLAYER |o--o{ MATCH : "plays as player1"
+    PLAYER |o--o{ MATCH : "plays as player2"
+    PLAYER |o--o{ MATCH : "wins"
+
+    PERSON {
+        int id PK
+        string first_name
+        string last_name
+        string email UK
+        date date_of_birth
+    }
+
+    PLAYER {
+        int id PK
+        int person_id FK,UK "1:1 with Person"
+        int rating
+        SportsTitle sports_title
+    }
+
+    CLUB {
+        int id PK
+        string name
+        string city
+        string address
+    }
+
+    BILLIARD_TABLE {
+        int id PK
+        int club_id FK "UK with table_number"
+        int table_number "UK with club_id"
+        TableType table_type
+        TableStatus status
+    }
+
+    TOURNAMENT {
+        int id PK
+        int club_id FK
+        int director_id FK
+        string name
+        decimal entry_fee
+        decimal prize_pool
+        Discipline discipline
+        Format format
+        TournamentStatus status
+        int max_participants
+        datetime registration_deadline
+        datetime start_date
+        datetime end_date
+        datetime created_at
+        datetime updated_at
+    }
+
+    TOURNAMENT_REGISTRATION {
+        int id PK
+        int tournament_id FK "UK with player_id & seed"
+        int player_id FK "UK with tournament_id"
+        int seed_number UK "UK with tournament_id"
+        PaymentStatus payment_status
+        int final_placement
+        decimal prize_won
+        datetime registered_at
+    }
+
+    MATCH {
+        int id PK
+        int tournament_id FK
+        int table_id FK "Nullable"
+        int player1_id FK "Nullable"
+        int player2_id FK "Nullable"
+        int winner_id FK "Nullable"
+        MatchStage stage
+        int race_to
+        int time_limit_minutes
+        int player1_score
+        int player2_score
+        MatchStatus status
+        datetime scheduled_at
+        datetime started_at
+        datetime finished_at
+    }

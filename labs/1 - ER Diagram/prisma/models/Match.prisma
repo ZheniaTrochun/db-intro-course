@@ -1,0 +1,33 @@
+model Match {
+  id Int @id() @default(autoincrement())
+
+  tournamentId Int        @map("tournament_id")
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  tableId Int?           @map("table_id")
+  table   BilliardTable? @relation(fields: [tableId], references: [id], onDelete: SetNull)
+
+  player1Id Int?    @map("player1_id")
+  player1   Player? @relation("Player1Matches", fields: [player1Id], references: [id], onDelete: SetNull)
+
+  player2Id Int?    @map("player2_id")
+  player2   Player? @relation("Player2Matches", fields: [player2Id], references: [id], onDelete: SetNull)
+
+  winnerId Int?    @map("winner_id")
+  winner   Player? @relation("WonMatches", fields: [winnerId], references: [id], onDelete: SetNull)
+
+  stage            MatchStage
+  raceTo           Int        @default(3) @map("race_to")
+  timeLimitMinutes Int?       @map("time_limit_minutes")
+
+  player1Score Int @default(0) @map("player1_score")
+  player2Score Int @default(0) @map("player2_score")
+
+  status MatchStatus @default(SCHEDULED)
+
+  scheduledAt DateTime? @map("scheduled_at")
+  startedAt   DateTime? @map("started_at")
+  finishedAt  DateTime? @map("finished_at")
+
+  @@map("matches")
+}

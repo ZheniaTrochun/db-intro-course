@@ -1,0 +1,11 @@
+model Club {
+  id      Int    @id() @default(autoincrement())
+  name    String
+  city    String
+  address String
+
+  tables      BilliardTable[]
+  tournaments Tournament[]
+
+  @@map("clubs")
+}

@@ -1,0 +1,13 @@
+model Person {
+  id          Int      @id() @default(autoincrement())
+  firstName   String   @map("first_name")
+  lastName    String   @map("last_name")
+  email       String   @unique
+  dateOfBirth DateTime @map("date_of_birth") @db.Date
+
+  playerProfile Player?
+
+  directedTournaments Tournament[] @relation("TournamentDirector")
+
+  @@map("persons")
+}

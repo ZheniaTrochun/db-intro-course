@@ -1,0 +1,14 @@
+model BilliardTable {
+  id          Int         @id() @default(autoincrement())
+  tableNumber Int         @map("table_number")
+  tableType   TableType   @map("table_type")
+  status      TableStatus @default(AVAILABLE)
+
+  clubId Int  @map("club_id")
+  club   Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  matches Match[]
+
+  @@unique([clubId, tableNumber])
+  @@map("billiard_tables")
+}

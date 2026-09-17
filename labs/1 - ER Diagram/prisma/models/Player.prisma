@@ -1,0 +1,17 @@
+model Player {
+  id Int @id() @default(autoincrement())
+
+  personId Int    @unique @map("person_id")
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  rating      Int         @default(0)
+  sportsTitle SportsTitle @default(NONE) @map("sports_title")
+
+  registrations TournamentRegistration[]
+
+  matchesAsPlayer1 Match[] @relation("Player1Matches")
+  matchesAsPlayer2 Match[] @relation("Player2Matches")
+  matchesWon       Match[] @relation("WonMatches")
+
+  @@map("players")
+}
