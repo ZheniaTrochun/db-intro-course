@@ -1,0 +1,49 @@
+erDiagram
+    CATEGORY ||--o{ PRODUCT : contains
+    WAREHOUSE ||--o{ MOVEMENT : records
+    SUPPLIER |o--o{ MOVEMENT : supplies
+    MOVEMENT ||--|{ MOVEMENT_ITEM : contains
+    PRODUCT ||--o{ MOVEMENT_ITEM : includes
+
+    CATEGORY {
+        int category_id PK
+        string name
+    }
+
+    PRODUCT {
+        int product_id PK
+        int category_id FK
+        string sku UK
+        string name
+        string unit
+    }
+
+    WAREHOUSE {
+        int warehouse_id PK
+        string name
+        string address
+    }
+
+    SUPPLIER {
+        int supplier_id PK
+        string name
+        string phone
+        string email
+    }
+
+    MOVEMENT {
+        int movement_id PK
+        int warehouse_id FK
+        int supplier_id FK
+        string document_no UK
+        timestamp occurred_at
+        string type
+        string note
+    }
+
+    MOVEMENT_ITEM {
+        int movement_id PK,FK
+        int product_id PK,FK
+        numeric quantity
+        numeric unit_cost
+    }
