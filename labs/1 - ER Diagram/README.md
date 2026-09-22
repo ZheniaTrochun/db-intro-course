@@ -30,35 +30,35 @@
 ## Опис сутностей:
 
 - Власник :
-  - UUID | ID власника | PK;
+  - INT | ID власника | PK;
   - VARCHAR | ПІБ;
   - INT | номер телефону;
   - VARCHAR | паспортні дані.
 - Орендар :
-  - UUID | ID орендаря | PK,
+  - INT | ID орендаря | PK,
   - VARCHAR | ПІБ,
   - INT | номер телефону,
 - Рієлтор :
-  - UUID ID | рієлтора | PK,
+  - INT | ID рієлтора | PK,
   - VARCHAR | ПІБ,
   - INT | телефон,
   - DECIMAL | відсоток комісійних.
 - Об'єкт нерухомості :
-  - UUID | ID об'єкта | PK,
-  - UUID | ID власника | FK,
+  - INT | ID об'єкта | PK,
+  - INT | ID власника | FK,
   - VARCHAR | адреса,
-  - TEXT | статус (доступно/орендовано).
+  - ENUM | статус (доступно/орендовано).
 - Заявка :
-  - UUID | ID заявки | PK,
-  - UUID | ID орендаря | FK,
-  - UUID | ID об'єкта | FK,
+  - INT | ID заявки | PK,
+  - INT | ID орендаря | FK,
+  - INT | ID об'єкта | FK,
   - DATE | дата подачі,
-  - TEXT | статус (в обробці/схвалено/відхилено).
+  - ENUM | статус (в обробці/схвалено/відхилено).
 - Угода оренди :
-  - UUID | ID угоди | PK,
-  - UUID | ID об'єкта | FK,
-  - UUID | ID орендаря | FK,
-  - UUID | ID рієлтора | FK,
+  - INT | ID угоди | PK,
+  - INT | ID об'єкта | FK,
+  - INT | ID орендаря | FK,
+  - INT | ID рієлтора | FK,
   - DATE | дата початку,
   - DATE | дата закінчення,
   - DECIMAL | сума оренди,
@@ -84,45 +84,45 @@ PROPERTY ||--|{ LEASE_AGREEMENT : " "
 REALTOR o|--o{ LEASE_AGREEMENT : " "
 
     PROPERTY_OWNER {
-        uuid owner_id PK
+        int owner_id PK
         varchar full_name
         varchar phone_number
         varchar passport_data
     }
 
     TENANT {
-        uuid tenant_id PK
+        int tenant_id PK
         varchar full_name
         varchar phone_number
     }
 
     REALTOR {
-        uuid realtor_id PK
+        int realtor_id PK
         varchar full_name
         varchar phone_number
         decimal commission_rate
     }
 
     PROPERTY {
-        uuid property_id PK
-        uuid owner_id FK
+        int property_id PK
+        int owner_id FK
         varchar address
-        text status
+        enum status
     }
 
     APPLICATION {
-        uuid application_id PK
-        uuid tenant_id FK
-        uuid property_id FK
+        int application_id PK
+        int tenant_id FK
+        int property_id FK
         date submission_date
-        text status
+        enum status
     }
 
     LEASE_AGREEMENT {
-        uuid lease_id PK
-        uuid property_id FK
-        uuid tenant_id FK
-        uuid realtor_id FK
+        int lease_id PK
+        int property_id FK
+        int tenant_id FK
+        int realtor_id FK
         date start_date
         date end_date
         decimal rental_amount
