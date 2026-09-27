@@ -2,9 +2,9 @@ erDiagram
   users {
     UUID user_id  "PK"
     VARCHAR(30) nickname  "UK"  
-    VARCHAR(100) name  ""  
+    VARCHAR(100) full_name  ""  
     TEXT email  "UK"        
-    TEXT google_id ""
+    TEXT google_id "UK"
     TEXT bio  ""  
     TEXT password_hash  ""  
     TEXT avatar_url  ""  
@@ -14,7 +14,7 @@ erDiagram
     DATE last_watch_date ""  
     TEXT profile_frame_url  ""  
     TEXT profile_background_url  ""
-    ENUM status "default/admin/banned etc."  
+    ENUM user_status "default/admin/banned etc."  
     TIMESTAMP created_at ""
     TIMESTAMP updated_at ""
   }
@@ -36,12 +36,12 @@ erDiagram
     INTEGER avg_episode_duration  ""  
     INTEGER pegi_age_restriction  ""
     ENUM anime_format "ona/ova/tv/movie/special"
-    ENUM status  "anounced/ongoing/finished/dropped"  
+    ENUM anime_status  "anounced/ongoing/finished/dropped"  
   }
 
   genres {
-    INTEGER genre_id "PK"
-    ENUM genre_name "comedy/tragedy/isekai etc."
+    UUID anime_id "FK PK"
+    ENUM genre_type "PK"
   }
   
   animeListUnits {
@@ -50,7 +50,7 @@ erDiagram
     INTEGER watched_episodes ""
     INTEGER repeat_times ""
     DATE started_watching ""
-    ENUM status "finished/watching/delayed/dropped"
+    ENUM list_unit_status "finished/watching/delayed/dropped"
   }
   
   comments {
@@ -59,7 +59,7 @@ erDiagram
     UUID anime_id  "FK"
     INTEGER grade ""
     TEXT content ""
-    DATE date ""
+    TIMESTAMP created_at ""
   }
 
   episodes {
@@ -91,26 +91,24 @@ erDiagram
   sessions {
     BIGSERIAL session_id "PK"
     UUID user_id "FK"
-    TEXT external_refresh_token ""
-    TEXT internal_refresh_token "UK"
-    ENUM auth_provider "google/facebook etc."
+    TEXT refresh_token "UK"
     TEXT device_type ""
     TEXT device_name ""
     TEXT os ""
     TEXT browser ""
     TEXT user_agent ""
+    TEXT user_location ""
     INET ip_adress ""
-    TEXT location ""
   }
 
   users ||--O{ comments : "writes"
+  users ||--O{ sessions : "authorizes"
   users ||--O{ animeListUnits : "associates"
-  users ||--O{ sessions : "authorizes"   
   animes ||--O{ animeListUnits : "associates"
   animes ||--O{ comments : "has"
   animes ||--O{ episodes : "has"
   animes ||--O{ upcomingEpisodes : "has"
-  animes }O--O{ genres : "has"
+  animes ||--O{ genres : "has"
   rooms_REDIS_ |O--|{ users : "has"
   rooms_REDIS_ |O--|| users : "owned by"
   rooms_REDIS_ }O--O{ episodes : "playing"
