@@ -1,0 +1,23 @@
+JSON.SET room:67 $ '{
+  "room_code": "8498ji989",
+  "owner_id": "deb8d621-d665-4643-8eaa-b787250fd485",
+  "participants":[
+    {"user_full_name": "Will Jackson", "user_nickname": "badboy", "user_id": "deb8d621-d665-4643-8eaa-b787250fd485"},
+    {"user_full_name": "Violetta Evergarden", "user_nickname": "gooddoll", "user_id": "01a0e399-3f27-752b-bf0e-201c35cbc897"}
+  ],
+  "playlist": [
+    {
+      "anime_id":"01a0e39a-a6ca-7172-9378-0eba775642f7",
+      "anime_title_original":"Hello",
+      "anime_title_ua":"Привіт",
+      "cover_url":"https://example.com/image.png",
+      "episode_id": 94,
+      "episode_name": "OVA1",
+      "episode_source": "https://example.com/video.mp4"
+    }
+  ],
+  "play_timestamp": 4914258,
+  "play_offset": 120,
+  "playing": true,
+  "public": false
+}'
