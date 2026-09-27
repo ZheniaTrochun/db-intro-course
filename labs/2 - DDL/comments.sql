@@ -10,3 +10,26 @@ CREATE TABLE comments (
 -- TODO: think about index for these FKs
 CREATE INDEX idx_comments_anime_id ON comments(anime_id);
 CREATE INDEX idx_comments_author_id ON comments(author_id);
+
+
+-- TEST: Example of insertion (using ids that are hardcoded in corresponding .sql files)
+-- It is extremely bad practice for real project and is just for example
+INSERT INTO comments (author_id, anime_id, grade, content) VALUES
+    (
+        '00000000-0000-7000-8000-000000000001', 
+        '00000000-aaaa-7000-8000-000000000001', 
+        -3, 
+        'Example Comment 1'
+    ),
+    (
+        '00000000-0000-7000-8000-000000000002', 
+        '00000000-aaaa-7000-8000-000000000001', 
+        0, 
+        'Example Comment 2'
+    ),
+    (
+        '00000000-0000-7000-8000-000000000003', 
+        '00000000-aaaa-7000-8000-000000000001', 
+        5, 
+        'Example Comment 3'
+    );

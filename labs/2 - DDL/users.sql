@@ -19,3 +19,10 @@ CREATE TABLE users (
     crated_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
+
+-- TEST: Example of insertion with hardcoded user_id
+-- It is extremely bad practice for real project and is just for example
+INSERT INTO users (user_id, nickname, full_name, email) VALUES
+    ('00000000-0000-7000-8000-000000000001','BadBoy67','He Is Bad','badboy67@ukr.net'),
+    ('00000000-0000-7000-8000-000000000002','GoodBoy34','He Is Good','goodboy34@gmail.com'),
+    ('00000000-0000-7000-8000-000000000003','TheBestBoy911','He Is The Best','thebestboy911@something.example');

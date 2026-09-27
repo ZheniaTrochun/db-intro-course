@@ -13,3 +13,30 @@ CREATE TABLE sessions (
 
 -- TODO: think about index for this FK
 CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+
+-- TEST: Example of insertion (using ids that are hardcoded in corresponding .sql files)
+-- It is extremely bad practice for real project and is just for example
+INSERT INTO sessions (
+    user_id,
+    refresh_token,
+    device_type,
+    device_name
+) VALUES
+    (
+        '00000000-0000-7000-8000-000000000001',
+        '1',
+        'desktop',
+        'Windows PC'
+    ),
+    (
+        '00000000-0000-7000-8000-000000000002',
+        '2',
+        'mobile',
+        'iPhone 15 Pro'
+    ),
+    (
+        '00000000-0000-7000-8000-000000000003',
+        '3',
+        'mobile',
+        'ZTE Nubia Red Magic 7S Pro Supernova Lords Mobile Limited Edition'
+    );
