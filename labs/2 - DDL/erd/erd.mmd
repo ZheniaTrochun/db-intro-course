@@ -1,0 +1,116 @@
+erDiagram
+  users {
+    UUID user_id  "PK"
+    VARCHAR(30) nickname  "UK"  
+    VARCHAR(100) name  ""  
+    TEXT email  "UK"        
+    TEXT google_id ""
+    TEXT bio  ""  
+    TEXT password_hash  ""  
+    TEXT avatar_url  ""  
+    TEXT[] social_networks  ""  
+    INTEGER max_streak  ""  
+    TEXT timezone  ""
+    DATE last_watch_date ""  
+    TEXT profile_frame_url  ""  
+    TEXT profile_background_url  ""
+    ENUM status "default/admin/banned etc."  
+    TIMESTAMP created_at ""
+    TIMESTAMP updated_at ""
+  }
+
+  animes {
+    UUID anime_id  "PK"  
+    TEXT slug  "UK"  
+    TEXT title_ua  ""  
+    TEXT title_en  ""  
+    TEXT title_original  ""  
+    TEXT description  ""  
+    TEXT cover_url  ""  
+    TEXT production_studio  ""
+    INTEGER mal_id  ""  
+    INTEGER anilist_id  ""  
+    INTEGER hikka_id  ""  
+    INTEGER imdb_id  ""  
+    INTEGER year  ""
+    INTEGER avg_episode_duration  ""  
+    INTEGER pegi_age_restriction  ""
+    ENUM anime_format "ona/ova/tv/movie/special"
+    ENUM status  "anounced/ongoing/finished/dropped"  
+  }
+
+  genres {
+    INTEGER genre_id "PK"
+    ENUM genre_name "comedy/tragedy/isekai etc."
+  }
+  
+  animeListUnits {
+    UUID user_id "PK FK"
+    UUID anime_id "PK FK"
+    INTEGER watched_episodes ""
+    INTEGER repeat_times ""
+    DATE started_watching ""
+    ENUM status "finished/watching/delayed/dropped"
+  }
+  
+  comments {
+    BIGSERIAL comment_id "PK"
+    UUID author_id "FK"
+    UUID anime_id  "FK"
+    INTEGER grade ""
+    TEXT content ""
+    DATE date ""
+  }
+
+  episodes {
+    BIGSERIAL episode_id "PK"
+    UUID anime_id  "FK"
+    TEXT source_url  ""  
+    TEXT episode_name  ""
+    TEXT localization_studio  ""
+    ENUM localization_type  "dub/sub"  
+  }
+
+  upcomingEpisodes {
+    UUID anime_id "PK FK"
+    TEXT episode_name "PK" 
+    TIMESTAMP episode_date ""
+  }
+  
+  rooms_REDIS_ {
+    TEXT room_code "PK"
+    UUID owner_id "FK"
+    UUID[] participants ""
+    BIGINT[] playlist ""
+    TIMESTAMP play_timestamp ""
+    INTEGER play_offset ""
+    BOOLEAN playing ""
+    BOOLEAN public ""
+  }
+
+  sessions {
+    BIGSERIAL session_id "PK"
+    UUID user_id "FK"
+    TEXT external_refresh_token ""
+    TEXT internal_refresh_token "UK"
+    ENUM auth_provider "google/facebook etc."
+    TEXT device_type ""
+    TEXT device_name ""
+    TEXT os ""
+    TEXT browser ""
+    TEXT user_agent ""
+    INET ip_adress ""
+    TEXT location ""
+  }
+
+  users ||--O{ comments : "writes"
+  users ||--O{ animeListUnits : "associates"
+  users ||--O{ sessions : "authorizes"   
+  animes ||--O{ animeListUnits : "associates"
+  animes ||--O{ comments : "has"
+  animes ||--O{ episodes : "has"
+  animes ||--O{ upcomingEpisodes : "has"
+  animes }O--O{ genres : "has"
+  rooms_REDIS_ |O--|{ users : "has"
+  rooms_REDIS_ |O--|| users : "owned by"
+  rooms_REDIS_ }O--O{ episodes : "playing"
