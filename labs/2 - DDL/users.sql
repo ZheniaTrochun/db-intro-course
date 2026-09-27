@@ -1,0 +1,21 @@
+CREATE TYPE user_status_enum AS ENUM ('default', 'admin', 'banned');
+
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY DEFAULT uuidv7(),
+    nickname VARCHAR(30) NOT NULL UNIQUE,
+    full_name VARCHAR(100) NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    google_id TEXT UNIQUE,
+    bio TEXT,
+    password_hash TEXT,
+    avatar_url TEXT,
+    social_networks TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+    max_streak INTEGER NOT NULL DEFAULT 0,
+    timezone TEXT NOT NULL DEFAULT 'UTC',
+    last_watch_date DATE,
+    profile_frame_url TEXT,
+    profile_background_url TEXT,
+    user_status user_status_enum NOT NULL DEFAULT 'default',
+    crated_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now()
+);
