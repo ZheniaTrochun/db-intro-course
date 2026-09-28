@@ -7,29 +7,26 @@ CREATE TABLE comments (
     created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
--- TODO: think about index for these FKs
 CREATE INDEX idx_comments_anime_id ON comments(anime_id);
-CREATE INDEX idx_comments_author_id ON comments(author_id);
-
 
 -- TEST: Example of insertion (using ids that are hardcoded in corresponding .sql files)
 -- It is extremely bad practice for real project and is just for example
 INSERT INTO comments (author_id, anime_id, grade, content) VALUES
     (
         '00000000-0000-7000-8000-000000000001', 
-        '00000000-aaaa-7000-8000-000000000001', 
+        '11111111-1111-1111-1111-111111111111', 
         -3, 
         'Example Comment 1'
     ),
     (
         '00000000-0000-7000-8000-000000000002', 
-        '00000000-aaaa-7000-8000-000000000001', 
+        '11111111-6666-1111-2222-111119999999', 
         0, 
         'Example Comment 2'
     ),
     (
         '00000000-0000-7000-8000-000000000003', 
-        '00000000-aaaa-7000-8000-000000000001', 
-        5, 
+        '33333333-3333-3333-3333-333333333333', 
+        NULL, 
         'Example Comment 3'
     );

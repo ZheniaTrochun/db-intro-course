@@ -1,17 +1,17 @@
 -- DDL for animes table
 
-CREATE TYPE anime_format AS ENUM ('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
-CREATE TYPE anime_status AS ENUM ('upcoming', 'ongoing', 'dropped', 'finished', 'unknown');
-CREATE TYPE mpaa_rating AS ENUM (
+CREATE TYPE anime_format_enum AS ENUM ('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
+CREATE TYPE anime_status_enum AS ENUM ('upcoming', 'ongoing', 'dropped', 'finished');
+CREATE TYPE mpaa_rating_enum AS ENUM (
     'g',-- General Audiences (Без обмежень)
     'pg',      -- Parental Guidance Suggested (Рекомендовано перегляд з батьками)
     'pg13',   -- Parents Strongly Cautioned (Дітям до 13 років небажано)
     'r',       -- Restricted (До 17 років тільки з дорослими)
     'nc17'    -- No One 17 and Under Admitted (Категорично з 18 років)
-    );
+  );
 
 CREATE TABLE animes (
-  anime_id UUID PRIMARY KEY DEFAULT UUIDv7(),
+  anime_id UUID PRIMARY KEY DEFAULT uuidv7(),
   slug TEXT NOT NULL UNIQUE,
   title_ua TEXT,
   title_en TEXT,
@@ -23,12 +23,14 @@ CREATE TABLE animes (
   anilist_id INT,
   hikka_id INT,
   imdb_id INT,
-  year INT SMALLINT CHECK (year >= 1900 AND year <= 2100),
-  avg_episode_duration INT SMALLINT CHECK (avg_episode_duration > 0),
-  age_restriction mpaa_rating NOT NULL DEFAULT 'g',
-  anime_status anime_status NOT NULL DEFAULT 'unknown',
-  anime_format anime_format NOT NULL DEFAULT 'tv'
-)
+  year INT SMALLINT CHECK (year >= 1900),
+  avg_episode_duration INT SMALLINT NOT NULL DEFAULT 0,
+  age_restriction mpaa_rating_enum,
+  anime_status anime_status_enum,
+  anime_format anime_format_enum NOT NULL DEFAULT 'tv'
+);
+
+-- TODO: create some indexes of slug and disactivation
 
 -- //TEST
 
