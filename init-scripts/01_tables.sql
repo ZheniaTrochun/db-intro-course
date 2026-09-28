@@ -2,7 +2,7 @@ create table if not exists "user"(
     user_id bigint generated always as identity primary key,
     username varchar(50) not null,
     email varchar(100) not null unique,
-    password_hash text not null,
+    password_hash varchar(128) not null,
     wallet_balance decimal(10, 2) not null default 0.00,
     created_at timestamptz not null default current_timestamp,
     constraint wallet_balance_positive check (wallet_balance >=0)
@@ -11,7 +11,7 @@ create table if not exists "user"(
 create table if not exists publisher(
     publisher_id int generated always as identity primary key,
     publisher_name varchar(100) unique not null,
-    website text,
+    website varchar(2048),
     support_email varchar(100) not null
 );
 
@@ -21,12 +21,12 @@ EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 create table if not exists app(
-    app_id bigint generated always as identity primary key,
+    app_id int generated always as identity primary key,
     publisher_id int not null references publisher(publisher_id),
-    parent_game_id bigint references app(app_id),
+    parent_game_id int references app(app_id),
     title varchar(150) not null unique,
     app_type app_type not null,
-    description text,
+    description varchar(4000),
     price decimal(10, 2) not null,
     release_date date not null,
     constraint game_price_positive check(price>=0)
@@ -35,7 +35,7 @@ create table if not exists app(
 create table if not exists category(
     category_id int generated always as identity primary key,
     category_name varchar(50) not null unique,
-    description text
+    description varchar(4000)
 );
 
 create table if not exists app_category(
@@ -46,7 +46,7 @@ create table if not exists app_category(
 
 create table if not exists wishlist (
     user_id bigint not null references "user"(user_id) on delete cascade,
-    app_id bigint not null references app(app_id) on delete cascade,
+    app_id int not null references app(app_id) on delete cascade,
     added_date timestamptz not null default current_timestamp,
     primary key (user_id, app_id)
 );
@@ -75,7 +75,7 @@ create table if not exists "order" (
 
 create table if not exists order_item (
     order_id bigint not null references "order"(order_id) on delete cascade,
-    app_id bigint not null references app(app_id),
+    app_id int not null references app(app_id),
     price_at_purchase decimal(10, 2) not null,
     primary key (order_id, app_id),
     constraint item_price_positive check (price_at_purchase >= 0)
@@ -83,7 +83,7 @@ create table if not exists order_item (
 
 create table if not exists user_library (
     user_id bigint not null references "user"(user_id) on delete cascade,
-    app_id bigint not null references app(app_id) on delete cascade,
+    app_id int not null references app(app_id) on delete cascade,
     playtime_hours int not null default 0,
     added_date timestamptz not null default current_timestamp,
     primary key (user_id, app_id),
@@ -93,10 +93,10 @@ create table if not exists user_library (
 create table if not exists review (
     review_id bigint generated always as identity primary key,
     user_id bigint not null references "user"(user_id) on delete cascade,
-    app_id bigint not null references app(app_id) on delete cascade,
+    app_id int not null references app(app_id) on delete cascade,
     is_recommended boolean not null,
     playtime_at_review int not null check(playtime_at_review>=2),
-    content text,
+    content varchar(5000),
     created_at timestamptz not null default current_timestamp,
     constraint unique_user_review unique(user_id, app_id)
 );

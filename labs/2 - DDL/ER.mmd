@@ -1,83 +1,83 @@
 erDiagram
     USER {
-        UUID user_id PK
+        BIGINT user_id PK
         VARCHAR username
         VARCHAR email
         VARCHAR password_hash
         DECIMAL wallet_balance
-        TIMESTAMP created_at
+        TIMESTAMPTZ created_at
     }
 
     PUBLISHER {
-        UUID publisher_id PK
+        INT publisher_id PK
         VARCHAR name
         VARCHAR website
         VARCHAR support_email
     }
 
     APP {
-        UUID app_id PK
-        UUID publisher_id FK
-        UUID parent_app_id FK
-        VARCHAR app_type
+        BIGINT app_id PK
+        INT publisher_id FK
+        BIGINT parent_app_id FK
+        ENUM app_type
         VARCHAR title
-        TEXT description
+        VARCHAR description
         DECIMAL price
         DATE release_date
     }
 
     CATEGORY {
-        UUID category_id PK
+        INT category_id PK
         VARCHAR name
-        TEXT description
+        VARCHAR description
     }
 
     APP_CATEGORY {
-        UUID app_id PK,FK
-        UUID category_id PK,FK
+        BIGINT app_id PK,FK
+        INT category_id PK,FK
     }
 
     WISHLIST {
-        UUID user_id PK,FK
-        UUID app_id PK,FK
-        TIMESTAMP added_date
+        BIGINT user_id PK,FK
+        BIGINT app_id PK,FK
+        TIMESTAMPTZ added_date
     }
 
     ORDER {
-        UUID order_id PK
-        UUID user_id FK
-        UUID receiver_id FK
-        TIMESTAMP order_date
+        BIGINT order_id PK
+        BIGINT user_id FK
+        BIGINT receiver_id FK
+        TIMESTAMPTZ order_date
         DECIMAL total_amount
-        VARCHAR payment_method
-        VARCHAR status
+        ENUM payment_method
+        ENUM status
     }
 
     ORDER_ITEM {
-        UUID order_id PK,FK
-        UUID app_id PK,FK
+        BIGINT order_id PK,FK
+        BIGINT app_id PK,FK
         DECIMAL price_at_purchase
     }
 
     USER_LIBRARY {
-        UUID user_id PK,FK
-        UUID app_id PK,FK
+        BIGINT user_id PK,FK
+        BIGINT app_id PK,FK
         INT playtime_hours
-        TIMESTAMP added_date
+        TIMESTAMPTZ added_date
     }
 
     REVIEW {
-        UUID review_id PK
-        UUID user_id FK
-        UUID app_id FK
+        BIGINT review_id PK
+        BIGINT user_id FK
+        BIGINT app_id FK
         BOOLEAN is_recommended
         INT playtime_at_review
-        TEXT content
-        TIMESTAMP created_at
+        VARCHAR content
+        TIMESTAMPTZ created_at
     }
 
     PUBLISHER ||--o{ APP : "publishes"
-    APP ||--o{ APP : "has DLC (1:N)"
+    APP ||--o{ APP : "has DLC"
     USER ||--o{ ORDER : "places"
     USER ||--o{ ORDER : "receives"
     USER ||--o{ USER_LIBRARY : "owns"
