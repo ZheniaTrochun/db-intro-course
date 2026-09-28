@@ -47,11 +47,11 @@ CREATE TYPE genre_type AS ENUM (
 );
 
 CREATE TABLE genres (
-  genre_id UUID PRIMARY KEY DEFAULT UUIDv7(),
+  anime_id UUID REFERENCES animes(anime_id) ON DELETE CASCADE,
   genre_type genre_type NOT NULL UNIQUE
-)
+);
 
---TEST
+--//TEST
 
 INSERT INTO genres (genre_id, genre_type) VALUES
   (UUIDv7(), 'action'),

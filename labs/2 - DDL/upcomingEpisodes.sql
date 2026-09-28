@@ -2,11 +2,14 @@
 
 CREATE TABLE upcomingEpisodes (
   anime_id UUID REFERENCES animes(anime_id) ON DELETE CASCADE,
-  episode_name TEXT PRIMARY KEY,
-  episode_date TIMESTAMP NOT NULL DEFAULT NOW()
+  episode_name TEXT,
+  episode_date TIMESTAMP NOT NULL DEFAULT NOW(),
+
+  PRIMARY KEY (anime_id, episode_date)
 );
 
--- TEST
+-- //TEST
+
 INSERT INTO upcoming_episodes (anime_id, episode_number, episode_date)
 VALUES ('11111111-1111-1111-1111-111111111111', 2, NOW() + INTERVAL '7 days'),
        ('11111111-6666-1111-2222-111119999999', 3, CURRENT_DATE + INTERVAL '１ month' + TIME '12:00:00'),
