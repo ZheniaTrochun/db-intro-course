@@ -1,128 +1,22 @@
-# Репозиторій курсу "Бази даних"
+# БД лаби: ФІОТ, курс 2
 
-Цей репозиторій містить ресурси та налаштування середовища для курсу по базам даних.
+## 📋 Список
 
-## PCO "Бази даних" (потік ІМ)
+- [x] [Лаба 1](<labs/1 - ER Diagram>) - `ER Diagram` | [lab_1.md](<labs/1 - ER Diagram/lab_1.md>) | [lab_1.short.md](<labs/1 - ER Diagram/lab_1.short.md>)
+- [ ] [Лаба 2](<labs/2 - DDL>) - `DDL` | [lab_2.md](<labs/2 - DDL/lab_2.md>) | [lab_2.short.md](<labs/2 - DDL/lab_2.short.md>)
+- [ ] [Лаба 3](<labs/3 - OLTP>) - `OLTP` | [lab_3.md](<labs/3 - OLTP/lab_3.md>) | [lab_3.short.md](<labs/3 - OLTP/lab_3.short.md>)
+- [ ] [Лаба 4](<labs/4 - OLAP>) - `OLAP` | [lab_4.md](<labs/4 - OLAP/lab_4.md>) | [lab_4.short.md](<labs/4 - OLAP/lab_4.short.md>)
+- [ ] [Лаба 5](<labs/5 - Normalization>) - `Normalization` | [lab_5.md](<labs/5 - Normalization/lab_5.md>) | [lab_5.short.md](<labs/5 - Normalization/lab_5.short.md>)
+- [ ] [Лаба 6](<labs/6 - Migrations>) - `Migrations` | [lab_6.md](<labs/6 - Migrations/lab_6.md>) | [lab_6.short.md](<labs/6 - Migrations/lab_6.short.md>)
 
-- 6 лабораторних робіт (10 балів кожна)
-- Контрольна робота (20 балів)
-- Екзамен (20 балів)
-- Доповіді (20 балів) - за бажанням
-- Додаткові бали за роботу на лекціях
+## 🔗 Швидкі посилання
 
-## PCO "Організація баз даних" (потік ІО)
+[`Оригінальний репо`](https://github.com/ZheniaTrochun/db-intro-course) |
+[`Kanban`](https://team.apudb.pp.ua/projects/7/40) |
+[`PostgreSQL`](https://www.postgresql.org/docs/current/index.html) |
+[`Типи даних`](https://www.postgresql.org/docs/current/datatype.html#DATATYPE-TABLE)
 
-- 6 лабораторних робіт (10 балів кожна)
-- Контрольна робота (20 балів)
-- Додаткові бали за роботу на лекціях
-- Додаткові бали за вправи з SQL
-
-Фінальний бал = (`бали за лабораторні` + `бали за контрольну`) * 1.25 + `додаткові бали`
-
-## Матеріали курсу
-
-Матеріали лекцій доступні в директорії [lectures](lectures/):
-
-- [Лекція 1 - Вступ](lectures/01%20-%20intro)
-- [Лекція 2 - ER діаграми](lectures/02%20-%20ER%20diagrams)
-- [Лекція 3 - Таблиці, рядки, колонки](lectures/03%20-%20Tables,%20rows,%20columns)
-- [Лекція 4 - SQL частина 1](lectures/04%20-%20DML%20basics)
-- [Лекція 5 - SQL частина 2 - JOIN та операції над множинами](lectures/05%20-%20JOINs%20and%20set%20operations)
-- [Лекція 6 - SQL частина 3 - GROUP BY та віконні функції](lectures/06%20-%20GROUP%20BY%20and%20window%20functions)
-- [Лекція 7 - SQL частина 4 - Підзапити та CTE](lectures/07%20-%20Subqueries%20and%20CTE)
-- [Лекція 8 - Нормалізація](lectures/08%20-%20Normalisation)
-- [Лекція 9 - Міграції](lectures/09%20-%20Migrations)
-- [Лекція 10 - Транзакції](lectures/10%20-%20Transactions)
-- [Лекція 11-12 - Індекси](lectures/11-12%20-%20Indices)
-- [Лекція 13 - Денормалізація](lectures/13%20-%20Denormalisation)
-- [Лекція 14 - Фізична організація даних на диску](lectures/14%20-%20Data%20storage%20on%20disk)
-- [Лекція 15 - Нереляційні бази даних (NoSQL)](lectures/15%20-%20Non-relational%20DBMS)
-
-Інструкції та матеріали для лабораторних робіт доступні в директорії [labs](labs/):
-
-- [Лабораторна 1 - ER діаграми](labs/1%20-%20ER%20Diagram/lab_1.md)
-- [Лабораторна 2 - DDL](labs/2%20-%20DDL/lab_2.md)
-- [Лабораторна 3 - OLTP](labs/3%20-%20OLTP/lab_3.md)
-- [Лабораторна 4 - OLAP](labs/4%20-%20OLAP/lab_4.md)
-- [Лабораторна 5 - Нормалізація](labs/5%20-%20Normalization/lab_5.md)
-- [Лабораторна 6 - Міграції](labs/6%20-%20Migrations/lab_6.md)
-
-[Коротенький довідник по матеріалам](./sql-cheat-sheet.md)  
-[Словничок термінів](./glossary.md)
-
-Додаткові матеріали курсу та завдання будуть додані до цього репозиторію протягом семестру.
-
-## Огляд
-
-Цей репозиторій надає готове до використання середовище бази даних з використанням Docker контейнерів.  
-Середовище включає:
-
-- Сервер бази даних PostgreSQL
-- Веб-інтерфейс pgAdmin для управління базою даних
-
-## Передумови
-
-Перед початком роботи переконайтеся, що встановлено наступні інструменти:
-
-- [Docker](https://www.docker.com/get-started)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-
-## Початок роботи
-
-### Налаштування середовища
-
-1. Клонуйте цей репозиторій:
-   ```bash
-   git clone https://github.com/ZheniaTrochun/db-intro-course.git
-   cd db-intro-course
-   ```
-
-2. Запустіть контейнери:
-   ```bash
-   docker-compose up -d
-   ```
-
-3. Щоб зупинити контейнери виконайте:
-   ```bash
-   docker-compose down
-   ```
-
-## Сервіси
-
-### PostgreSQL
-
-- **Порт**: 5432
-- **Ім'я користувача**: postgres
-- **Пароль**: password123
-- **Скрипти ініціалізації**: Розмістіть ваші SQL-скрипти в директорії `init-scripts`, щоб вони виконувалися при запуску контейнера
-
-### pgAdmin
-
-- **URL**: http://localhost:8080
-- **Електронна пошта**: root@kpi.edu
-- **Пароль**: password123
-
-## Підключення до бази даних
-
-### Використання pgAdmin
-
-1. Відкрийте http://localhost:8080 у вашому браузері
-2. Увійдіть, використовуючи вказані вище облікові дані
-3. Додайте новий сервер з наступними налаштуваннями:
-   - Назва: Будь-яка назва на ваш вибір
-   - Хост: postgres
-   - Порт: 5432
-   - Ім'я користувача: postgres
-   - Пароль: password123
-
-### Використання командного рядка
-
-```bash
-docker exec -it db-intro-course_postgres_1 psql -U postgres
-```
-
-## Збереження даних
-
-Дані бази даних зберігаються в Docker volume:
-- `postgres_data`: Дані PostgreSQL
-- `pgadmin_data`: Конфігурація pgAdmin
+## 👥 Виконавці
+- @dadencukillia - [коміти](https://github.com/dadencukillia/db-intro-course/commits?author=dadencukillia)
+- @ApostolQleg - [коміти](https://github.com/dadencukillia/db-intro-course/commits?author=ApostolQleg)
+- @XxMariavxX - [коміти](https://github.com/dadencukillia/db-intro-course/commits?author=XxMariavxX)
