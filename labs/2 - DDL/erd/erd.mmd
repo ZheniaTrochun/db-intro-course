@@ -1,114 +1,115 @@
 erDiagram
-  users {
-    UUID user_id  "PK"
-    VARCHAR(30) nickname  "UK"  
-    VARCHAR(100) full_name  ""  
-    TEXT email  "UK"        
-    TEXT google_id "UK"
-    TEXT bio  ""  
-    TEXT password_hash  ""  
-    TEXT avatar_url  ""  
-    TEXT[] social_networks  ""  
-    INTEGER max_streak  ""  
-    TEXT timezone  ""
-    DATE last_watch_date ""  
-    TEXT profile_frame_url  ""  
-    TEXT profile_background_url  ""
-    ENUM user_status "default/admin/banned etc."  
-    TIMESTAMP created_at ""
-    TIMESTAMP updated_at ""
-  }
+    users {
+        UUID user_id PK
+        VARCHAR(30) nickname UK
+        VARCHAR(100) full_name
+        TEXT email UK
+        TEXT google_id UK
+        TEXT bio
+        TEXT password_hash
+        TEXT avatar_url
+        TEXT[] social_networks
+        INTEGER max_streak
+        TEXT timezone
+        DATE last_watch_date
+        TEXT profile_frame_url
+        TEXT profile_background_url
+        user_status_enum user_status
+        TIMESTAMP crated_at
+        TIMESTAMP updated_at
+    }
 
-  animes {
-    UUID anime_id  "PK"  
-    TEXT slug  "UK"  
-    TEXT title_ua  ""  
-    TEXT title_en  ""  
-    TEXT title_original  ""  
-    TEXT description  ""  
-    TEXT cover_url  ""  
-    TEXT production_studio  ""
-    INTEGER mal_id  ""  
-    INTEGER anilist_id  ""  
-    INTEGER hikka_id  ""  
-    INTEGER imdb_id  ""  
-    INTEGER year  ""
-    INTEGER avg_episode_duration  ""  
-    ENUM age_restriction  ""
-    ENUM anime_format "ona/ova/tv/movie/special"
-    ENUM anime_status  "anounced/ongoing/finished/dropped"  
-  }
+    animes {
+        UUID anime_id PK
+        TEXT slug UK
+        TEXT title_ua
+        TEXT title_en
+        TEXT title_original
+        TEXT anime_description
+        TEXT cover_url
+        TEXT production_studio
+        INT mal_id
+        INT anilist_id
+        INT hikka_id
+        INT imdb_id
+        INT year_released
+        INT avg_episode_duration
+        mpaa_rating_enum age_restriction
+        anime_status_enum anime_status
+        anime_format_enum anime_format
+        BOOLEAN available
+    }
 
-  genres {
-    UUID anime_id "FK PK"
-    ENUM genre_type "PK"
-  }
-  
-  animeListUnits {
-    UUID user_id "PK FK"
-    UUID anime_id "PK FK"
-    INTEGER watched_episodes ""
-    INTEGER repeat_times ""
-    DATE started_watching ""
-    ENUM list_unit_status "finished/watching/delayed/dropped"
-  }
-  
-  comments {
-    BIGSERIAL comment_id "PK"
-    UUID author_id "FK"
-    UUID anime_id  "FK"
-    INTEGER grade ""
-    TEXT content ""
-    TIMESTAMP created_at ""
-  }
+    animeListUnits {
+        UUID user_id PK, FK
+        UUID anime_id PK, FK
+        INTEGER watched_episodes
+        INTEGER repeat_times
+        DATE started_watching
+        anime_list_unit_status_enum list_unit_status
+    }
 
-  episodes {
-    BIGSERIAL episode_id "PK"
-    UUID anime_id  "FK"
-    TEXT source_url  ""  
-    TEXT episode_name  ""
-    TEXT localization_studio  ""
-    ENUM localization_type  "dub/sub"  
-  }
+    comments {
+        BIGINT comment_id PK
+        UUID author_id FK
+        UUID anime_id FK
+        SMALLINT grade
+        TEXT content
+        TIMESTAMP created_at
+    }
 
-  upcomingEpisodes {
-    UUID anime_id "PK FK"
-    TEXT episode_name "PK" 
-    TIMESTAMP episode_date ""
-  }
-  
-  rooms_REDIS_ {
-    TEXT room_code "PK"
-    UUID owner_id "FK"
-    UUID[] participants ""
-    BIGINT[] playlist ""
-    TIMESTAMP play_timestamp ""
-    INTEGER play_offset ""
-    BOOLEAN playing ""
-    BOOLEAN public ""
-  }
+    episodes {
+        BIGINT episode_id PK
+        UUID anime_id FK
+        TEXT source_url
+        TEXT episode_name
+        TEXT localization_studio
+        localization_type_enum localization_type
+    }
 
-  sessions {
-    BIGSERIAL session_id "PK"
-    UUID user_id "FK"
-    TEXT refresh_token "UK"
-    TEXT device_type ""
-    TEXT device_name ""
-    TEXT os ""
-    TEXT browser ""
-    TEXT user_agent ""
-    TEXT user_location ""
-    INET ip_adress ""
-  }
+    genres {
+        UUID anime_id FK
+        genre_type genre_type UK
+    }
 
-  users ||--O{ comments : "writes"
-  users ||--O{ sessions : "authorizes"
-  users ||--O{ animeListUnits : "associates"
-  animes ||--O{ animeListUnits : "associates"
-  animes ||--O{ comments : "has"
-  animes ||--O{ episodes : "has"
-  animes ||--O{ upcomingEpisodes : "has"
-  animes ||--O{ genres : "has"
-  rooms_REDIS_ |O--|{ users : "has"
-  rooms_REDIS_ |O--|| users : "owned by"
-  rooms_REDIS_ }O--O{ episodes : "playing"
+    sessions {
+        BIGINT session_id PK
+        UUID user_id FK
+        CHAR(128) refresh_token UK
+        TEXT device_type
+        TEXT device_name
+        TEXT os
+        TEXT browser
+        TEXT user_agent
+        TEXT user_location
+        INET ip_address
+    }
+
+    upcomingEpisodes {
+        UUID anime_id PK, FK
+        TEXT episode_name
+        TIMESTAMP episode_date PK
+    }
+
+    rooms_REDIS_ {
+        TEXT room_code PK
+        UUID owner_id FK
+        UUID[] participants
+        BIGINT[] playlist
+        TIMESTAMP play_timestamp
+        INTEGER play_offset
+        BOOLEAN playing
+        BOOLEAN public
+    }
+
+    users ||--o{ comments : "writes"
+    users ||--o{ animeListUnits : "associates"
+    users ||--o{ sessions : "authorizes"
+    animes ||--o{ animeListUnits : "associates"
+    animes ||--o{ comments : "has"
+    animes ||--o{ episodes : "has"
+    animes ||--o{ upcomingEpisodes : "has"
+    animes ||--o{ genres : "has"
+    rooms_REDIS_ |o--|{ users : "has"
+    rooms_REDIS_ |o--|| users : "owned by"
+    rooms_REDIS_ }o--o{ episodes : "playing"
