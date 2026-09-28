@@ -28,7 +28,7 @@ CREATE TABLE animes (
   age_restriction mpaa_rating_enum,
   anime_status anime_status_enum,
   anime_format anime_format_enum NOT NULL DEFAULT 'tv',
-  anime_active BOOLEAN NOT NULL DEFAULT TRUE,
+  available BOOLEAN NOT NULL DEFAULT TRUE,
 
   PRIMARY KEY (anime_id)
 );
