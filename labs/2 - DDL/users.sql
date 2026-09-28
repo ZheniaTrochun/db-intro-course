@@ -21,6 +21,7 @@ CREATE TABLE users (
 );
 
 CREATE INDEX idx_user_status ON user(user_status);
+CREATE INDEX idx_nickname ON user(nickname);
 
 -- TEST: Example of insertion with hardcoded user_id
 -- It is extremely bad practice for real project and is just for example
