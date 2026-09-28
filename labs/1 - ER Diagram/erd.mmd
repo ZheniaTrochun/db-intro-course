@@ -37,10 +37,11 @@ erDiagram
     INTEGER pegi_age_restriction  ""
     ENUM anime_format "ona/ova/tv/movie/special"
     ENUM status  "anounced/ongoing/finished/dropped"  
+    BOOLEAN available "true/false"
   }
 
   genres {
-    INTEGER genre_id "PK"
+    UUID anime_id "FK PK"
     ENUM genre_name "comedy/tragedy/isekai etc."
   }
   
@@ -89,18 +90,16 @@ erDiagram
   }
 
   sessions {
-    BIGSERIAL session_id "PK"
+    BIGINT session_id "PK"
     UUID user_id "FK"
-    TEXT external_refresh_token ""
-    TEXT internal_refresh_token "UK"
-    ENUM auth_provider "google/facebook etc."
+    CHAR(128) refresh_token "UK"
     TEXT device_type ""
     TEXT device_name ""
     TEXT os ""
     TEXT browser ""
     TEXT user_agent ""
-    INET ip_adress ""
     TEXT location ""
+    INET ip_adress ""
   }
 
   users ||--O{ comments : "writes"
@@ -110,7 +109,7 @@ erDiagram
   animes ||--O{ comments : "has"
   animes ||--O{ episodes : "has"
   animes ||--O{ upcomingEpisodes : "has"
-  animes }O--O{ genres : "has"
+  animes ||--O{ genres : "has"
   rooms_REDIS_ |O--|{ users : "has"
   rooms_REDIS_ |O--|| users : "owned by"
   rooms_REDIS_ }O--O{ episodes : "playing"
