@@ -23,8 +23,8 @@ CREATE TABLE animes (
   anilist_id INT,
   hikka_id INT,
   imdb_id INT,
-  year_released INT SMALLINT CHECK (year >= 1900),
-  avg_episode_duration INT SMALLINT NOT NULL DEFAULT 0,
+  year_released INT CHECK (year_released >= 1900),,
+  avg_episode_duration INT NOT NULL DEFAULT 0,
   age_restriction mpaa_rating_enum,
   anime_status anime_status_enum,
   anime_format anime_format_enum NOT NULL DEFAULT 'tv',
@@ -38,7 +38,7 @@ CREATE TABLE animes (
 
 -- //TEST
 
-INSERT INTO animes (anime_id, slug, title_ua, title_en, title_original, description, cover_url, production_studio, mal_id, anilist_id, hikka_id, imdb_id, year, avg_episode_duration, pegi_age_restriction, anime_status, anime_format, anime_active) VALUES
+INSERT INTO animes (anime_id, slug, title_ua, title_en, title_original, description, cover_url, production_studio, mal_id, anilist_id, hikka_id, imdb_id, year, avg_episode_duration, age_restriction, anime_status, anime_format, anime_active) VALUES
 
 ('11111111-1111-1111-1111-111111111111', 'one-piece', 'Ван-Піс', 'One Piece', 'ワンピース', 'A long-running adventure anime about pirates searching for the ultimate treasure.', 'https://example.com/one-piece.jpg', 'Toei Animation', 55667, 88990, 223344, 151617, 1999, 24, 'pg13', 'ongoing', 'tv', TRUE),
 ('22222222-2222-2222-2222-222222222222', 'spy-x-family', 'Шпигунська родина', 'Spy x Family', 'スパイファミリー', 'A comedy-action anime about a spy who must build a fake family to complete his mission.', 'https://example.com/spy-x-family.jpg', 'WIT Studio', 22334, 55667, 88990, 101112, 2022, 23, 'pg13', 'ongoing', 'tv', TRUE),
