@@ -58,7 +58,7 @@
 
 ## Випущені епізоди — `episodes`
 
-- `episode_id` (`BIGINT, IDENTITY`)
+- `episode_id` (`BIGSERIAL`)
 - `anime_id` (`UUID`)
 - `source_url` (`TEXT`)
 - `episode_name` (`TEXT`)
@@ -92,7 +92,7 @@
 
 ## Коментарі та оцінки — `comments`
 
-- `comment_id` (`BIGINT, IDENTITY`)
+- `comment_id` (`BIGSERIAL`)
 - `author_id` (`UUID`)
 - `anime_id` (`UUID`)
 - `grade` (`SMALLINT`)
@@ -106,7 +106,7 @@
 
 ## Сесії авторизації — `sessions`
 
-- `session_id` (`BIGINT, IDENTITY`)
+- `session_id` (`BIGSERIAL`)
 - `user_id` (`UUID`)
 - `refresh_token` (`CHAR(128)`)
 - `device_type` (`TEXT`)
