@@ -1,6 +1,6 @@
 CREATE TYPE anime_list_unit_status_enum AS ENUM('finished', 'watching', 'delayed', 'dropped');
 
-CREATE TABLE animeListUnits(
+CREATE TABLE anime_list_units(
   user_id UUID REFERENCES users(user_id),
   anime_id UUID REFERENCES animes(anime_id) ON DELETE CASCADE,
   watched_episodes INTEGER NOT NULL DEFAULT 0,
@@ -11,11 +11,11 @@ CREATE TABLE animeListUnits(
   PRIMARY KEY(user_id, anime_id)
 );
 
-CREATE INDEX idx_anime_list_unit_user_id ON animeListUnits(user_id);
+CREATE INDEX idx_anime_list_unit_user_id ON anime_list_units(user_id);
 
 --- INSERT EXAMPLES ---
 
-INSERT INTO animeListUnits(user_id, anime_id, watched_episodes, repeat_times, started_watching, list_unit_status) VALUES
+INSERT INTO anime_list_units(user_id, anime_id, watched_episodes, repeat_times, started_watching, list_unit_status) VALUES
   ( '00000000-0000-7000-8000-000000000001', '11111111-1111-1111-1111-111111111111', 0, 0, '2017-03-14', 'watching' ),
   ( '00000000-0000-7000-8000-000000000003', '11111111-6666-1111-2222-111119999999', 2, 0, now()::date, 'finished' ),
   ( '00000000-0000-7000-8000-000000000002', '11111111-1111-1111-1111-111111111111', 5, 1, CURRENT_DATE, 'dropped' ),

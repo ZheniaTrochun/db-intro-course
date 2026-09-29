@@ -1,4 +1,4 @@
-CREATE TABLE comments (
+CREATE TABLE comments(
     comment_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     author_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
@@ -9,9 +9,9 @@ CREATE TABLE comments (
 
 CREATE INDEX idx_comments_anime_id ON comments(anime_id);
 
--- TEST: Example of insertion (using ids that are hardcoded in corresponding .sql files)
--- It is extremely bad practice for real project and is just for example
-INSERT INTO comments (author_id, anime_id, grade, content) VALUES
+--- INSERT EXAMPLES ---
+
+INSERT INTO comments(author_id, anime_id, grade, content) VALUES
     (
         '00000000-0000-7000-8000-000000000001', 
         '11111111-1111-1111-1111-111111111111', 

@@ -32,15 +32,15 @@ erDiagram
         INT anilist_id
         INT hikka_id
         INT imdb_id
-        INT year_released
-        INT avg_episode_duration
+        SMALLINT year_released
+        SMALLINT avg_episode_duration
         mpaa_rating_enum age_restriction
         anime_status_enum anime_status
         anime_format_enum anime_format
         BOOLEAN available
     }
 
-    animeListUnits {
+    anime_list_units {
         UUID user_id PK, FK
         UUID anime_id PK, FK
         INTEGER watched_episodes
@@ -50,7 +50,7 @@ erDiagram
     }
 
     comments {
-        BIGINT comment_id PK
+        BIGSERIAL comment_id PK
         UUID author_id FK
         UUID anime_id FK
         SMALLINT grade
@@ -59,7 +59,7 @@ erDiagram
     }
 
     episodes {
-        BIGINT episode_id PK
+        BIGSERIAL episode_id PK
         UUID anime_id FK
         TEXT source_url
         TEXT episode_name
@@ -73,7 +73,7 @@ erDiagram
     }
 
     sessions {
-        BIGINT session_id PK
+        BIGSERIAL session_id PK
         UUID user_id FK
         CHAR(128) refresh_token UK
         TEXT device_type
@@ -85,7 +85,7 @@ erDiagram
         INET ip_address
     }
 
-    upcomingEpisodes {
+    upcoming_episodes {
         UUID anime_id PK, FK
         TEXT episode_name
         TIMESTAMP episode_date PK

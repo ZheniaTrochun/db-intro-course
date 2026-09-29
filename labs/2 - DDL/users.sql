@@ -1,6 +1,6 @@
-CREATE TYPE user_status_enum AS ENUM ('admin', 'banned', 'deactivated');
+CREATE TYPE user_status_enum AS ENUM('admin', 'banned', 'deactivated');
 
-CREATE TABLE users (
+CREATE TABLE users(
     user_id UUID PRIMARY KEY DEFAULT uuidv7(),
     nickname VARCHAR(30) NOT NULL UNIQUE,
     full_name VARCHAR(100) NOT NULL,
@@ -20,12 +20,12 @@ CREATE TABLE users (
     updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_user_status ON user(user_status);
-CREATE INDEX idx_nickname ON user(nickname);
+CREATE INDEX idx_user_status ON users(user_status);
+CREATE INDEX idx_nickname ON users(nickname);
 
--- TEST: Example of insertion with hardcoded user_id
--- It is extremely bad practice for real project and is just for example
-INSERT INTO users (user_id, nickname, full_name, email) VALUES
-    ('00000000-0000-7000-8000-000000000001','BadBoy67','He Is Bad','badboy67@ukr.net'),
-    ('00000000-0000-7000-8000-000000000002','GoodBoy34','He Is Good','goodboy34@gmail.com'),
-    ('00000000-0000-7000-8000-000000000003','TheBestBoy911','He Is The Best','thebestboy911@something.example');
+--- INSERT EXAMPLES ---
+
+INSERT INTO users(user_id, nickname, full_name, email) VALUES
+    ( '00000000-0000-7000-8000-000000000001','BadBoy67','He Is Bad','badboy67@ukr.net' ),
+    ( '00000000-0000-7000-8000-000000000002','GoodBoy34','He Is Good','goodboy34@gmail.com' ),
+    ( '00000000-0000-7000-8000-000000000003','TheBestBoy911','He Is The Best','thebestboy911@something.example' );

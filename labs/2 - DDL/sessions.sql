@@ -1,4 +1,4 @@
-CREATE TABLE sessions (
+CREATE TABLE sessions(
     session_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     refresh_token CHAR(128) NOT NULL UNIQUE,
@@ -13,9 +13,9 @@ CREATE TABLE sessions (
 
 CREATE INDEX idx_sessions_refresh_token ON sessions(refresh_token);
 
--- TEST: Example of insertion (using ids that are hardcoded in corresponding .sql files)
--- It is extremely bad practice for real project and is just for example
-INSERT INTO sessions (
+--- INSERT EXAMPLES ---
+
+INSERT INTO sessions(
     user_id,
     refresh_token,
     device_type,

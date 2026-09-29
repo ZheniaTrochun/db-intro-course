@@ -1,6 +1,4 @@
--- DDL for genres table
-
-CREATE TYPE genre_type AS ENUM (
+CREATE TYPE genre_type AS ENUM(
     'action',
     'adventure',
     'avant_garde',
@@ -46,19 +44,19 @@ CREATE TYPE genre_type AS ENUM (
     'vampire'
 );
 
-CREATE TABLE genres (
+CREATE TABLE genres(
   anime_id UUID REFERENCES animes(anime_id) ON DELETE CASCADE,
-  genre_type genre_type NOT NULL UNIQUE
+  genre_type genre_type NOT NULL UNIQUE,
 
-  PRIMARY KEY (anime_id)
+  PRIMARY KEY(anime_id, genre_type)
 );
 
---//TEST
+--- INSERT EXAMPLES ---
 
-INSERT INTO genres (genre_id, genre_type) VALUES
-  (UUIDv7(), 'action'),
-  (UUIDv7(), 'adventure'),
-  (UUIDv7(), 'avant_garde'),
-  (UUIDv7(), 'boys_love'),
-  (UUIDv7(), 'comedy'),
-  (UUIDv7(), 'demons'),
+INSERT INTO genres(anime_id, genre_type) VALUES
+  ( '11111111-1111-1111-1111-111111111111', 'action' ),
+  ( '44444444-4444-4444-4444-444444444444', 'adventure' ),
+  ( '11111111-6666-1111-2222-111119999999', 'avant_garde' ),
+  ( '33333333-3333-3333-3333-333333333333', 'boys_love' ),
+  ( '11111111-1111-1111-1111-111111111111', 'comedy' ),
+  ( '33333333-3333-3333-3333-333333333333', 'demons' );
