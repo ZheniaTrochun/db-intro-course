@@ -14,7 +14,8 @@
 [`Оригінальний репо`](https://github.com/ZheniaTrochun/db-intro-course) |
 [`Kanban`](https://team.apudb.pp.ua/projects/7/40) |
 [`PostgreSQL`](https://www.postgresql.org/docs/current/index.html) |
-[`Типи даних`](https://www.postgresql.org/docs/current/datatype.html#DATATYPE-TABLE)
+[`Типи даних`](https://www.postgresql.org/docs/current/datatype.html#DATATYPE-TABLE) |
+[`pgAdmin`](https://pgadmin.apudb.pp.ua)
 
 ## 👥 Виконавці
 - @dadencukillia - [коміти](https://github.com/dadencukillia/db-intro-course/commits?author=dadencukillia)
