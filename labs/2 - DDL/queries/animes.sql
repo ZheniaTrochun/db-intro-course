@@ -29,8 +29,8 @@ CREATE TABLE animes(
   available BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE INDEX inx_anime_slug ON animes(slug);
-CREATE INDEX inx_anime_available ON animes(available);
+CREATE INDEX idx_anime_slug ON animes(slug);
+CREATE INDEX idx_anime_available ON animes(available);
 
 --- INSERT EXAMPLES ---
 
