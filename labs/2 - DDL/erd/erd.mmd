@@ -15,7 +15,7 @@ erDiagram
         TEXT profile_frame_url
         TEXT profile_background_url
         user_status_enum user_status
-        TIMESTAMP crated_at
+        TIMESTAMP created_at
         TIMESTAMP updated_at
     }
 
@@ -69,7 +69,7 @@ erDiagram
 
     genres {
         UUID anime_id PK, FK
-        genre_type genre_type UK
+        genre_type genre_type PK
     }
 
     sessions {
