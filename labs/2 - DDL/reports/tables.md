@@ -68,7 +68,7 @@
 - **PK:** `episode_id`
 - **FK:** `anime_id` → `animes(anime_id)` `ON DELETE CASCADE`
 
-## Анонси майбутніх аніме — `up_coming_episodes`
+## Анонси майбутніх аніме — `upcoming_episodes`
 
 - `anime_id` (`UUID`)
 - `episode_name` (`TEXT`)
