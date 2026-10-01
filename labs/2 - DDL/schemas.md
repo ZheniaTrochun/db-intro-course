@@ -34,7 +34,7 @@ create table team (
     name varchar(20) unique not null,
     avatar_url text,
     created_at timestamp not null default now(),
-    max_team_players int,
+    max_team_players smallint,
     status team_status not null default 'active'
 );
 
@@ -60,12 +60,12 @@ create table tournament (
     created_at timestamp not null default now(),
     start_at timestamp,
     name varchar(30) not null,
-    prize_pool decimal,
-    currency varchar(10),
-    max_teams int,
-    min_teams int,
-    min_team_players int not null,
-    max_team_players int,
+    prize_pool decimal(10,2),
+    currency varchar(15),
+    max_teams smallint,
+    min_teams smallint,
+    min_team_players smallint not null,
+    max_team_players smallint,
     status tournament_status not null default 'registration',
     check (max_teams >= min_teams),
     check (max_team_players >= min_team_players)
@@ -94,7 +94,7 @@ create table encounter (
     tournament_application_id_2 uuid references tournament_application(id),
     winner_tournament_application_id uuid references tournament_application(id),
     next_encounter_id uuid references encounter(id),
-    max_matches int not null,
+    max_matches smallint not null,
     status encounter_status not null default 'scheduled'
 );
 
@@ -102,7 +102,7 @@ create table "match" (
     id uuid primary key default gen_random_uuid(),
     match_game_id text not null,
     encounter_id uuid references encounter(id) not null,
-    map_order int not null,
+    map_order smallint not null,
     winner_tournament_application_id uuid references tournament_application(id),
     unique(encounter_id, map_order)
 );
@@ -110,8 +110,8 @@ create table "match" (
 create table player_statistic (
     match_id uuid references "match"(id) not null,
     user_id uuid references "user"(id) not null,
-    kills int,
-    deaths int,
-    assists int,
+    kills smallint,
+    deaths smallint,
+    assists smallint,
     primary key (match_id, user_id)
 );
