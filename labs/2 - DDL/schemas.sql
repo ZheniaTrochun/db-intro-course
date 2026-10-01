@@ -1,7 +1,8 @@
-create type team_status as enum ('active', 'disbanded');
+create type user_status as enum ('active', 'deleted', 'banned');
+create type team_status as enum ('active', 'disbanded', 'deleted');
 create type team_member_status as enum ('active', 'left', 'kicked');
-create type tournament_status as enum ('registration', 'ongoing', 'finished');
-create type tournament_participant_status as enum ('pending', 'accepted', 'rejected');
+create type tournament_status as enum ('registration', 'ongoing', 'finished', 'deleted');
+create type tournament_participant_status as enum ('pending', 'accepted', 'rejected', 'deleted');
 create type encounter_status as enum ('ongoing', 'scheduled', 'finished');
 create type team_role as enum ('player', 'captain');
 
@@ -13,7 +14,8 @@ create table "user" (
     name varchar(20),
     description text,
     avatar_url text,
-    created_at timestamp not null default now()
+    created_at timestamp not null default now(),
+    status user_status not null default 'active'
 );
 
 create table game (
@@ -23,8 +25,8 @@ create table game (
 );
 
 create table game_account (
-    user_id uuid references "user"(id) not null,
-    game_id uuid references game(id) not null,
+    user_id uuid references "user"(id) on delete cascade not null,
+    game_id uuid references game(id) on delete cascade not null,
     game_account_id text unique not null,
     primary key (user_id, game_id)
 );
@@ -40,8 +42,8 @@ create table team (
 
 create table team_member (
     id uuid primary key default gen_random_uuid(),
-    team_id uuid references team(id) not null,
-    user_id uuid references "user"(id) not null,
+    team_id uuid references team(id) on delete cascade not null,
+    user_id uuid references "user"(id) on delete cascade not null,
     joined_at timestamp not null default now(),
     leave_at timestamp,
     status team_member_status not null default 'active'
@@ -49,14 +51,14 @@ create table team_member (
 
 create table team_member_role (
     id uuid primary key default gen_random_uuid(),
-    team_member_id uuid references team_member(id) not null,
+    team_member_id uuid references team_member(id) on delete cascade not null,
     role team_role not null
 );
 
 create table tournament (
     id uuid primary key default gen_random_uuid(),
-    game_id uuid references game(id) not null,
-    organizer_id uuid references "user"(id) not null,
+    game_id uuid references game(id) on delete cascade not null,
+    organizer_id uuid references "user"(id) on delete cascade not null,
     created_at timestamp not null default now(),
     start_at timestamp,
     name varchar(30) not null,
@@ -73,27 +75,27 @@ create table tournament (
 
 create table tournament_application (
     id uuid primary key default gen_random_uuid(),
-    tournament_id uuid references tournament(id) not null,
-    team_id uuid references team(id) not null,
+    tournament_id uuid references tournament(id) on delete cascade not null,
+    team_id uuid references team(id) on delete cascade not null,
     status tournament_participant_status not null default 'pending',
     unique(tournament_id, team_id)
 );
 
 create table tournament_application_member (
-    tournament_id uuid references tournament(id) not null,
-    tournament_application_id uuid references tournament_application(id) not null,
-    user_id uuid references "user"(id) not null,
+    tournament_id uuid references tournament(id) on delete cascade not null,
+    tournament_application_id uuid references tournament_application(id) on delete cascade not null,
+    user_id uuid references "user"(id) on delete cascade not null,
     primary key (tournament_id, user_id)
 );
 
 create table encounter (
     id uuid primary key default gen_random_uuid(),
-    tournament_id uuid references tournament(id) not null,
+    tournament_id uuid references tournament(id) on delete cascade not null,
     stage varchar(15) not null,
-    tournament_application_id_1 uuid references tournament_application(id),
-    tournament_application_id_2 uuid references tournament_application(id),
-    winner_tournament_application_id uuid references tournament_application(id),
-    next_encounter_id uuid references encounter(id),
+    tournament_application_id_1 uuid references tournament_application(id) on delete set null,
+    tournament_application_id_2 uuid references tournament_application(id) on delete set null,
+    winner_tournament_application_id uuid references tournament_application(id) on delete set null,
+    next_encounter_id uuid references encounter(id) on delete set null,
     max_matches smallint not null,
     status encounter_status not null default 'scheduled'
 );
@@ -101,15 +103,15 @@ create table encounter (
 create table "match" (
     id uuid primary key default gen_random_uuid(),
     match_game_id text not null,
-    encounter_id uuid references encounter(id) not null,
+    encounter_id uuid references encounter(id) on delete cascade not null,
     map_order smallint not null,
-    winner_tournament_application_id uuid references tournament_application(id),
+    winner_tournament_application_id uuid references tournament_application(id) on delete set null,
     unique(encounter_id, map_order)
 );
 
 create table player_statistic (
-    match_id uuid references "match"(id) not null,
-    user_id uuid references "user"(id) not null,
+    match_id uuid references "match"(id) on delete cascade not null,
+    user_id uuid references "user"(id) on delete cascade not null,
     kills smallint,
     deaths smallint,
     assists smallint,
