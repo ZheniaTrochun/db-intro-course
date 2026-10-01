@@ -176,8 +176,6 @@ CREATE TABLE anime_list_units(
   PRIMARY KEY(user_id, anime_id)
 );
 
-CREATE INDEX idx_anime_list_unit_user_id ON anime_list_units(user_id);
-
 --- INSERT EXAMPLES ---
 
 INSERT INTO animes(

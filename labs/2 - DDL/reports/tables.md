@@ -22,6 +22,7 @@
 
 - **PK:** `user_id`
 - **UNIQUE:** `nickname`, `email`, `google_id`
+- **INDEXES:** `nickname`, `user_status`
 
 ## Каталог аніме — `animes`
 
@@ -47,6 +48,7 @@
 - **PK:** `anime_id`
 - **UNIQUE:** `slug`
 - **CHECK:** `year_released >= 1900`
+- **INDEXES:** `slug`, `available`
 
 ## Жанри аніме — `genres`
 
@@ -67,6 +69,7 @@
 
 - **PK:** `episode_id`
 - **FK:** `anime_id` → `animes(anime_id)` `ON DELETE CASCADE`
+- **INDEXES:** `anime_id`
 
 ## Анонси майбутніх аніме — `upcoming_episodes`
 
@@ -103,6 +106,7 @@
 - **FK:** `author_id` → `users(user_id)` `ON DELETE CASCADE`
 - **FK:** `anime_id` → `animes(anime_id)` `ON DELETE CASCADE`
 - **CHECK:** `grade BETWEEN -5 AND 5`
+- **INDEXES:** `anime_id`
 
 ## Сесії авторизації — `sessions`
 
@@ -120,3 +124,4 @@
 - **PK:** `session_id`
 - **FK:** `user_id` → `users(user_id)` `ON DELETE CASCADE`
 - **UNIQUE:** `refresh_token`
+- **INDEXES:** `refresh_token`
