@@ -3,11 +3,15 @@ CREATE TABLE comments(
     author_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
     grade SMALLINT CHECK (grade BETWEEN -5 AND 5),
-    content TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
+    content TEXT NOT NULL CHECK (length(trim(content)) > 0),
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    is_edited BOOL DEFAULT FALSE
 );
 
+-- TO THINK: former index may be worse than the latter one
+-- we might need to show comments not only by anime, but also in descending order by it's creation time
 CREATE INDEX idx_comments_anime_id ON comments(anime_id);
+-- CREATE INDEX idx_comments_anime_created ON comments(anime_id, created_at DESC);
 
 --- INSERT EXAMPLES ---
 

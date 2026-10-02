@@ -2,6 +2,7 @@ CREATE TABLE sessions(
     session_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     refresh_token CHAR(128) NOT NULL UNIQUE,
+    expire_time TIMESTAMP NOT NULL DEFAULT (now() + INTERVAL '1 year'),
     device_type TEXT,
     device_name TEXT,
     os TEXT,
@@ -11,7 +12,9 @@ CREATE TABLE sessions(
     ip_address INET
 );
 
-CREATE INDEX idx_sessions_refresh_token ON sessions(refresh_token);
+
+-- TO THINK: I have added index for user_id, because if we might want to find all user sessions to show it to user or smth like that
+CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 
 --- INSERT EXAMPLES ---
 
