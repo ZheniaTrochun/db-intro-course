@@ -46,7 +46,7 @@ CREATE TYPE genre_type_enum AS ENUM(
 
 CREATE TABLE genres(
   anime_id UUID REFERENCES animes(anime_id) ON DELETE CASCADE,
-  genre_type genre_type_enum NOT NULL UNIQUE,
+  genre_type genre_type_enum NOT NULL,
 
   PRIMARY KEY(anime_id, genre_type)
 );
