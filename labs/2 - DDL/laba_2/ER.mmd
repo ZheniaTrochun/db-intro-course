@@ -8,6 +8,7 @@ erDiagram
     address {
         int address_id PK
         int customer_id FK
+        varchar country
         varchar street
         varchar city
         varchar postal_code
@@ -16,8 +17,8 @@ erDiagram
         int payment_id PK
         int customer_id FK
         varchar card_type
-        varchar card_number
-        varchar card_cvv
+        varchar card_mask
+        varchar expiration_date
     }
     product {
         int product_id PK
@@ -31,17 +32,15 @@ erDiagram
         int customer_id FK
         int payment_data_id FK
         int shipping_address_id FK
-        date order_date
+        varchar shipping_method
+        timestamp order_date
         varchar status
     }
     order_product {
-        int order_product_id PK
-        int order_id FK
-        int product_id FK
+        int order_id PK,FK
+        int product_id PK,FK
         int quantity
-        decimal fix_price
-        varchar country
-        varchar shipping
+        decimal price_at_purchase
     }
 
     customer ||--o{ address : "має"
