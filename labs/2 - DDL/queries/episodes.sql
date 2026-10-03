@@ -4,8 +4,8 @@ CREATE TABLE episodes(
   episode_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
   source_url TEXT NOT NULL,
-  episode_name TEXT NOT NULL,
-  localization_studio TEXT,
+  episode_name TEXT NOT NULL CHECK (length(trim(episode_name)) > 0),
+  localization_studio TEXT NOT NULL DEFAULT '',
   localization_type episode_localization_type_enum
 );
 
