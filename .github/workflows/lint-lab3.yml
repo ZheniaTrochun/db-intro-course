@@ -69,7 +69,7 @@ jobs:
           cat ./labs/3\ -\ OLTP/table_queries/*.sql >> ./check.sql
 
       - name: Run LLM
-        run: bun ./ai-typo.ts
+        run: cat check.sql | bun ./ai-typo.ts
         env:
           GEMINI_MODEL: {{ vars.GEMINI_MODEL }}
           GEMINI_API_KEY: {{ secrets.GEMINI_API_KEY }}
