@@ -1,41 +1,41 @@
-**my_table** by @user
+# my_table by @user
 
-# Create table
-
-```SQL
-```
-
-
-# Drop table
+## ❇️ Create table
 
 ```SQL
 ```
 
 
-# Insert queries
+## 🗑 Drop table
 
-## IDs
+```SQL
+```
+
+
+## ✨ Insert queries
+
+### IDs
 
 - ``
 - ``
 - ``
 
-## All colums
+### All colums
 
 ```SQL
 ```
 
-## Mandatory only colums
+### Mandatory only colums
 
 ```SQL
 ```
 
-## With returning part (`RETURNING`, optional)
+### With returning part (`RETURNING`, optional)
 
 ```SQL
 ```
 
-## Some interesting examples (optional)
+### Some interesting examples (optional)
 
 ```SQL
 ```
@@ -44,25 +44,25 @@
 ```
 
 
-# Select queries
+## 📨 Select queries
 
-## Select all entries (no `WHERE`, all fields)
-
-```SQL
-```
-
-## Select public only info (no `WHERE`, specified fields)
+### Select all entries (no `WHERE`, all fields)
 
 ```SQL
 ```
 
-## API production example (like in `GET /api/anime/:id/comments`, `GET /api/user` etc)
+### Select public only info (no `WHERE`, specified fields)
+
+```SQL
+```
+
+### API production example (like in `GET /api/anime/:id/comments`, `GET /api/user` etc)
 
 `GET /api/anime/:id/comments` (replace it with your endpoint example, erase these brackets)
 ```SQL
 ```
 
-## Some interesting examples (optional)
+### Some interesting examples (optional)
 
 - [ ] ORDER BY
 - [ ] LIMIT
@@ -76,19 +76,19 @@
 ```
 
 
-# Update queries
+## 🔄 Update queries
 
-## Update some fields (`WHERE`)
-
-```SQL
-```
-
-## Update fields returning values (`WHERE`, `RETURNING`)
+### Update some fields (`WHERE`)
 
 ```SQL
 ```
 
-## Some interesting examples (optional)
+### Update fields returning values (`WHERE`, `RETURNING`)
+
+```SQL
+```
+
+### Some interesting examples (optional)
 
 ```SQL
 ```
@@ -97,24 +97,24 @@
 ```
 
 
-# Delete queries
+## ⛔ Delete queries
 
-## Clear table (no `WHERE`)
-
-```SQL
-```
-
-## Delete with filter (`WHERE`)
+### Clear table (no `WHERE`)
 
 ```SQL
 ```
 
-## Delete and return (`WHERE`, `RETURNING`)
+### Delete with filter (`WHERE`)
 
 ```SQL
 ```
 
-## Some interesting examples (optional)
+### Delete and return (`WHERE`, `RETURNING`)
+
+```SQL
+```
+
+### Some interesting examples (optional)
 
 ```SQL
 ```
