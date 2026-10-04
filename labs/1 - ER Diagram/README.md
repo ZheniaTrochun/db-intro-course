@@ -82,5 +82,75 @@
 - Студент — Зарахування (1 : N): Один студент може мати декілька зарахувань на різні навчальні курси, але кожне зарахування належить лише одному студенту.
 - Курс — Зарахування (1 : N): Один курс може мати багато зарахованих студентів, але кожне зарахування стосується лише одного курсу.
 - Викладач — Зарахування (1 : N): Один викладач може бути відповідальним за багато зарахувань студентів на курс, але кожне зарахування пов’язане лише з одним викладачем.
-  
+
+## ER діаграма(mermaid):
+
+```mermaid
+erDiagram
+    FACULTY ||--|{ DEPARTMENT : ""
+    FACULTY ||--|{ SPECIALTY : ""
+    SPECIALTY ||--|{ ACADEMIC_GROUP : ""
+    ACADEMIC_GROUP ||--|{ STUDENT : ""
+    DEPARTMENT ||--|{ TEACHER : ""
+    DEPARTMENT ||--|{ COURSE : ""
+    STUDENT ||--o{ ENROLLMENT : ""
+    COURSE ||--|{ ENROLLMENT : ""
+    TEACHER ||--o{ ENROLLMENT : ""
+
+    FACULTY {
+        int faculty_id PK
+        varchar faculty_name
+        int building_number
+    }
+
+    DEPARTMENT {
+        int department_id PK
+        int faculty_id FK
+        varchar department_name
+        int office_building
+    }
+
+    SPECIALTY {
+        int specialty_id PK
+        int faculty_id FK
+        varchar specialty_name
+        varchar specialty_code
+    }
+
+    ACADEMIC_GROUP {
+        int group_id PK
+        int specialty_id FK
+        varchar group_name
+        int admission_year
+    }
+
+    STUDENT {
+        int student_id PK
+        int group_id FK
+        varchar full_name
+        varchar email
+    }
+
+    TEACHER {
+        int teacher_id PK
+        int department_id FK
+        varchar full_name
+        varchar academic_rank
+    }
+
+    COURSE {
+        int course_id PK
+        int department_id FK
+        varchar course_name
+        int ects_credits
+    }
+
+    ENROLLMENT {
+        int enrollment_id PK
+        int student_id FK
+        int course_id FK
+        int teacher_id FK
+        int grade
+    }
+    ```
   
