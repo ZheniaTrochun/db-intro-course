@@ -22,6 +22,7 @@ CREATE TABLE anime_list_units(
 ## 🗑 Drop table
 
 ```SQL
+DROP TABLE anime_list_units CASCADE;
 ```
 
 
