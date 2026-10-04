@@ -1,4 +1,3 @@
-import fs from "fs";
 import { exit } from "process";
 
 const blank = (s: string) => s.replace(/[^\n]/g, " ");
@@ -12,7 +11,7 @@ const stripNoise = (sql: string) =>
     },
   );
 
-const data = fs.readFileSync("/dev/stdin", "utf-8");
+const data = Bun.stdin.text();
 const clearData = stripNoise(data);
 
 interface ConvRule {
@@ -120,7 +119,7 @@ const rules: ConvRule[] = [
 let violated = false;
 for (const rule of rules) {
   if (rule.violateRegex.test(clearData)) {
-    console.log(`CONV_VIOL ${rule.name}: ${rule.description}`)
+    console.error(`CONV_VIOL ${rule.name}: ${rule.description}`)
     violated = true;
   }
 }

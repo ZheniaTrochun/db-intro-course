@@ -52,3 +52,24 @@ jobs:
 
       - name: Check conventions table_queries/*.sql
         run: cat ./labs/3\ -\ OLTP/table_queries/*.sql | bun conventions.ts
+
+  typo-check:
+    runs-on: ubuntu-latest
+    if: vars.ENABLE_LLM == 'true'
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Collect queries
+        run: |
+          cat ./labs/3\ -\ OLTP/queries/*.md | awk '/```[sS][qQ][lL]/{flag=1; next} /```/{flag=0} flag' > ./check.sql
+          cat ./labs/3\ -\ OLTP/reports/*.md | awk '/```[sS][qQ][lL]/{flag=1; next} /```/{flag=0} flag' >> ./check.sql
+          cat ./labs/3\ -\ OLTP/table_queries/*.sql >> ./check.sql
+
+      - name: Run LLM
+        run: bun ./ai-typo.ts
+        env:
+          GEMINI_MODEL: {{ vars.GEMINI_MODEL }}
+          GEMINI_API_KEY: {{ secrets.GEMINI_API_KEY }}
