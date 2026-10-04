@@ -1,0 +1,33 @@
+name: Lint lab2 queries
+
+on:
+  push:
+    paths:
+      - 'labs/3 - OLTP/queries/*.md'
+      - 'labs/3 - OLTP/reports/*.md'
+      - 'labs/3 - OLTP/table_queries/*.sql'
+
+jobs:
+  lint-sql:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+
+      - name: Download pg language server
+        run: |
+          wget -O pgls https://github.com/supabase-community/postgres-language-server/releases/download/0.26.0/postgres-language-server_x86_64-unknown-linux-gnu
+          chmod +x ./pgls
+
+      - name: Lint queries/*.md
+        run: |
+          cat ./labs/3\ -\ OLTP/queries/*.md | awk '/```[sS][qQ][lL]/{flag=1; next} /```/{flag=0} flag' > ./check.sql
+          ./pgls check ./check.sql
+
+      - name: Lint reports/*.md
+        run: |
+          cat ./labs/3\ -\ OLTP/reports/*.md | awk '/```[sS][qQ][lL]/{flag=1; next} /```/{flag=0} flag' > ./check.sql
+          ./pgls check ./check.sql
+
+      - name: Lint table_queries/*.sql
+        run: ./pgls check ./labs/3\ -\ OLTP/table_queries/*.sql
