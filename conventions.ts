@@ -12,7 +12,7 @@ const stripNoise = (sql: string) =>
   );
 
 const data = Bun.stdin.text();
-const clearData = stripNoise(data);
+const clearData = await stripNoise(data);
 
 interface ConvRule {
   name: string,
