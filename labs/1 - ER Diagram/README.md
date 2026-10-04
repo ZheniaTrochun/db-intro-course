@@ -152,5 +152,4 @@ erDiagram
         int teacher_id FK
         int grade
     }
-    ```
   
