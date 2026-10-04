@@ -71,5 +71,5 @@ jobs:
       - name: Run LLM
         run: cat check.sql | bun ./ai-typo.ts
         env:
-          GEMINI_MODEL: {{ vars.GEMINI_MODEL }}
-          GEMINI_API_KEY: {{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

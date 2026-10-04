@@ -28,16 +28,16 @@ DROP TABLE anime_list_units CASCADE;
 
 ## ✨ Insert queries
 
-### IDs
-
-- ``
-- ``
-- ``
-
 ### All colums
 Мета, очікуваний результат, чи успішно виконано
 
 ```SQL
+INSERT INTO anime_list_units(user_id, anime_id, watched_episodes, repeat_times, started_watching, list_unit_status) VALUES
+    ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 1, 0, now()::date - INTERVAL 'day', 'watching'),
+    ('11111111-1111-4111-8111-111111111111', '40404040-4040-4040-4040-404040404040', 10, 2, now()::date, 'finished'),
+    ('67676767-6767-6767-6767-676767676767', '40404040-4040-4040-4040-404040404040', 12, 0, '2008-01-08', 'finished'),
+    ('14881488-1488-1488-1488-148814881488', '34343434-3434-3434-3434-343434343434', 3, 0, '2020-12-12', 'dropped'),
+    ('67676767-6767-6767-6767-676767676767', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 5, 10, '2023-01-28', 'delayed');
 ```
 
 ### Mandatory only colums
