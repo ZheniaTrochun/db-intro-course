@@ -1,4 +1,4 @@
-name: Lint lab2 queries
+name: Lint lab3 queries
 
 on:
   push:
