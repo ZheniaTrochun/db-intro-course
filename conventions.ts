@@ -48,13 +48,13 @@ const rules: ConvRule[] = [
     violateRegex: /\bNOW\(/
   },
   {
-    name: "No space in enum creation",
+    name: "No space symbol in enum creation",
     description: "`AS ENUM (...);` -> `AS ENUM(...);`",
     violateRegex: /CREATE\s+TYPE\s+[\w.]+\s+AS\s+ENUM\s+\(/i
   },
 
   {
-    name: "No space in table creation",
+    name: "No space symbol in table creation",
     description: "`CREATE TABLE ... (...);` -> `CREATE TABLE ...(...);`",
     violateRegex: /CREATE\s+TABLE\s+(IF\s+NOT\s+EXISTS\s+)?[\w.]+\s+\(/i
   },
@@ -84,6 +84,36 @@ const rules: ConvRule[] = [
     name: "BOOL type",
     description: "`BOOL` -> `BOOLEAN`",
     violateRegex: /\bBOOL\b/i
+  },
+  {
+    name: "WHERE operators wrap spaces",
+    description: "`WHERE my_field=123` -> `WHERE my_field = 123`",
+    violateRegex: /\bWHERE\b[^;]*?(?:(?<=[\w)\]'"])(?:<>|!=|<=|>=|[=<>])|(?<![-|#@~^&*/+%:<>!=])(?:<>|!=|<=|>=|[=<>])(?=[\w($'"-]))/i
+  },
+  {
+    name: "SET operators wrap spaces",
+    description: "`SET my_field=123` -> `SET my_field = 123`",
+    violateRegex: /\bSET\b(?:(?!\b(?:WHERE|FROM|RETURNING)\b)[^;])*?(?:(?<=[\w)\]'"])=|(?<![<>!=])=(?=[\w($'"-]))/i,
+  },
+  {
+    name: "No brackets spaces in INSERT VALUES",
+    description: "`INSERT INTO ... VALUES ( ... );` -> `INSERT INTO ... VALUES (...);`",
+    violateRegex: /\bINSERT\s+INTO\b[^;]*?\bVALUES\b[^;]*?(?:\([ \t]+\S|\S[ \t]+\))/i
+  },
+  {
+    name: "No space symbol in between table and field in indexes creation",
+    description: "`CREATE INDEX ... ON my_table (my_field);` -> `CREATE INDEX ... ON my_table(my_field);`",
+    violateRegex: /\bCREATE\s+(?:UNIQUE\s+)?INDEX\b[^;]*?\bON\s+(?:ONLY\s+)?[\w."]+\s+\(/i
+  },
+  {
+    name: "No space symbol in between table and field in references creation",
+    description: "`my_field INT REFERENCES my_table (my_field),` -> `my_field INT REFERENCES my_table(my_field),`",
+    violateRegex: /\bREFERENCES\s+[\w."]+\s+\(/i
+  },
+  {
+    name: "No space symbol in between table and fields in insertion",
+    description: "`INSERT INTO my_table (...) ...;` -> `INSERT INTO my_table(...) ...;`",
+    violateRegex: /\bINSERT\s+INTO\s+[\w."]+\s+\(/i
   }
 ];
 
