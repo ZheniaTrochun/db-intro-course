@@ -1,5 +1,5 @@
-CREATE TYPE user_status_enum AS ENUM ('active', 'banned', 'deactivated');
-CREATE TYPE user_role_enum   AS ENUM ('user', 'admin');
+CREATE TYPE user_status_enum AS ENUM('active', 'banned', 'deactivated');
+CREATE TYPE user_role_enum AS ENUM('user', 'admin');
 
 CREATE TABLE users(
     user_id UUID PRIMARY KEY DEFAULT uuidv7(),
@@ -11,9 +11,9 @@ CREATE TABLE users(
     password_hash TEXT,
     avatar_url TEXT,
     social_networks TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
-    max_streak INTEGER NOT NULL DEFAULT 0 CHECK (max_streak >= 0),
+    max_streak INTEGER NOT NULL DEFAULT 0 CHECK(max_streak >= 0),
     timezone TEXT NOT NULL DEFAULT 'UTC',
-    last_watch_date DATE CHECK (last_watch_date <= CURRENT_DATE),
+    last_watch_date DATE CHECK(last_watch_date <= CURRENT_DATE),
     profile_frame_url TEXT,
     profile_background_url TEXT,
     user_role user_role_enum NOT NULL DEFAULT 'user',
@@ -21,7 +21,7 @@ CREATE TABLE users(
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
 
-    CONSTRAINT check_user_auth_method CHECK (password_hash IS NOT NULL OR google_id IS NOT NULL)
+    CONSTRAINT check_user_auth_method CHECK(password_hash IS NOT NULL OR google_id IS NOT NULL)
 );
 
 CREATE INDEX idx_user_status ON users(user_status);

@@ -1,9 +1,7 @@
--- DDL for upcomingEpisodes table
-
 CREATE TABLE upcoming_episodes(
   anime_id UUID REFERENCES animes(anime_id) ON DELETE CASCADE,
   episode_name TEXT,
-  episode_date TIMESTAMP NOT NULL DEFAULT NOW(),
+  episode_date TIMESTAMP NOT NULL DEFAULT now(),
 
   PRIMARY KEY(anime_id, episode_date)
 );

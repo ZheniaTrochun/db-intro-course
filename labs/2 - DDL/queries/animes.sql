@@ -1,6 +1,6 @@
-CREATE TYPE anime_format_enum AS ENUM ('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
-CREATE TYPE anime_status_enum AS ENUM ('upcoming', 'ongoing', 'dropped', 'finished');
-CREATE TYPE mpaa_rating_enum AS ENUM (
+CREATE TYPE anime_format_enum AS ENUM('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
+CREATE TYPE anime_status_enum AS ENUM('upcoming', 'ongoing', 'dropped', 'finished');
+CREATE TYPE mpaa_rating_enum AS ENUM(
   'g',    -- General Audiences (Без обмежень)
   'pg',   -- Parental Guidance Suggested (Рекомендовано перегляд з батьками)
   'pg13', -- Parents Strongly Cautioned (Дітям до 13 років небажано)
