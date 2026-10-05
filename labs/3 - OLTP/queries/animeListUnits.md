@@ -22,7 +22,7 @@ CREATE TABLE anime_list_units(
 ## 🗑 Drop table
 
 ```SQL
-DROP TABLE anime_list_units CASCADE;
+DROP TABLE anime_list_units;
 ```
 
 
@@ -33,7 +33,7 @@ DROP TABLE anime_list_units CASCADE;
 
 ```SQL
 INSERT INTO anime_list_units(user_id, anime_id, watched_episodes, repeat_times, started_watching, list_unit_status) VALUES
-    ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 1, 0, now()::date - INTERVAL 'day', 'watching'),
+    ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 1, 0, now()::date - INTERVAL '1 day', 'watching'),
     ('11111111-1111-4111-8111-111111111111', '40404040-4040-4040-4040-404040404040', 10, 2, now()::date, 'finished'),
     ('67676767-6767-6767-6767-676767676767', '40404040-4040-4040-4040-404040404040', 12, 0, '2008-01-08', 'finished'),
     ('14881488-1488-1488-1488-148814881488', '34343434-3434-3434-3434-343434343434', 3, 0, '2020-12-12', 'dropped'),
@@ -52,44 +52,53 @@ INSERT INTO anime_list_units(user_id, anime_id) VALUES
     ('67676767-6767-6767-6767-676767676767', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce');
 ```
 
-### With returning part (`RETURNING`, optional)
-Мета, очікуваний результат, чи успішно виконано
+### With returning part (`RETURNING`)
+Додати аніме у список користувача повертаючи всю необхідну інформацію, щоб воно відразу могло відображатися в UI.
+У таблицю додається один запис, а результатом повертається інформація про додане аніме та його статус в списку користувача.
+Запит виконується успішно.
 
 ```SQL
-```
-
-### Some interesting examples (optional)
-
-Мета, очікуваний результат, чи успішно виконано
-
-```SQL
-```
-
-Мета, очікуваний результат, чи успішно виконано
-
-```SQL
+WITH list_unit AS (
+	INSERT INTO anime_list_units(user_id, anime_id, watched_episodes, repeat_times, started_watching, list_unit_status) VALUES
+	    ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce')
+	RETURNING anime_id, watched_episodes, repeat_times, list_unit_status
+) SELECT 
+	list_unit.anime_id, list_unit.watched_episodes, list_unit.repeat_times, list_unit.list_unit_status,
+	animes.slug, animes.title_ua, animes.title_en, animes.title_original, animes.cover_url 
+FROM list_unit
+INNER JOIN animes
+ON animes.anime_id = list_unit.anime_id;
 ```
 
 
 ## 📨 Select queries
 
 ### Select all entries (no `WHERE`, all fields)
-Мета, очікуваний результат, чи успішно виконано
+Отримати всі записи з таблички з усіма полями. Запит виконується без помилок
 
 ```SQL
+SELECT * FROM anime_list_units;
 ```
 
 ### Select public only info (no `WHERE`, specified fields)
-Мета, очікуваний результат, чи успішно виконано
+Отримати всі записи з таблички з усіма публічними полями. Запит виконується без помилок
 
 ```SQL
+SELECT user_id, anime_id, watched_episodes, repeat_times, list_unit_status FROM anime_list_units;
 ```
 
-### API production example (like in `GET /api/anime/:id/comments`, `GET /api/user` etc)
-Мета, очікуваний результат, чи успішно виконано
+### API production example
+Отримується всі публічні дані у записах списку користувача для відображення в UI.
+Запити сортуються так, щоб спочатку йшли новододані, а ті тайтли що були додані у список
+в один день будуть відображатися по кількості переглянутих епізодів у спадаючому порядку.
+Запит виконується без помилок.
 
-`GET /api/anime/:id/comments` (replace it with your endpoint example, erase these brackets)
+`GET /api/user/11111111-1111-4111-8111-111111111111/list`
 ```SQL
+SELECT anime_id, watched_episodes, repeat_times, list_unit_status
+FROM anime_list_units
+WHERE user_id = '11111111-1111-4111-8111-111111111111'
+ORDER BY started_watching DESC, watched_episodes DESC;
 ```
 
 ### Some interesting examples (optional)

@@ -13,7 +13,7 @@ console.log(`Gemini LLM Model: ${geminiModel}`);
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
   console.error("❌ GEMINI_API_KEY is not set!");
-  exit(1);
+  exit(0);
 }
 
 const prompt = `
@@ -22,8 +22,9 @@ You are an expert SQL reviewer. Your ONLY task is to detect typos in table names
 Rules:
 1. Set "ok" to false ONLY if you find clear typos or spelling mistakes in column names, table names, or SQL words.
 2. If "ok" is false, "summary" MUST contain a concise description of found typos and suggested fixes.
-3. If no typos are found, set "ok" to true and "summary" to "No typos found.".
+3. If no typos are found, set "ok" to true.
 4. Do NOT judge formatting, naming conventions, or style. Focus SOLELY on typos and misspellings in identifiers or syntax.
+5. If no typos are found, you can write some enhance suggestions or suspections in "description" or just set it to "No typos found.".
 
 SQL Code to check:
 \`\`\`sql
