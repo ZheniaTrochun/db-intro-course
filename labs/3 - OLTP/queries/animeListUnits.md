@@ -41,7 +41,7 @@ INSERT INTO anime_list_units(user_id, anime_id, watched_episodes, repeat_times, 
 ```
 
 ### Mandatory only colums
-Додати у таблицю записи про початок перегляду тайтлу юзером. Таблиця отримала 5 нових записів, запит виконано успішно
+Додати у таблицю записи про початок перегляду тайтлів юзерами. Таблиця отримала 5 нових записів, запит виконано успішно
 
 ```SQL
 INSERT INTO anime_list_units(user_id, anime_id) VALUES
@@ -88,35 +88,26 @@ SELECT user_id, anime_id, watched_episodes, repeat_times, list_unit_status FROM 
 ```
 
 ### API production example
-Отримується всі публічні дані у записах списку користувача для відображення в UI.
+Отримується всі публічні дані у записах списку користувача та даних аніме для відображення в UI.
 Запити сортуються так, щоб спочатку йшли новододані, а ті тайтли що були додані у список
 в один день будуть відображатися по кількості переглянутих епізодів у спадаючому порядку.
-Запит виконується без помилок.
+Також є пагінація (по 100 записів на сторінку), а Backend має підставляти коефіцієнт для числа 100 в
+OFFSET, щоб вказати сторінку (5 - це шоста сторінка, 0 - це перша).
+Запит виконується без помилок (через неймовірну малу кількість записів у БД
+слід поставити першу сторінку, щоб побачити результат).
 
 `GET /api/user/11111111-1111-4111-8111-111111111111/list`
 ```SQL
-SELECT anime_id, watched_episodes, repeat_times, list_unit_status
-FROM anime_list_units
-WHERE user_id = '11111111-1111-4111-8111-111111111111'
-ORDER BY started_watching DESC, watched_episodes DESC;
-```
-
-### Some interesting examples (optional)
-
-- [ ] ORDER BY
-- [ ] LIMIT
-- [ ] OFFSET
-- [ ] JOIN
-- [ ] GROUP BY
-
-Мета, очікуваний результат, чи успішно виконано
-
-```SQL
-```
-
-Мета, очікуваний результат, чи успішно виконано
-
-```SQL
+SELECT 
+    list_unit.anime_id, list_unit.watched_episodes, list_unit.repeat_times, list_unit.list_unit_status,
+	animes.slug, animes.title_ua, animes.title_en, animes.title_original, animes.cover_url
+FROM anime_list_units AS list_unit
+INNER JOIN animes
+ON animes.anime_id = list_unit.anime_id
+WHERE list_unit.user_id = '11111111-1111-4111-8111-111111111111'
+ORDER BY list_unit.started_watching DESC, list_unit.watched_episodes DESC
+LIMIT 100
+OFFSET 100 * 5;
 ```
 
 
