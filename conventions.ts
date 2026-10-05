@@ -11,8 +11,8 @@ const stripNoise = (sql: string) =>
     },
   );
 
-const data = Bun.stdin.text();
-const clearData = await stripNoise(data);
+const data = await Bun.stdin.text();
+const clearData = stripNoise(data);
 
 interface ConvRule {
   name: string,

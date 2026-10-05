@@ -30,7 +30,7 @@ jobs:
           ./pgls check ./check.sql
 
       - name: Lint table_queries/*.sql
-        run: ./pgls check ./labs/3\ -\ OLTP/table_queries/*.sql
+        run: ls ./labs/3\ -\ OLTP/table_queries/*.sql && ./pgls check ./labs/3\ -\ OLTP/table_queries/*.sql
 
   conv-check:
     runs-on: ubuntu-latest
@@ -64,9 +64,9 @@ jobs:
 
       - name: Collect queries
         run: |
-          cat ./labs/3\ -\ OLTP/queries/*.md | awk '/```[sS][qQ][lL]/{flag=1; next} /```/{flag=0} flag' > ./check.sql
-          cat ./labs/3\ -\ OLTP/reports/*.md | awk '/```[sS][qQ][lL]/{flag=1; next} /```/{flag=0} flag' >> ./check.sql
-          cat ./labs/3\ -\ OLTP/table_queries/*.sql >> ./check.sql
+          cat ./labs/3\ -\ OLTP/queries/*.md | awk '/```[sS][qQ][lL]/{flag=1; next} /```/{flag=0} flag' > ./check.sql 2> /dev/null
+          cat ./labs/3\ -\ OLTP/reports/*.md | awk '/```[sS][qQ][lL]/{flag=1; next} /```/{flag=0} flag' >> ./check.sql 2> /dev/null
+          cat ./labs/3\ -\ OLTP/table_queries/*.sql >> ./check.sql || true
 
       - name: Run LLM
         run: cat check.sql | bun ./ai-typo.ts
