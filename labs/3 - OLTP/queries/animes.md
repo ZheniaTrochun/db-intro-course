@@ -359,20 +359,11 @@ WHERE year_released = EXTRACT(YEAR FROM now()::date)
 Мета, очікуваний результат, чи успішно виконано
 
 ```SQL
-UPDATE animes anm
-SET anime_status = 'finished'
-WHERE EXISTS (
-  SELECT
-    1
-  FROM episodes ep
-  WHERE ep.anime_id = anm.anime_id 
-    AND ep.is_dubbed = TRUE 
-    AND ep.episode_number = anm.episodes_count 
-)
-AND anm.anime_status = 'ongoing'
-RETURNING anime_id, title_ua, anime_status;
+UPDATE upcoming_episodes
+SET episode_date = episode_date + INTERVAL '7 days'
+WHERE anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
+RETURNING anime_id, episode_name, episode_date;
 ```
-
 
 ## ⛔ Delete queries
 

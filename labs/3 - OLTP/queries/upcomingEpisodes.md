@@ -68,7 +68,7 @@ VALUES ('018f3a5e-7a1b-7123-8abc-100000000001', 'Спецепізод: Інте�
 Мета, очікуваний результат, чи успішно виконано
 
 ```SQL
-INSERT INTO upcoming_episodes (anime_id, episode_name, episode_date)
+INSERT INTO upcoming_episodes(anime_id, episode_name, episode_date)
 VALUES (
   '018f3a5e-7a1b-7123-8abc-200000000002',
   'Серія 15: Подвійні врайта',
@@ -83,7 +83,7 @@ RETURNING anime_id, episode_name, episode_date;
 *Результат*: успішне виконання запитів `INSERT` та заповнення таблиці даними.
 
 ```SQL
-INSERT INTO upcoming_episodes (anime_id, episode_name, episode_date)
+INSERT INTO upcoming_episodes(anime_id, episode_name, episode_date)
 VALUES 
   ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 30: Випробування мага', now() + INTERVAL '14 days'),
   ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 31: Зелений ліс', now() + INTERVAL '21 days');
@@ -94,7 +94,7 @@ VALUES
 *Результат*: успішне виконання запиту `INSERT` з використанням підзапиту.
 
 ```SQL
-INSERT INTO upcoming_episodes (anime_id, episode_name, episode_date)
+INSERT INTO upcoming_episodes(anime_id, episode_name, episode_date)
 SELECT anime_id, 'Серія 16: Битва у підземеллі', now() + INTERVAL '19 days'
 FROM animes
 WHERE slug = 'solo-leveling-season-2' 
