@@ -30,7 +30,7 @@ DROP TABLE anime_list_units;
 ## ✨ Insert queries
 
 ### All colums
-Заповнити таблицю anime_list_units детермінованими записами. Таблиця отримала 5 нових записів, запит виконано успішно.
+Наповнити таблицю anime_list_units детермінованими записами. Таблиця отримала 5 нових записів, запит виконано успішно.
 
 ```SQL
 INSERT INTO anime_list_units(user_id, anime_id, watched_episodes, repeat_times, started_watching, list_unit_status, grade) VALUES
