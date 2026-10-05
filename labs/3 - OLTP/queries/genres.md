@@ -112,7 +112,6 @@ CREATE INDEX idx_genre_type ON genres(genre_type);
 - [ ] LIMIT
 - [ ] OFFSET
 - [ ] JOIN
-- [ ] GROUP BY
 
 Мета, очікуваний результат, чи успішно виконано
 

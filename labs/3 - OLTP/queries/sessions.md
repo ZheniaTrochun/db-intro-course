@@ -94,7 +94,6 @@ CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 - [ ] LIMIT
 - [ ] OFFSET
 - [ ] JOIN
-- [ ] GROUP BY
 
 Мета, очікуваний результат, чи успішно виконано
 

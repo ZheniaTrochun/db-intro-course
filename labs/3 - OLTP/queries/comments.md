@@ -8,7 +8,6 @@ CREATE TABLE comments(
     comment_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     author_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
-    grade SMALLINT CHECK(grade BETWEEN -5 AND 5),
     content TEXT NOT NULL CHECK(length(trim(content)) > 0),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     is_edited BOOLEAN NOT NULL DEFAULT FALSE
@@ -90,7 +89,6 @@ CREATE INDEX idx_comments_anime_created ON comments(anime_id, created_at DESC);
 - [ ] LIMIT
 - [ ] OFFSET
 - [ ] JOIN
-- [ ] GROUP BY
 
 Мета, очікуваний результат, чи успішно виконано
 

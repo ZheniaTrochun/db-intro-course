@@ -88,7 +88,6 @@ CREATE INDEX idx_upcoming_episode_date ON upcoming_episodes(episode_date ASC);
 - [ ] LIMIT
 - [ ] OFFSET
 - [ ] JOIN
-- [ ] GROUP BY
 
 Мета, очікуваний результат, чи успішно виконано
 
