@@ -1,42 +1,24 @@
-# genres by @XxMariavxX
+# sessions by @ApostolQleg
 
 ## ❇️ Create table
 Мета, очікуваний результат, чи успішно виконано
 
 ```SQL
-CREATE TYPE genre_type_enum AS ENUM(
-    'action', 'adventure',
-    'avant_garde', 'boys_love',
-    'comedy', 'demons',
-    'drama', 'ecchi',
-    'fantasy', 'girls_love',
-    'gourmet', 'harem',
-    'hentai', 'historical',
-    'horror', 'isekai',
-    'josei', 'kids',
-    'magic', 'martial_arts',
-    'mecha', 'military',
-    'music', 'mystery',
-    'parody', 'psychological',
-    'romance', 'samurai',
-    'school', 'sci_fi',
-    'seinen', 'shoujo',
-    'shoujo_ai', 'shounen',
-    'shounen_ai', 'slice_of_life',
-    'space', 'sports',
-    'supernatural', 'super_power',
-    'suspense', 'thriller',
-    'vampire'
+CREATE TABLE sessions(
+    session_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    refresh_token BYTEA NOT NULL UNIQUE CHECK(length(refresh_token) = 96),
+    expire_time TIMESTAMPTZ NOT NULL DEFAULT now() + INTERVAL '1 year',
+    device_type TEXT,
+    device_name TEXT,
+    os TEXT,
+    browser TEXT,
+    user_agent TEXT,
+    user_location TEXT,
+    ip_address INET
 );
 
-CREATE TABLE genres(
-  anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
-  genre_type genre_type_enum NOT NULL,
-
-  PRIMARY KEY(anime_id, genre_type)
-);
-
-CREATE INDEX idx_genre_type ON genres(genre_type);
+CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 ```
 
 

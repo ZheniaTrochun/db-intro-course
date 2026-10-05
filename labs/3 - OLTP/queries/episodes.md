@@ -1,42 +1,21 @@
-# genres by @XxMariavxX
+# episodes by @dadencukillia
 
 ## ❇️ Create table
 Мета, очікуваний результат, чи успішно виконано
 
 ```SQL
-CREATE TYPE genre_type_enum AS ENUM(
-    'action', 'adventure',
-    'avant_garde', 'boys_love',
-    'comedy', 'demons',
-    'drama', 'ecchi',
-    'fantasy', 'girls_love',
-    'gourmet', 'harem',
-    'hentai', 'historical',
-    'horror', 'isekai',
-    'josei', 'kids',
-    'magic', 'martial_arts',
-    'mecha', 'military',
-    'music', 'mystery',
-    'parody', 'psychological',
-    'romance', 'samurai',
-    'school', 'sci_fi',
-    'seinen', 'shoujo',
-    'shoujo_ai', 'shounen',
-    'shounen_ai', 'slice_of_life',
-    'space', 'sports',
-    'supernatural', 'super_power',
-    'suspense', 'thriller',
-    'vampire'
-);
+CREATE TYPE episode_localization_type_enum AS ENUM('sub', 'dub');
 
-CREATE TABLE genres(
+CREATE TABLE episodes(
+  episode_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
-  genre_type genre_type_enum NOT NULL,
-
-  PRIMARY KEY(anime_id, genre_type)
+  source_url TEXT NOT NULL,
+  episode_name TEXT NOT NULL CHECK(length(trim(episode_name)) > 0),
+  localization_studio TEXT NOT NULL DEFAULT '',
+  localization_type episode_localization_type_enum
 );
 
-CREATE INDEX idx_genre_type ON genres(genre_type);
+CREATE INDEX idx_episodes_anime_id ON episodes(anime_id);
 ```
 
 
