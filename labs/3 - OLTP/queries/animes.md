@@ -62,7 +62,7 @@ COMMIT;
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-INSERT INTO animes (
+INSERT INTO animes(
   slug, title_ua, title_en, title_original, year_released, episodes_count, age_restriction, anime_status
 ) VALUES 
 (
@@ -84,7 +84,7 @@ INSERT INTO animes (
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-INSERT INTO animes (
+INSERT INTO animes(
   anime_id, slug, title_ua, title_en, title_original, anime_description, 
   cover_url, production_studio, mal_id, anilist_id, hikka_id, imdb_id, 
   year_released, avg_episode_duration, episodes_count, age_restriction, 
@@ -110,6 +110,30 @@ INSERT INTO animes (
   'https://example.com/jjk.jpg', 'MAPPA', 40748, 40748, 
   'hikka_jjk', 'tt11126994', 2020, 24, 24, 'pg13', 'ongoing', 'tv', TRUE
 );
+
+INSERT INTO animes(
+  anime_id, slug, title_ua, title_en, title_original, anime_description,
+  cover_url, production_studio, year_released, episodes_count, age_restriction,
+  anime_status, anime_format, available
+) VALUES
+(
+  '018f3a5e-7a1b-7123-8abc-100000000001',
+  'chainsaw-man', 'Людина-бензопила', 'Chainsaw Man', 'Chainsaw Man',
+  'Юнак Денджі живе у злиднях і полює на демонів, щоб виплатити борги батька.',
+  'https://example.com/csm.jpg', 'MAPPA', 2022, 12, 'r', 'ongoing', 'tv', TRUE
+),
+(
+  '018f3a5e-7a1b-7123-8abc-200000000002',
+  'solo-leveling', 'Підняття рівня в поодинці', 'Solo Leveling', 'Ore dake Level Up na Ken',
+  'Найслабший мисливець Сон Джин-У отримує унікальну можливість піднімати свій рівень у системі.',
+  'https://example.com/solo.jpg', 'A-1 Pictures', 2024, 12, 'r', 'ongoing', 'tv', TRUE
+),
+(
+  '018f3a5e-7a1b-7123-8abc-300000000003',
+  'frieren', 'Фрірен: Після завершення подорожі', 'Frieren: Beyond Journey''s End', 'Sousou no Frieren',
+  'Ельфійська магічка Фрірен переосмислює плин часу та цінність людського життя після перемоги над Королем Демонів.',
+  'https://example.com/frieren.jpg', 'Madhouse', 2023, 28, 'pg13', 'ongoing', 'tv', TRUE
+);
 ```
 
 ### Mandatory only colums
@@ -119,7 +143,7 @@ INSERT INTO animes (
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-INSERT INTO animes (slug) 
+INSERT INTO animes(slug)
 VALUES ('digimon-beatbreak');
 ```
 
@@ -130,10 +154,9 @@ VALUES ('digimon-beatbreak');
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-SELECT * 
+SELECT anime_id, slug, title_ua, title_en
 FROM animes 
-WHERE slug = 'attack-on-titan' 
-RETURNING anime_id, slug, title_ua, title_en; 
+WHERE slug = 'attack-on-titan';
 ```
 
 ### Some interesting examples (optional)
@@ -166,7 +189,7 @@ SELECT
   episodes_count 
 FROM animes 
 WHERE available = TRUE 
-  AND year_released = EXTRACT(YEAR FROM CURRENT_DATE)
+  AND year_released = EXTRACT(YEAR FROM now()::date)
 ORDER BY year_released DESC;
 ```
 
@@ -311,7 +334,7 @@ RETURNING anime_id, slug, age_restriction, available;
 UPDATE animes 
 SET available = TRUE
 WHERE
-  AND title_ua <> ''
+  title_ua <> ''
   AND title_en <> '' 
   AND title_original <> ''
   AND available = FALSE
@@ -328,7 +351,7 @@ RETURNING anime_id, slug, age_restriction, available;
 ```SQL
 UPDATE animes 
 SET anime_status = 'finished'
-WHERE year_released = EXTRACT(YEAR FROM CURRENT_DATE)
+WHERE year_released = EXTRACT(YEAR FROM now()::date)
   AND anime_status = 'ongoing'
   AND episodes_count > 0;
 ```
@@ -340,13 +363,14 @@ UPDATE animes anm
 SET anime_status = 'finished'
 WHERE EXISTS (
   SELECT
+    1
   FROM episodes ep
   WHERE ep.anime_id = anm.anime_id 
     AND ep.is_dubbed = TRUE 
     AND ep.episode_number = anm.episodes_count 
 )
 AND anm.anime_status = 'ongoing'
-RETURNING anm.anime_id, anm.title_ua, anm.anime_status;
+RETURNING anime_id, title_ua, anime_status;
 ```
 
 
@@ -402,6 +426,6 @@ RETURNING anm.anime_id, anm.slug, anm.title_ua;
 ```SQL
 DELETE FROM animes 
 WHERE anime_status = 'upcoming' 
-  AND year_released < EXTRACT(YEAR FROM CURRENT_DATE) - 3 
-RETURNING anm.anime_id, anm.slug, anm.year_released;
+  AND year_released < EXTRACT(YEAR FROM now()::date) - 3
+RETURNING anime_id, slug, year_released;
 ```
