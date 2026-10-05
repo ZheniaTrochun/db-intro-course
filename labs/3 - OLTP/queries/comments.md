@@ -90,7 +90,6 @@ CREATE INDEX idx_comments_anime_created ON comments(anime_id, created_at DESC);
 - [ ] LIMIT
 - [ ] OFFSET
 - [ ] JOIN
-- [ ] GROUP BY
 
 Мета, очікуваний результат, чи успішно виконано
 

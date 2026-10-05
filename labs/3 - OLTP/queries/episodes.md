@@ -91,7 +91,6 @@ CREATE INDEX idx_episodes_anime_id ON episodes(anime_id);
 - [ ] LIMIT
 - [ ] OFFSET
 - [ ] JOIN
-- [ ] GROUP BY
 
 Мета, очікуваний результат, чи успішно виконано
 

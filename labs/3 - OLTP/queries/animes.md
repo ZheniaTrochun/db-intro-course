@@ -106,7 +106,6 @@ CREATE INDEX idx_anime_available ON animes(available);
 - [ ] LIMIT
 - [ ] OFFSET
 - [ ] JOIN
-- [ ] GROUP BY
 
 Мета, очікуваний результат, чи успішно виконано
 

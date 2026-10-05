@@ -106,7 +106,6 @@ CREATE INDEX idx_user_status ON users(user_status);
 - [ ] LIMIT
 - [ ] OFFSET
 - [ ] JOIN
-- [ ] GROUP BY
 
 Мета, очікуваний результат, чи успішно виконано
 
