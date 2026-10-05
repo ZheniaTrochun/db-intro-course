@@ -44,6 +44,7 @@ try {
     body: JSON.stringify({
       model: geminiModel,
       input: prompt,
+      store: false,
       response_format: {
         type: "text",
         mime_type: "application/json",
@@ -56,6 +57,10 @@ try {
           required: ["ok", "summary"],
         }
       },
+      generation_config: {
+        thinking_summaries: "auto",
+        temperature: 0.0
+      }
     }),
   });
 
@@ -68,13 +73,13 @@ try {
   const data = await response.json() as {
     steps?: {
       type: string,
-      content: {
+      summary?: string,
+      content?: {
         text: string
       }[]
     }[]
   };
-  const rawJson = data.steps?.filter(el => el.type === "model_output")[0]?.content
-    .reduce((acc, v) => acc.concat(v.text), "")
+  const rawJson = data.steps?.filter(el => el.type === "model_output")[0]?.content?.reduce((acc, v) => acc.concat(v.text), "")
     .replace(/```json\n/, "")
     .replace(/\n```/, "");
 
@@ -91,6 +96,12 @@ try {
   }
 
   console.log(`✅ Gemini Typo Check Passed: ${result.summary}`);
+
+  const thought = data.steps?.filter(el => el.type === "thought")[0]?.summary;
+
+  if (thought) {
+    console.log("💭 Thought available:\n", thoughtJson);
+  }
 } catch (err) {
   console.error("❌ Error communicating with Gemini API:", err);
   exit(0);

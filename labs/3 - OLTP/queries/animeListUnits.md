@@ -13,6 +13,7 @@ CREATE TABLE anime_list_units(
   repeat_times INT NOT NULL DEFAULT 0 CHECK(repeat_times >= 0),
   started_watching DATE NOT NULL DEFAULT now()::date,
   list_unit_status anime_list_unit_status_enum NOT NULL DEFAULT 'watching',
+  grade SMALLINT CHECK(grade BETWEEN -5 AND 5)
 
   PRIMARY KEY(user_id, anime_id)
 );
@@ -32,12 +33,12 @@ DROP TABLE anime_list_units;
 Заповнити таблицю anime_list_units детермінованими записами. Таблиця отримала 5 нових записів, запит виконано успішно.
 
 ```SQL
-INSERT INTO anime_list_units(user_id, anime_id, watched_episodes, repeat_times, started_watching, list_unit_status) VALUES
-    ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 1, 0, now()::date - INTERVAL '1 day', 'watching'),
-    ('11111111-1111-4111-8111-111111111111', '40404040-4040-4040-4040-404040404040', 10, 2, now()::date, 'finished'),
-    ('67676767-6767-6767-6767-676767676767', '40404040-4040-4040-4040-404040404040', 12, 0, '2008-01-08', 'finished'),
-    ('14881488-1488-1488-1488-148814881488', '34343434-3434-3434-3434-343434343434', 3, 0, '2020-12-12', 'dropped'),
-    ('67676767-6767-6767-6767-676767676767', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 5, 10, '2023-01-28', 'delayed');
+INSERT INTO anime_list_units(user_id, anime_id, watched_episodes, repeat_times, started_watching, list_unit_status, grade) VALUES
+    ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 1, 0, now()::date - INTERVAL '1 day', 'watching', NULL),
+    ('11111111-1111-4111-8111-111111111111', '40404040-4040-4040-4040-404040404040', 10, 2, now()::date, 'finished', NULL),
+    ('67676767-6767-6767-6767-676767676767', '40404040-4040-4040-4040-404040404040', 12, 0, '2008-01-08', 'finished', 5),
+    ('14881488-1488-1488-1488-148814881488', '34343434-3434-3434-3434-343434343434', 3, 0, '2020-12-12', 'dropped', -5),
+    ('67676767-6767-6767-6767-676767676767', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 5, 10, '2023-01-28', 'delayed', 2);
 ```
 
 ### Mandatory only colums
@@ -59,12 +60,12 @@ INSERT INTO anime_list_units(user_id, anime_id) VALUES
 
 ```SQL
 WITH list_unit AS (
-	INSERT INTO anime_list_units(user_id, anime_id, watched_episodes, repeat_times, started_watching, list_unit_status) VALUES
+	INSERT INTO anime_list_units(user_id, anime_id) VALUES
 	    ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce')
-	RETURNING anime_id, watched_episodes, repeat_times, list_unit_status
+	RETURNING anime_id, watched_episodes, repeat_times, list_unit_status, grade
 ) SELECT 
-	list_unit.anime_id, list_unit.watched_episodes, list_unit.repeat_times, list_unit.list_unit_status,
-	animes.slug, animes.title_ua, animes.title_en, animes.title_original, animes.cover_url 
+	list_unit.anime_id, list_unit.watched_episodes, list_unit.repeat_times, list_unit.list_unit_status, list_unit.grade,
+	animes.slug, animes.title_ua, animes.title_en, animes.title_original, animes.cover_url
 FROM list_unit
 INNER JOIN animes
 ON animes.anime_id = list_unit.anime_id;
@@ -84,7 +85,7 @@ SELECT * FROM anime_list_units;
 Отримати всі записи з таблички з усіма публічними полями. Запит виконується без помилок.
 
 ```SQL
-SELECT user_id, anime_id, watched_episodes, repeat_times, list_unit_status FROM anime_list_units;
+SELECT user_id, anime_id, watched_episodes, repeat_times, list_unit_status, grade FROM anime_list_units;
 ```
 
 ### API production example
@@ -99,7 +100,7 @@ OFFSET, щоб вказати сторінку (5 - це шоста сторін
 `GET /api/user/11111111-1111-4111-8111-111111111111/list`
 ```SQL
 SELECT 
-    list_unit.anime_id, list_unit.watched_episodes, list_unit.repeat_times, list_unit.list_unit_status,
+    list_unit.anime_id, list_unit.watched_episodes, list_unit.repeat_times, list_unit.list_unit_status, list_unit.grade,
 	animes.slug, animes.title_ua, animes.title_en, animes.title_original, animes.cover_url
 FROM anime_list_units AS list_unit
 INNER JOIN animes ON
@@ -123,7 +124,8 @@ OFFSET 100 * 5;
 UPDATE anime_list_units
 SET watched_episodes = 10,
     repeat_times = 1,
-    list_unit_status = 'finished'
+    list_unit_status = 'finished',
+    grade = 5
 WHERE
     user_id = '11111111-1111-4111-8111-111111111111' AND
     anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce';
@@ -136,11 +138,12 @@ WHERE
 UPDATE anime_list_units
 SET watched_episodes = 10,
     repeat_times = 1,
-    list_unit_status = 'finished'
+    list_unit_status = 'finished',
+    grade = 5
 WHERE
     user_id = '11111111-1111-4111-8111-111111111111' AND
     anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
-RETURNING old.watched_episodes, old.repeat_times, old.list_unit_status;
+RETURNING old.watched_episodes, old.repeat_times, old.list_unit_status, old.grade;
 ```
 
 ### Some interesting examples
