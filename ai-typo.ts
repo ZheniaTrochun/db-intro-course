@@ -100,7 +100,7 @@ try {
   const thought = data.steps?.filter(el => el.type === "thought")[0]?.summary;
 
   if (thought) {
-    console.log("💭 Thought available:\n", thoughtJson);
+    console.log("💭 Thought available:\n", thought);
   }
 } catch (err) {
   console.error("❌ Error communicating with Gemini API:", err);
