@@ -2,6 +2,10 @@
 
 ## ❇️ Create table
 
+*Мета*: створити ENUM `genre_type_enum`, таблицю `genres` зі зв'язком із `animes` та індекс для пошуку за типом жанру.
+*Очікуваний результат*: створено тип `genre_type_enum`, таблицю `genres` з первинним ключем та зовнішнім ключем, а також індекс `idx_genre_type`.
+*Результат*: успішне виконання запитів `CREATE TYPE`, `CREATE TABLE` та `CREATE INDEX`.
+
 ```SQL
 CREATE TYPE genre_type_enum AS ENUM(
     'action','adventure',
@@ -173,7 +177,6 @@ SELECT * FROM genres;
 ```
 
 ### Select public only info (no `WHERE`, specified fields)
-Мета, очікуваний результат, чи успішно виконано
 *Мета*: отримати лише типи жанрів з таблиці `genres`.
 *Очікуваний результат*: будуть повернуті лише типи жанрів.
 *Результат*: успішне виконання запиту `SELECT` та повернення типів жанрів.
@@ -184,7 +187,9 @@ FROM genres;
 ```
 
 ### API production example (like in `GET /api/anime/:id/comments`, `GET /api/user` etc)
-Мета, очікуваний результат, чи успішно виконано
+*Мета*: отримати список жанрів для конкретного аніме через API.
+*Очікуваний результат*: повертаються жанри аніме з ID `34343434-3434-3434-3434-343434343434`, відсортовані за назвою жанру.
+*Результат*: успішне виконання запиту `SELECT` для точки входу `GET /api/v1/animes/:id/genres`.
 
 `GET /api/v1/animes/:id/genres`
 
@@ -202,8 +207,8 @@ ORDER BY genre_type ASC;
 - [x] OFFSET
 - [x] JOIN
 
-*Мета*: отримати список аніме з їх жанрами, відсортованих за назвою аніме, обмежених до 10 записів.
-*Очікуваний результат*: повертається список аніме з їх жанрами, відсортованих за назвою аніме, обмежених до 10 записів.
+*Мета*: отримати список аніме з їх жанрами, відсортованих за назвою аніме, обмежених до 18 записів.
+*Очікуваний результат*: повертається список аніме з їх жанрами, відсортованих за назвою аніме, обмежених до 18 записів.
 *Результат*: успішне виконання запиту `SELECT` з використанням `JOIN`, `ORDER BY` та `LIMIT`.
 
 ```SQL
@@ -247,8 +252,8 @@ RETURNING anime_id, genre_type;
 ### Some interesting examples (optional)
 
 *Мета*: оновити тип жанру для всіх аніме, випущених після 2020 року, та повернути оновлені значення.
-*Очікуваний результат*: тип жанру буде оновлений для всіх аніме, випущених після 2020 року, і будуть повернуті оновлені значення.
-*Результат*: успішне виконання запиту `UPDATE` з використанням `JOIN` та частиною `RETURNING`.
+*Очікуваний результат*: запит мав би оновити тип жанру для аніме, випущених після 2020 року, і повернути оновлені значення, але фактично завершиться помилкою через недійсне значення `magic`.
+*Результат*: запит не виконується, оскільки значення `magic` відсутнє в ENUM `genre_type_enum`.
 
 ```SQL
 UPDATE genres g
@@ -268,9 +273,7 @@ RETURNING g.anime_id, g.genre_type;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-BEGIN;
-  DELETE FROM genres;
-COMMIT;
+DELETE FROM genres;
 ```
 
 ### Delete with filter (`WHERE`)
@@ -279,11 +282,9 @@ COMMIT;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-BEGIN;
-  DELETE FROM genres
-  WHERE anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
-    AND genre_type = 'school';
-COMMIT;
+DELETE FROM genres
+WHERE anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
+  AND genre_type = 'school';
 ```
 
 ### Delete and return (`WHERE`, `RETURNING`)
@@ -292,10 +293,8 @@ COMMIT;
 *Результат*: успішне виконання запиту `DELETE` з частиною `RETURNING`.
 
 ```SQL
-BEGIN;
- DELETE FROM genres
-  WHERE anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
-    AND genre_type = 'horror'
-  RETURNING anime_id, genre_type;
-COMMIT;
+DELETE FROM genres
+WHERE anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
+  AND genre_type = 'horror'
+RETURNING anime_id, genre_type;
 ```
