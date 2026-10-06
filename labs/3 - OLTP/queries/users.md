@@ -44,9 +44,8 @@ CREATE INDEX idx_user_status ON users(user_status);
 
 ```SQL
 BEGIN;
-  DROP TABLE IF EXISTS users CASCADE;
-  DROP TYPE IF EXISTS user_role_enum;
-  DROP TYPE IF EXISTS user_status_enum;
+    DROP TABLE IF EXISTS users CASCADE;
+    DROP TYPE IF EXISTS user_role_enum, user_status_enum;
 COMMIT;
 ```
 
