@@ -23,7 +23,10 @@ CREATE TABLE anime_list_units(
 ## 🗑 Drop table
 
 ```SQL
-DROP TABLE anime_list_units;
+BEGIN;
+    DROP TABLE anime_list_units;
+    DROP TYPE anime_list_unit_status_enum;
+COMMIT;
 ```
 
 
