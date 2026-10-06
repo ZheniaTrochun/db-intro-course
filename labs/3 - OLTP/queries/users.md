@@ -345,9 +345,7 @@ RETURNING user_id, streak_start_date, last_watch_date, max_streak;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-BEGIN;
-    DELETE FROM users;
-COMMIT;
+DELETE FROM users;
 ```
 
 ### Delete with filter (`WHERE`)

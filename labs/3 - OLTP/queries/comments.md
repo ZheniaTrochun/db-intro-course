@@ -25,9 +25,7 @@ CREATE INDEX idx_comments_anime_created ON comments(anime_id, created_at DESC);
 *Результат*: успішне виконання запиту `DROP TABLE`, якщо таблиця існувала.
 
 ```SQL
-BEGIN;
-    DROP TABLE IF EXISTS comments CASCADE;
-COMMIT;
+DROP TABLE IF EXISTS comments;
 ```
 
 
@@ -260,9 +258,7 @@ RETURNING comments.comment_id, comments.author_id, comments.content;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-BEGIN;
-    DELETE FROM comments;
-COMMIT;
+DELETE FROM comments;
 ```
 
 ### Delete with filter (`WHERE`)
