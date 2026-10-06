@@ -29,7 +29,7 @@ CREATE TYPE genre_type_enum AS ENUM(
     'idols_female','idols_male',
     'isekai','iyashikei',
     'love_polygon','love_status_quo',
-    'magical_sex_shift','mahou_shoujo',
+    'fantasyal_sex_shift','mahou_shoujo',
     'martial_arts','mecha',
     'medical','military',
     'music','mythology',
@@ -252,15 +252,15 @@ RETURNING anime_id, genre_type;
 ### Some interesting examples (optional)
 
 *Мета*: оновити тип жанру для всіх аніме, випущених після 2020 року, та повернути оновлені значення.
-*Очікуваний результат*: запит мав би оновити тип жанру для аніме, випущених після 2020 року, і повернути оновлені значення, але фактично завершиться помилкою через недійсне значення `magic`.
-*Результат*: запит не виконується, оскільки значення `magic` відсутнє в ENUM `genre_type_enum`.
+*Очікуваний результат*: запит мав би оновити тип жанру для аніме, випущених після 2020 року, і повернути оновлені значення, але фактично завершиться помилкою через недійсне значення `fantasy`.
+*Результат*: запит не виконується, оскільки значення `fantasy` відсутнє в ENUM `genre_type_enum`.
 
 ```SQL
 UPDATE genres g
 SET genre_type = 'fantasy'
 FROM animes a
 WHERE g.anime_id = a.anime_id
-  AND g.genre_type = 'magic'
+  AND g.genre_type = 'fantasy'
   AND a.year_released >= 2020
 RETURNING g.anime_id, g.genre_type;
 ```
