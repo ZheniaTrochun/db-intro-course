@@ -22,7 +22,10 @@ CREATE INDEX idx_episodes_anime_id ON episodes(anime_id);
 ## 🗑 Drop table
 
 ```SQL
-DROP TABLE episodes;
+BEGIN;
+    DROP TABLE episodes;
+    DROP TYPE episode_localization_type_enum;
+COMMIT;
 ```
 
 
