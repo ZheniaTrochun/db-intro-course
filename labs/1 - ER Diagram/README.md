@@ -151,7 +151,6 @@ erDiagram
         int enrollment_id PK
         int student_id FK
         int course_id FK
-        int teacher_id FK
         int grade
         int semester
     }
