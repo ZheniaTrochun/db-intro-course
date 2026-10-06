@@ -4,46 +4,46 @@
 
 ```SQL
 CREATE TYPE genre_type_enum AS ENUM(
-    "action","adventure",
-    "avant_garde","award_winning",
-    "boys_love","comedy",
-    "drama","fantasy",
-    "girls_love","gourmet",
-    "horror","mystery",
-    "romance","sci-fi",
-    "slice_of_life",
-    "sports","supernatural",
-    "suspense","ecchi",
-    "erotica","hentai",
-    "adult_cast","anthropomorphic",
-    "cgdct","childcare",
-    "combat_sports","crossdressing",
-    "delinquents","detective",
-    "educational","gag_humor",
-    "gore","harem",
-    "high_stakes_game","historical",
-    "idols_female","idols_male",
-    "isekai","iyashikei",
-    "love_polygon","love_status_quo",
-    "magical_sex_shift","mahou_shoujo",
-    "martial_arts","mecha",
-    "medical","military",
-    "music","mythology",
-    "organized_crime",
-    "otaku_culture","parody",
-    "performing_arts","pets",
-    "psychological","racing",
-    "reincarnation","reverse_harem",
-    "samurai","school",
-    "showbiz","space",
-    "strategy_game","super_power",
-    "survival","team_sports",
-    "time_travel","urban_fantasy",
-    "vampire","video_game",
-    "villainess","visual_arts",
-    "workplace","josei",
-    "kids","seinen",
-    "shoujo","shounen"
+    'action','adventure',
+    'avant_garde','award_winning',
+    'boys_love','comedy',
+    'drama','fantasy',
+    'girls_love','gourmet',
+    'horror','mystery',
+    'romance','sci-fi',
+    'slice_of_life',
+    'sports','supernatural',
+    'suspense','ecchi',
+    'erotica','hentai',
+    'adult_cast','anthropomorphic',
+    'cgdct','childcare',
+    'combat_sports','crossdressing',
+    'delinquents','detective',
+    'educational','gag_humor',
+    'gore','harem',
+    'high_stakes_game','historical',
+    'idols_female','idols_male',
+    'isekai','iyashikei',
+    'love_polygon','love_status_quo',
+    'magical_sex_shift','mahou_shoujo',
+    'martial_arts','mecha',
+    'medical','military',
+    'music','mythology',
+    'organized_crime',
+    'otaku_culture','parody',
+    'performing_arts','pets',
+    'psychological','racing',
+    'reincarnation','reverse_harem',
+    'samurai','school',
+    'showbiz','space',
+    'strategy_game','super_power',
+    'survival','team_sports',
+    'time_travel','urban_fantasy',
+    'vampire','video_game',
+    'villainess','visual_arts',
+    'workplace','josei',
+    'kids','seinen',
+    'shoujo','shounen'
 );
 
 CREATE TABLE genres(
@@ -77,7 +77,7 @@ COMMIT;
 *Результат*: успішне виконання запиту `INSERT` та додавання нових жанрів до таблиці.
 
 ```SQL
-INSERT INTO genres (anime_id, genre_type)
+INSERT INTO genres(anime_id, genre_type)
 VALUES 
 (
   '34343434-3434-3434-3434-343434343434',
@@ -156,7 +156,7 @@ VALUES
 *Результат*: успішне виконання запиту `INSERT` з частиною `RETURNING`.
 
 ```SQL
-INSERT INTO genres (anime_id, genre_type)
+INSERT INTO genres(anime_id, genre_type)
 VALUES ('018f3a5e-7a1b-7123-8abc-300000000003', 'adventure')
 RETURNING anime_id, genre_type;
 ```
@@ -292,7 +292,7 @@ COMMIT;
 *Результат*: успішне виконання запиту `DELETE` з частиною `RETURNING`.
 
 ```SQL
-BEGIN
+BEGIN;
  DELETE FROM genres
   WHERE anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
     AND genre_type = 'horror'
