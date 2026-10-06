@@ -38,7 +38,6 @@ CREATE TABLE animes(
 CREATE INDEX idx_anime_available ON animes(available);
 ```
 
-
 ## 🗑 Drop table
 *Мета*: Запит для повного видалення таблиці та її даних
 *Очікуваний результат*: Таблиця animes та її дані видалені.

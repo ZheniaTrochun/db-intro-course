@@ -26,7 +26,9 @@ CREATE INDEX idx_upcoming_episode_date ON upcoming_episodes(episode_date ASC);
 
 ```SQL
 BEGIN;
-DROP TABLE IF EXISTS upcoming_episodes CASCADE;
+
+  DROP TABLE IF EXISTS upcoming_episodes;
+
 COMMIT;
 ```
 
