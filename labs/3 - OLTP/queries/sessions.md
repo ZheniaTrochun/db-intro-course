@@ -30,10 +30,7 @@ CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 *Результат*: успішне виконання запиту `DROP TABLE`, якщо таблиця існувала.
 
 ```SQL
-BEGIN;
-    DROP TABLE IF EXISTS sessions;
-    DROP TYPE IF EXISTS idx_sessions_user_id;
-COMMIT;
+DROP TABLE IF EXISTS sessions;
 ```
 
 
