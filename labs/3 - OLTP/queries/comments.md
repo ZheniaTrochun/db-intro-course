@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS public.comments(
     is_edited BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE INDEX IF NOT EXISTS idx_comments_anime_created ON public.comments(anime_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_comments_anime_created ON public.comments(anime_id, comment_id DESC);
 ```
 
 
@@ -91,8 +91,8 @@ INSERT INTO public.comments(author_id, anime_id, content)
 SELECT users.user_id, 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 'Comment only for active users'
 FROM public.users
 WHERE 
-    users.user_id = '11111111-1111-4111-8111-111111111111' AND
-    users.user_status = 'active'
+    users.user_id = '11111111-1111-4111-8111-111111111111'
+    AND users.user_status = 'active'
 RETURNING comment_id, author_id, anime_id, content, created_at;
 ```
 
@@ -140,10 +140,10 @@ FROM public.comments
 INNER JOIN public.users ON 
     users.user_id = comments.author_id
 WHERE 
-    comments.anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce' AND
-    (
-        (SELECT last_comment_id FROM pagination) IS NULL OR
-        comments.comment_id < (SELECT last_comment_id FROM pagination)
+    comments.anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
+    AND (
+        (SELECT last_comment_id FROM pagination) IS NULL
+        OR comments.comment_id < (SELECT last_comment_id FROM pagination)
     )
 ORDER BY comments.comment_id DESC
 LIMIT 100;
@@ -164,7 +164,7 @@ LIMIT 100;
 ```SQL
 SELECT
     users.nickname,
-    COUNT(comments.comment_id) AS total_comments
+    count(comments.comment_id) AS total_comments
 FROM public.comments
 INNER JOIN public.users ON
     users.user_id = comments.author_id
@@ -175,7 +175,7 @@ OFFSET 10 * 0;
 ```
 
 *Мета*: отримати 10 найновіших коментарів за сьогодні разом з назвами аніме, до яких вони залишені.
-*Очікуваний результат*: повертається список із максимум 5 коментарів, залишених за останній тиждень, з українською назвою аніме, відсортований від найновіших.
+*Очікуваний результат*: повертається список із максимум 10 коментарів, залишених за сьогодні, з українською назвою аніме, відсортований від найновіших.
 *Результат*: успішне виконання запиту `SELECT` з використанням `JOIN`, `WHERE`, `ORDER BY`, `LIMIT` та `OFFSET`.
 
 ```SQL
@@ -238,8 +238,8 @@ SET
     content = 'Edited by the author',
     is_edited = TRUE
 WHERE
-    comment_id = 2 AND
-    author_id = '67676767-6767-6767-6767-676767676767'
+    comment_id = 2
+    AND author_id = '67676767-6767-6767-6767-676767676767'
 RETURNING comment_id, author_id, content, is_edited;
 ```
 
@@ -255,8 +255,8 @@ SET
     is_edited = TRUE
 FROM public.users
 WHERE
-    users.user_id = comments.author_id AND
-    users.user_status = 'banned'
+    users.user_id = comments.author_id
+    AND users.user_status = 'banned'
 RETURNING comments.comment_id, comments.author_id, comments.content;
 ```
 
@@ -312,7 +312,7 @@ RETURNING comment_id, author_id, anime_id, content;
 DELETE FROM public.comments
 USING public.users
 WHERE
-    users.user_id = comments.author_id AND
-    users.user_status = 'banned'
+    users.user_id = comments.author_id
+    AND users.user_status = 'banned'
 RETURNING comments.comment_id, comments.author_id;
 ```

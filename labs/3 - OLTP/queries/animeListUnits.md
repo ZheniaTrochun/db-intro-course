@@ -132,8 +132,8 @@ SET
     list_unit_status = 'finished',
     grade = 5
 WHERE
-    user_id = '11111111-1111-4111-8111-111111111111' AND
-    anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce';
+    user_id = '11111111-1111-4111-8111-111111111111'
+    AND anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce';
 ```
 
 ### Update fields returning values (`WHERE`, `RETURNING`)
@@ -147,8 +147,8 @@ SET
     list_unit_status = 'finished',
     grade = 5
 WHERE
-    user_id = '11111111-1111-4111-8111-111111111111' AND
-    anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
+    user_id = '11111111-1111-4111-8111-111111111111'
+    AND anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
 RETURNING old.watched_episodes, old.repeat_times, old.list_unit_status, old.grade;
 ```
 
@@ -170,8 +170,8 @@ WITH entry AS (
     INNER JOIN public.animes ON
         animes.anime_id = list_unit.anime_id
     WHERE 
-        list_unit.user_id = '11111111-1111-4111-8111-111111111111' AND
-        list_unit.anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
+        list_unit.user_id = '11111111-1111-4111-8111-111111111111'
+        AND list_unit.anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
     LIMIT 1
 ) UPDATE public.anime_list_units AS target
 SET
@@ -182,8 +182,8 @@ SET
     END
 FROM entry
 WHERE
-    target.user_id = entry.user_id AND
-    target.anime_id = entry.anime_id
+    target.user_id = entry.user_id
+    AND target.anime_id = entry.anime_id
 RETURNING target.watched_episodes, target.repeat_times, target.list_unit_status;
 ```
 
@@ -203,8 +203,8 @@ DELETE FROM public.anime_list_units;
 ```SQL
 DELETE FROM public.anime_list_units
 WHERE
-    user_id = '11111111-1111-4111-8111-111111111111' AND
-    anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce';
+    user_id = '11111111-1111-4111-8111-111111111111'
+    AND anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce';
 ```
 
 ### Delete and return (`WHERE`, `RETURNING`)
@@ -213,7 +213,7 @@ WHERE
 ```SQL
 DELETE FROM public.anime_list_units
 WHERE
-    user_id = '11111111-1111-4111-8111-111111111111' AND
-    anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
+    user_id = '11111111-1111-4111-8111-111111111111'
+    AND anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
 RETURNING watched_episodes, repeat_times, list_unit_status;
 ```

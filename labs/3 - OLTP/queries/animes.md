@@ -140,75 +140,6 @@ INSERT INTO public.animes(slug)
 VALUES ('digimon-beatbreak');
 ```
 
-### Select by slug
-
-*Мета*: Вибрати ідентифікатор та назви аніме за певним slug.
-*Очікуваний результат*: Запис із таблиці `animes` зі slug = 'attack-on-titan' і полями `anime_id`, `slug`, `title_ua`, `title_en`.
-*Чи успішно виконано*: Так, запит виконано успішно.
-
-```SQL
-SELECT anime_id, title_ua, title_en
-FROM public.animes 
-WHERE slug = 'attack-on-titan';
-```
-
-### Some interesting examples
-
-*Це OLAP*.
-*Мета*: Порахувати доступні аніме за кожним статусом.
-*Очікуваний результат*: Кількість доступних аніме для кожного непорожнього значення `anime_status`.
-*Чи успішно виконано*: Так, запит виконано успішно.
-
-```SQL
-SELECT 
-    anime_status,
-    COUNT(*) AS total_count_animes
-FROM public.animes
-WHERE 
-    available = TRUE AND
-    anime_status IS NOT NULL
-GROUP BY anime_status;
-```
-
-*Мета*: Знайти всі аніме, які були випущені у поточному році та доступні для перегляду.
-*Очікуваний результат*: Записи з таблиці animes, де available = TRUE та year_released = поточний рік.
-*Чи успішно виконано*: Так, запит виконано успішно.
-
-```SQL
-SELECT 
-    anime_id, 
-    slug, 
-    title_ua, 
-    year_released, 
-    cover_url, 
-    episodes_count 
-FROM public.animes 
-WHERE 
-    available = TRUE AND 
-    year_released = EXTRACT(YEAR FROM now()::date)
-ORDER BY year_released DESC;
-```
-
-*Мета*: Знайти всі аніме, у яких відсутні важливі публічні дані
-*Очікуваний результат*: Записи з таблиці animes, де відсутні дані про обкладинку або опис.
-*Чи успішно виконано*: Так, запит виконано успішно.
-
-```SQL
-SELECT 
-  anime_id, 
-  slug, 
-  title_ua, 
-  cover_url, 
-  anime_description 
-FROM public.animes 
-WHERE 
-    available = TRUE AND 
-    (
-        cover_url IS NULL OR
-        cover_url = '' OR
-        anime_description = ''
-    );
-```
 
 ## 📨 Select queries
 
@@ -259,8 +190,8 @@ SELECT
   anime_status, anime_format
 FROM public.animes
 WHERE
-    slug = 'attack-on-titan' AND
-    available = TRUE;
+    slug = 'attack-on-titan'
+    AND available = TRUE;
 ```
 
 ### Some interesting examples (optional)
@@ -288,6 +219,63 @@ ORDER BY anime_id DESC
 LIMIT 18
 OFFSET 18 * 0;
 ```
+
+*Це OLAP*.
+*Мета*: Порахувати доступні аніме за кожним статусом.
+*Очікуваний результат*: Кількість доступних аніме для кожного непорожнього значення `anime_status`.
+*Чи успішно виконано*: Так, запит виконано успішно.
+
+```SQL
+SELECT 
+    anime_status,
+    count(*) AS total_count_animes
+FROM public.animes
+WHERE 
+    available = TRUE
+    AND anime_status IS NOT NULL
+GROUP BY anime_status;
+```
+
+*Мета*: Знайти всі аніме, які були випущені у поточному році та доступні для перегляду.
+*Очікуваний результат*: Записи з таблиці animes, де available = TRUE та year_released = поточний рік.
+*Чи успішно виконано*: Так, запит виконано успішно.
+
+```SQL
+SELECT 
+    anime_id, 
+    slug, 
+    title_ua, 
+    year_released, 
+    cover_url, 
+    episodes_count 
+FROM public.animes 
+WHERE 
+    available = TRUE
+    AND year_released = extract(YEAR FROM now()::date)
+ORDER BY year_released DESC;
+```
+
+*Мета*: Знайти всі аніме, у яких відсутні важливі публічні дані
+*Очікуваний результат*: Записи з таблиці animes, де відсутні дані про обкладинку або опис.
+*Чи успішно виконано*: Так, запит виконано успішно.
+
+```SQL
+SELECT 
+  anime_id, 
+  slug, 
+  title_ua, 
+  cover_url, 
+  anime_description 
+FROM public.animes 
+WHERE 
+    available = TRUE
+    AND (
+        cover_url IS NULL
+        OR cover_url = ''
+        OR anime_description = ''
+    );
+```
+
 
 ## 🔄 Update queries
 
@@ -327,13 +315,14 @@ UPDATE public.animes
 SET
     available = TRUE
 WHERE
-    title_ua <> '' AND
-    title_en <> '' AND
-    title_original <> ''
+    title_ua <> ''
+    AND title_en <> ''
+    AND title_original <> ''
+    AND available = FALSE
 RETURNING anime_id, slug, age_restriction, available;
 ```
 
-### Some interesting examples (optional)
+### Some interesting examples
 
 *Мета*: Оновити статус аніме для всіх аніме з поточного року, які мають статус 'ongoing' та більше 0 епізодів, на 'finished'.
 *Очікуваний результат*: Статус аніме для всіх аніме з поточного року, які мають статус 'ongoing' та більше 0 епізодів, оновлено на 'finished'.
@@ -344,9 +333,9 @@ UPDATE public.animes
 SET
     anime_status = 'finished'
 WHERE 
-    year_released = extract(YEAR FROM now()::date) AND
-    anime_status = 'ongoing' AND
-    episodes_count > 0;
+    year_released = extract(YEAR FROM now()::date)
+    AND anime_status = 'ongoing'
+    AND episodes_count > 0;
 ```
 
 
@@ -370,27 +359,28 @@ DELETE FROM public.animes;
 ```SQL
 DELETE FROM public.animes 
 WHERE
-    (title_ua IS NULL OR title_ua = '') AND
-    available = FALSE;
+    (title_ua IS NULL OR title_ua = '')
+    AND available = FALSE;
 ```
 
 ### Delete and return (`WHERE`, `RETURNING`)
-*Мета*: Видалити завершені аніме, які мають опис або не мають виробничої студії, та повернути їхні ідентифікатори й назви.
+*Мета*: Видалити завершені аніме, які не мають опис або не мають виробничої студії, та повернути їхні ідентифікатори й назви.
 *Очікуваний результат*: Відповідні записи видалені, а поля `anime_id`, `slug` і `title_ua` повернуті.
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
 DELETE FROM public.animes 
 WHERE
-    anime_status = 'finished' AND 
-    (
-        anime_description <> '' OR
-        production_studio IS NULL
+    anime_status = 'finished'
+    AND (
+        anime_description <> ''
+        OR production_studio IS NULL
+        OR production_studio <> ''
     ) 
 RETURNING anime_id, slug, title_ua;
 ```
 
-### Some interesting examples (optional)
+### Some interesting examples
 
 *Мета*: Видалити завершені аніме, для яких не існує жодного епізоду, і повернути видалені записи.
 *Очікуваний результат*: Видалені завершені аніме без пов'язаних записів у `episodes`, а їхні ідентифікатори та назви повернуті.
@@ -399,10 +389,10 @@ RETURNING anime_id, slug, title_ua;
 ```SQL
 DELETE FROM public.animes anm 
 WHERE 
-    anm.anime_status = 'finished' AND
-    NOT EXISTS (
+    anm.anime_status = 'finished'
+    AND NOT EXISTS (
         SELECT 1
-        FROM episodes ep 
+        FROM public.episodes ep 
         WHERE ep.anime_id = anm.anime_id
     ) 
 RETURNING anm.anime_id, anm.slug, anm.title_ua;
@@ -415,7 +405,7 @@ RETURNING anm.anime_id, anm.slug, anm.title_ua;
 ```SQL
 DELETE FROM public.animes 
 WHERE
-    anime_status = 'upcoming' AND
-    year_released < extract(YEAR FROM now()::date) - 3
+    anime_status = 'upcoming'
+    AND year_released < extract(YEAR FROM now()::date) - 3
 RETURNING anime_id, slug, year_released;
 ```

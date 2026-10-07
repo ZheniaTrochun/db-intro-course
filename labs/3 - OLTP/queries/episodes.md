@@ -64,7 +64,7 @@ RETURNING anime_id, source_url, episode_name, localization_studio, localization_
 ## 📨 Select queries
 
 ### Select all entries (no `WHERE`, all fields)
-Отримати всі записи серій. Таблиця повертає успішно всі 7 запитів.
+Отримати всі записи серій. Таблиця повертає успішно запити.
 
 ```SQL
 SELECT * FROM public.episodes;
@@ -79,7 +79,7 @@ FROM public.episodes;
 ```
 
 ### API production example
-Отримати всі серії конкретного аніме. Запит успішно повертає 3 записи.
+Отримати всі серії конкретного аніме. Запит успішно повертає записи.
 
 `GET /api/anime/f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce/episodes`
 ```SQL
@@ -96,7 +96,7 @@ WHERE anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce';
 Запит успішно заміняє домен у конкретному випадку в одному записі.
 
 ```SQL
-UPDATE episodes
+UPDATE public.episodes
 SET
     source_url = replace(source_url, 'https://darknet.com', 'https://darknet.net')
 WHERE

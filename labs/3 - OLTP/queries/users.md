@@ -229,11 +229,11 @@ OFFSET 10 * 0;
 ```SQL
 SELECT
     users.nickname,
-    COUNT(list_unit.anime_id) AS finished_count
+    count(list_unit.anime_id) AS finished_count
 FROM public.users
 LEFT JOIN public.anime_list_units list_unit ON
-    users.user_id = list_unit.user_id AND
-    list_unit.list_unit_status = 'finished'
+    users.user_id = list_unit.user_id
+    AND list_unit.list_unit_status = 'finished'
 GROUP BY users.user_id, users.nickname
 ORDER BY finished_count DESC, users.nickname ASC
 LIMIT 5 OFFSET 5 * 0;
@@ -295,8 +295,8 @@ SET
     user_status = 'banned',
     updated_at = now()
 WHERE
-    user_id = '11111111-1111-4111-8111-111111111111' AND
-    user_role <> 'admin'
+    user_id = '11111111-1111-4111-8111-111111111111'
+    AND user_role <> 'admin'
 RETURNING user_id, nickname, user_status, updated_at;
 ```
 
@@ -373,8 +373,8 @@ RETURNING user_id, nickname, email, user_status;
 ```SQL
 DELETE FROM public.users
 WHERE
-    user_status = 'deactivated' AND
-    updated_at < now() - INTERVAL '1 year'
+    user_status = 'deactivated'
+    AND updated_at < now() - INTERVAL '1 year'
 RETURNING user_id, nickname, updated_at;
 ```
 
@@ -385,10 +385,10 @@ RETURNING user_id, nickname, updated_at;
 ```SQL
 DELETE FROM public.users
 WHERE
-    users.last_watch_date IS NULL AND
-    users.created_at < now() - INTERVAL '30 days' AND
-    NOT EXISTS (
-        SELECT 1 FROM sessions WHERE sessions.user_id = users.user_id
+    users.last_watch_date IS NULL
+    AND users.created_at < now() - INTERVAL '30 days'
+    AND NOT EXISTS (
+        SELECT 1 FROM public.sessions WHERE sessions.user_id = users.user_id
     )
 RETURNING users.user_id, users.nickname, users.created_at;
 ```

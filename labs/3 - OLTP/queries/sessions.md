@@ -100,8 +100,8 @@ SELECT
     'Tablet', 'iPad Air'
 FROM public.users
 WHERE
-    nickname = 'ApostolQleg' AND
-    user_status = 'active'
+    nickname = 'ApostolQleg'
+    AND user_status = 'active'
 RETURNING session_id, user_id, device_name;
 ```
 
@@ -152,8 +152,8 @@ SELECT
     expire_time 
 FROM public.sessions
 WHERE 
-    user_id = '11111111-1111-4111-8111-111111111111' AND 
-    now() < expire_time
+    user_id = '11111111-1111-4111-8111-111111111111'
+    AND now() < expire_time
 ORDER BY expire_time DESC;
 ```
 
@@ -177,8 +177,8 @@ FROM public.sessions
 JOIN public.users ON
     users.user_id = sessions.user_id
 WHERE
-    sessions.expire_time BETWEEN now() AND
-    now() + INTERVAL '7 days'
+    sessions.expire_time BETWEEN now()
+    AND now() + INTERVAL '7 days'
 ORDER BY sessions.expire_time ASC
 LIMIT 5;
 ```
@@ -226,9 +226,9 @@ UPDATE public.sessions
 SET
     expire_time = now() + INTERVAL '1 year'
 WHERE
-    user_id = '11111111-1111-4111-8111-111111111111' AND
-    expire_time > now() AND
-    expire_time < now() + INTERVAL '7 days'
+    user_id = '11111111-1111-4111-8111-111111111111'
+    AND expire_time > now()
+    AND expire_time < now() + INTERVAL '7 days'
 RETURNING session_id, expire_time;
 ```
 
@@ -242,9 +242,9 @@ SET
     expire_time = now()
 FROM public.users
 WHERE 
-    users.user_id = sessions.user_id AND
-    users.user_status = 'banned' AND
-    sessions.expire_time > now()
+    users.user_id = sessions.user_id
+    AND users.user_status = 'banned'
+    AND sessions.expire_time > now()
 RETURNING sessions.session_id, sessions.user_id, sessions.expire_time;
 ```
 
@@ -299,8 +299,8 @@ RETURNING session_id, user_id, device_name, ip_address;
 ```SQL
 DELETE FROM public.sessions
 WHERE
-    user_id = '11111111-1111-4111-8111-111111111111' AND
-    session_id <> 4
+    user_id = '11111111-1111-4111-8111-111111111111'
+    AND session_id <> 4
 RETURNING session_id, device_name, ip_address;
 ```
 
@@ -312,7 +312,7 @@ RETURNING session_id, device_name, ip_address;
 DELETE FROM public.sessions
 USING public.users
 WHERE
-    users.user_id = sessions.user_id AND
-    users.user_status = 'deactivated'
+    users.user_id = sessions.user_id
+    AND users.user_status = 'deactivated'
 RETURNING sessions.session_id, sessions.user_id;
 ```

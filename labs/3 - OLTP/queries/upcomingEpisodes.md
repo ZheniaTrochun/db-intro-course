@@ -42,6 +42,7 @@ COMMIT;
 INSERT INTO public.upcoming_episodes(anime_id, episode_name, episode_date) VALUES
     ('018f3a5e-7a1b-7123-8abc-100000000001', 'Серія 13: Новий контракт', now() + INTERVAL '2 days'),
     ('018f3a5e-7a1b-7123-8abc-200000000002', 'Серія 14: Тіньовий монарх', now() + INTERVAL '5 days'),
+    ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 28: Збори в даль', now() + INTERVAL '6 days'),
     ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 29: Шлях на північ', now() + INTERVAL '7 days');
 ```
 
@@ -53,8 +54,8 @@ INSERT INTO public.upcoming_episodes(anime_id, episode_name, episode_date) VALUE
 ```SQL
 INSERT INTO public.upcoming_episodes(anime_id, episode_name) VALUES
     ('018f3a5e-7a1b-7123-8abc-100000000001', 'Спецепізод: Інтерв''ю з автором'),
-    ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 30: Випробування мага', now() + INTERVAL '14 days'),
-    ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 31: Зелений ліс', now() + INTERVAL '21 days');
+    ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 30: Випробування мага'),
+    ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 31: Зелений ліс');
 ```
 
 ### With returning part (`RETURNING`, optional)
@@ -82,8 +83,8 @@ SELECT
     anime_id, 'Серія 16: Битва у підземеллі', now() + INTERVAL '19 days'
 FROM public.animes
 WHERE
-    slug = 'solo-leveling-season-2' AND
-    available = TRUE;
+    slug = 'solo-leveling-season-2'
+    AND available = TRUE;
 ```
 
 
@@ -121,8 +122,8 @@ SELECT
   episode_date 
 FROM public.upcoming_episodes
 WHERE
-    anime_id = '018f3a5e-7a1b-7123-8abc-200000000002' AND
-    episode_date >= now()
+    anime_id = '018f3a5e-7a1b-7123-8abc-300000000003'
+    AND episode_date >= now()
 ORDER BY episode_date;
 ```
 
@@ -133,7 +134,7 @@ ORDER BY episode_date;
 - [x] JOIN
 
 *Мета*: отримати список майбутніх епізодів з інформацією про аніме, відсортованих за датою виходу, обмежених до 5 записів.
-*Очікуваний результат*: повертається список майбутніх епізодів з інформацією про аніме, відсортованих за датою виходу, обмежених до 5 записів та пропустивши перші 0 записів.
+*Очікуваний результат*: повертається список майбутніх епізодів з інформацією про аніме, відсортованих за датою виходу, обмежених до 5 записів.
 *Результат*: успішне виконання запиту `SELECT` з використанням `JOIN`, `ORDER BY`, `LIMIT` та `OFFSET`.
 
 ```SQL
@@ -160,11 +161,11 @@ LIMIT 5;
 ```SQL
 SELECT 
     a.title_ua,
-    COUNT(ue.episode_name) AS total_upcoming
+    count(ue.episode_name) AS total_upcoming
 FROM public.upcoming_episodes ue
 INNER JOIN public.animes a ON
     a.anime_id = ue.anime_id
-GROUP BY a.title_ua
+GROUP BY a.anime_id
 ORDER BY total_upcoming;
 ```
 
@@ -180,8 +181,8 @@ UPDATE public.upcoming_episodes
 SET
     episode_date = now() + INTERVAL '4 days'
 WHERE
-    anime_id = '018f3a5e-7a1b-7123-8abc-100000000001' AND
-    episode_name = 'Серія 13: Новий контракт';
+    anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
+    AND episode_name = 'Серія 13: Новий контракт';
 ```
 
 ### Update fields returning values (`WHERE`, `RETURNING`)
@@ -194,8 +195,8 @@ UPDATE public.upcoming_episodes
 SET
     episode_name = 'Серія 29: Початок нової арки'
 WHERE
-    anime_id = '018f3a5e-7a1b-7123-8abc-300000000003' AND
-    episode_name = 'Серія 29: Шлях на північ'
+    anime_id = '018f3a5e-7a1b-7123-8abc-300000000003'
+    AND episode_name = 'Серія 29: Шлях на північ'
 RETURNING anime_id, episode_name, episode_date;
 ```
 
@@ -228,7 +229,7 @@ WHERE episode_date < now();
 ```SQL
 DELETE FROM public.upcoming_episodes
 WHERE
-    anime_id = '018f3a5e-7a1b-7123-8abc-100000000001' AND
-    episode_name = 'Спецепізод: Інтерв''ю з автором'
+    anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
+    AND episode_name = 'Спецепізод: Інтерв''ю з автором'
 RETURNING anime_id, episode_name, episode_date;
 ```

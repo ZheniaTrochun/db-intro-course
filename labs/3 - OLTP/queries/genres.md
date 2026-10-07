@@ -182,8 +182,8 @@ UPDATE public.genres
 SET
     genre_type = 'fantasy'
 WHERE
-    anime_id = '018f3a5e-7a1b-7123-8abc-100000000001' AND
-    genre_type = 'supernatural';
+    anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
+    AND genre_type = 'supernatural';
 ```
 
 ### Update fields returning values (`WHERE`, `RETURNING`)
@@ -196,9 +196,9 @@ UPDATE public.genres
 SET
     genre_type = 'shounen'
 WHERE
-    anime_id = '018f3a5e-7a1b-7123-8abc-200000000002' AND
-    genre_type = 'action'
-RETURNING anime_id, old.genre_type;
+    anime_id = '018f3a5e-7a1b-7123-8abc-200000000002'
+    AND genre_type = 'action'
+RETURNING anime_id, old.genre_type AS old_genre_type, genre_type AS new_genre_type;
 ```
 
 
@@ -221,8 +221,8 @@ DELETE FROM public.genres;
 ```SQL
 DELETE FROM public.genres
 WHERE
-    anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce' AND
-    genre_type = 'school';
+    anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
+    AND genre_type = 'school';
 ```
 
 ### Delete and return (`WHERE`, `RETURNING`)
@@ -233,7 +233,7 @@ WHERE
 ```SQL
 DELETE FROM public.genres
 WHERE
-    anime_id = '018f3a5e-7a1b-7123-8abc-100000000001' AND
-    genre_type = 'horror'
+    anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
+    AND genre_type = 'horror'
 RETURNING anime_id, genre_type;
 ```
