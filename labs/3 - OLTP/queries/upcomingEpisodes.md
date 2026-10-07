@@ -64,7 +64,7 @@ INSERT INTO public.upcoming_episodes(anime_id, episode_name) VALUES
 
 ```SQL
 INSERT INTO public.upcoming_episodes(anime_id, episode_name, episode_date) VALUES
-    ('018f3a5e-7a1b-7123-8abc-200000000002', 'Серія 15: Подвійні врайта', now() + INTERVAL '12 days')
+    ('018f3a5e-7a1b-7123-8abc-200000000002', 'Серія 15: Подвійні врайта', now() + INTERVAL '12 days'),
     ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 30: Випробування мага', now() + INTERVAL '14 days'),
     ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 31: Зелений ліс', now() + INTERVAL '21 days')
 RETURNING anime_id, episode_name, episode_date;
