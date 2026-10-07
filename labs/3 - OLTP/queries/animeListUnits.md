@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS public.anime_list_units(
 ```SQL
 BEGIN;
     DROP TABLE IF EXISTS public.anime_list_units;
-    DROP TYPE IF NOT EXISTS public.anime_list_unit_status_enum;
+    DROP TYPE IF EXISTS public.anime_list_unit_status_enum;
 COMMIT;
 ```
 

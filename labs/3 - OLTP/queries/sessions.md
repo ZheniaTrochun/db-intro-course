@@ -27,7 +27,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON public.sessions(user_id);
 ## 🗑 Drop table
 *Мета*: видалити таблицю `sessions`, якщо вона існує.
 *Очікуваний результат*: таблиця `sessions` разом з індексом `idx_sessions_user_id` буде видалена з бази даних, якщо вона існує.
-*Результат*: успішне виконання запиту `DROP TABLE`, якщо таблиця існувала.
+*Результат*: успішне виконання запиту `DROP TABLE`.
 
 ```SQL
 DROP TABLE IF EXISTS public.sessions;
@@ -119,7 +119,7 @@ SELECT * FROM public.sessions;
 
 ### Select safe session info for account settings (no `WHERE`, specified fields)
 *Мета*: отримати список сесій з безпечними полями для відображення в особистому кабінеті користувача (без `refresh_token` та сирого `user_agent`).
-*Очікуваний результат*: будуть повернуті всі записи з полями `session_id`, `user_id`, `device_type`, `device_name`, `os`, `browser`, `user_location`, `ip_address`, `expire_time`.
+*Очікуваний результат*: будуть повернуті всі записи з полями `session_id`, `user_id`, `device_type`, `device_name`, `os`, `browser`, `user_location`, `ip_address`.
 *Результат*: успішне виконання запиту `SELECT` та повернення зазначених полів.
 
 ```SQL
@@ -130,7 +130,7 @@ SELECT
     device_name, 
     os, browser, 
     user_location, 
-    ip_address,
+    ip_address
 FROM public.sessions;
 ```
 
@@ -153,7 +153,7 @@ SELECT
 FROM public.sessions
 WHERE 
     user_id = '11111111-1111-4111-8111-111111111111' AND 
-    expire_time > now()
+    now() < expire_time
 ORDER BY expire_time DESC;
 ```
 
@@ -161,7 +161,6 @@ ORDER BY expire_time DESC;
 
 - [x] ORDER BY
 - [x] LIMIT
-- [ ] OFFSET
 - [x] JOIN
 
 *Мета*: отримати 5 сесій, термін дії яких закінчується протягом наступних 7 днів, разом з даними їхніх власників.
@@ -175,8 +174,11 @@ SELECT
     users.email,
     sessions.expire_time
 FROM public.sessions
-JOIN public.users ON users.user_id = sessions.user_id
-WHERE sessions.expire_time BETWEEN now() AND now() + INTERVAL '7 days'
+JOIN public.users ON
+    users.user_id = sessions.user_id
+WHERE
+    sessions.expire_time BETWEEN now() AND
+    now() + INTERVAL '7 days'
 ORDER BY sessions.expire_time ASC
 LIMIT 5;
 ```
@@ -192,10 +194,11 @@ LIMIT 5;
 ```SQL
 UPDATE public.sessions
 SET
-    expire_time = now() + INTERVAL '1 year',
+    expire_time = expire_time + INTERVAL '1 year',
     ip_address = '192.168.1.15',
     user_location = 'Lviv, Ukraine'
-WHERE session_id = 1;
+WHERE
+    session_id = 1;
 ```
 
 ### Update fields returning values (`WHERE`, `RETURNING`)
@@ -234,7 +237,7 @@ RETURNING session_id, expire_time;
 *Результат*: успішне виконання запиту `UPDATE` з використанням `FROM` та частини `RETURNING`.
 
 ```SQL
-UPDATE sessions
+UPDATE public.sessions
 SET
     expire_time = now()
 FROM public.users
@@ -254,7 +257,7 @@ RETURNING sessions.session_id, sessions.user_id, sessions.expire_time;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-DELETE FROM sessions;
+DELETE FROM public.sessions;
 ```
 
 ### Delete with filter (`WHERE`)

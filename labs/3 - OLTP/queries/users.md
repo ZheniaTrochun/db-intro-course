@@ -2,7 +2,7 @@
 
 ## ❇️ Create table
 *Мета*: створити таблицю `users` для зберігання даних користувачів, а також типи `user_status_enum` та `user_role_enum`.
-*Очікуваний результат*: типи `user_status_enum`, `user_role_enum`, таблиця `users` та індекс `idx_user_status` будуть створені в базі даних.
+*Очікуваний результат*: типи `user_status_enum`, `user_role_enum`, таблиця `users` будуть створені в базі даних.
 *Результат*: успішне виконання запитів `CREATE TYPE`, `CREATE TABLE` та `CREATE INDEX`.
 
 ```SQL
@@ -38,6 +38,7 @@ CREATE INDEX IF NOT EXISTS idx_user_status ON public.users(user_status);
 
 
 ## 🗑 Drop table
+*Запит не рекомендований до використання, всі залежні поля в інших таблицях також від'яжуться. Доведеться заново створювати CONSTRAINT*.
 *Мета*: видалити таблицю `users` та типи `user_role_enum` і `user_status_enum`, якщо вони існують.
 *Очікуваний результат*: таблиця `users` та обидва типи будуть видалені з бази даних, якщо вони існують (зовнішні ключі інших таблиць на `users` буде видалено завдяки `CASCADE`).
 *Результат*: успішне виконання запитів `DROP TABLE` та `DROP TYPE`, якщо вони існували.
@@ -385,7 +386,7 @@ RETURNING user_id, nickname, updated_at;
 DELETE FROM public.users
 WHERE
     users.last_watch_date IS NULL AND
-    users.created_at < now() - INTERVAL '30 days' ABD
+    users.created_at < now() - INTERVAL '30 days' AND
     NOT EXISTS (
         SELECT 1 FROM sessions WHERE sessions.user_id = users.user_id
     )

@@ -2,8 +2,8 @@
 
 ## ❇️ Create table
 
-*Мета*: створити ENUM `genre_type_enum`, таблицю `genres` зі зв'язком із `animes` та індекс для пошуку за типом жанру.
-*Очікуваний результат*: створено тип `genre_type_enum`, таблицю `genres` з первинним ключем та зовнішнім ключем, а також індекс `idx_genre_type`.
+*Мета*: створити ENUM `genre_type_enum`, таблицю `genres` зі зв'язком із `animes`.
+*Очікуваний результат*: створено тип `genre_type_enum`, таблицю `genres` з первинним ключем та зовнішнім ключем.
 *Результат*: успішне виконання запитів `CREATE TYPE`, `CREATE TABLE` та `CREATE INDEX`.
 
 ```SQL
@@ -29,7 +29,7 @@ CREATE TYPE public.genre_type_enum AS ENUM(
     'idols_female','idols_male',
     'isekai','iyashikei',
     'love_polygon','love_status_quo',
-    'fantasyal_sex_shift','mahou_shoujo',
+    'fantasy_sex_shift','mahou_shoujo',
     'martial_arts','mecha',
     'medical','military',
     'music','mythology',
@@ -64,7 +64,7 @@ CREATE INDEX IF NOT EXISTS idx_genre_type ON public.genres(genre_type);
 *Мета*: видалити таблицю `genres` та тип `genre_type_enum`, якщо вони існують.
 *Очікуваний результат*: таблиця `genres` та тип `genre_type_enum`
 будуть видалені з бази даних, якщо вони існують.
-*Результат*: успішне виконання запиту `DROP TABLE` та `DROP TYPE`, якщо вони існували.
+*Результат*: успішне виконання запиту `DROP TABLE` та `DROP TYPE`.
 
 ```SQL
 BEGIN;
@@ -77,7 +77,7 @@ COMMIT;
 
 ### All colums
 *Мета*: призначити нові жанри до певних аніме.
-*Очікуваний результат*: нові запити будуть додані до таблиці `genres`.
+*Очікуваний результат*: нові записи будуть додані до таблиці `genres`.
 *Результат*: успішне виконання запиту `INSERT` та додавання нових записів до таблиці.
 
 ```SQL
@@ -99,12 +99,12 @@ INSERT INTO public.genres(anime_id, genre_type) VALUES
     ('40404040-4040-4040-4040-404040404040', 'action'),
     ('40404040-4040-4040-4040-404040404040', 'super_power'),
     ('40404040-4040-4040-4040-404040404040', 'school');
-
 ```
 
 ### With returning part (`RETURNING`, optional)
+*Не дуже корисне повернення у запиті, приклад створено для демонстрації*.
 *Мета*: призначити новий жанр до аніме та отримати дані.
-*Очікуваний результат*: новий жанр буде доданий до таблиці `genres`, а також будуть повернуті дані про цей жанр.
+*Очікуваний результат*: новий жанр буде доданий до таблиці `genres`, а також будуть повернуті дані про цей запис.
 *Результат*: успішне виконання запиту `INSERT` з частиною `RETURNING`.
 
 ```SQL
@@ -133,12 +133,12 @@ SELECT * FROM public.genres;
 SELECT genre_type FROM public.genres;
 ```
 
-### API production example (like in `GET /api/anime/:id/comments`, `GET /api/user` etc)
+### API production example
 *Мета*: отримати список жанрів для конкретного аніме через API.
 *Очікуваний результат*: повертаються жанри аніме з ID `34343434-3434-3434-3434-343434343434`, відсортовані за назвою жанру.
 *Результат*: успішне виконання запиту `SELECT` для точки входу `GET /api/v1/animes/:id/genres`.
 
-`GET /api/v1/animes/:id/genres`
+`GET /api/v1/animes/34343434-3434-3434-3434-343434343434/genres`
 
 ```SQL
 SELECT genre_type 
@@ -151,7 +151,6 @@ ORDER BY genre_type ASC;
 
 - [x] ORDER BY
 - [x] LIMIT
-- [x] OFFSET
 - [x] JOIN
 
 *Мета*: отримати список аніме з їх жанрами, відсортованих за назвою аніме, обмежених до 18 записів.
@@ -188,8 +187,8 @@ WHERE
 ```
 
 ### Update fields returning values (`WHERE`, `RETURNING`)
-*Мета*: оновити тип жанру для певного аніме та повернути оновлені значення.
-*Очікуваний результат*: тип жанру буде оновлений, і будуть повернуті оновлені значення.
+*Мета*: замінити жанр для певного аніме та повернути старі значення.
+*Очікуваний результат*: тип жанру буде оновлений, і будуть повернуті старі значення.
 *Результат*: успішне виконання запиту `UPDATE` з частиною `RETURNING`.
 
 ```SQL
@@ -199,26 +198,9 @@ SET
 WHERE
     anime_id = '018f3a5e-7a1b-7123-8abc-200000000002' AND
     genre_type = 'action'
-RETURNING anime_id, genre_type;
+RETURNING anime_id, old.genre_type;
 ```
 
-### Some interesting examples (optional)
-
-*Мета*: оновити тип жанру для всіх аніме, випущених після 2020 року, та повернути оновлені значення.
-*Очікуваний результат*: запит мав би оновити тип жанру для аніме, випущених після 2020 року, і повернути оновлені значення, але фактично завершиться помилкою через недійсне значення `fantasy`.
-*Результат*: запит не виконується, оскільки значення `fantasy` відсутнє в ENUM `genre_type_enum`.
-
-```SQL
-UPDATE public.genres g
-SET
-    genre_type = 'fantasy'
-FROM public.animes a
-WHERE
-    g.anime_id = a.anime_id AND
-    g.genre_type = 'fantasy' AND
-    a.year_released >= 2020
-RETURNING g.anime_id, g.genre_type;
-```
 
 ## ⛔ Delete queries
 
