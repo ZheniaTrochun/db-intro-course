@@ -4,6 +4,6 @@ DIRNAME=$(dirname "$0")
 MDFILE="$DIRNAME/queries/$1.md"
 
 CONTENT=$(cat "$MDFILE" 2> /dev/null) \
-  || (echo "Available options:"; ls "$DIRNAME/queries" | cut -d. -F1 | awk '{ print "-", $0 }')
+  || (echo "Available options:"; ls "$DIRNAME/queries" | awk -F. '{ print "-", $1 }')
 
 echo "$CONTENT" | awk '/^```[sS][qQ][lL]/ { print ""; flag=1; next } /```/ { if (flag) { flag=0; print ""; next } } flag; /^## / { sub(/^#+/, "---"); print toupper($0) }; /^### / { sub(/^#+/, "---"); print }';
