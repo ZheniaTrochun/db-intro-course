@@ -6,16 +6,16 @@
 *Результат*: успішне виконання запитів `CREATE TABLE` та `CREATE INDEX`.
 
 ```SQL
-CREATE TABLE comments(
+CREATE TABLE IF NOT EXISTS public.comments(
     comment_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    author_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
+    author_id UUID NOT NULL REFERENCES public.users(user_id) ON DELETE CASCADE,
+    anime_id UUID NOT NULL REFERENCES public.animes(anime_id) ON DELETE CASCADE,
     content TEXT NOT NULL CHECK(length(trim(content)) > 0),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     is_edited BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE INDEX idx_comments_anime_created ON comments(anime_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_comments_anime_created ON public.comments(anime_id, created_at DESC);
 ```
 
 
@@ -25,7 +25,7 @@ CREATE INDEX idx_comments_anime_created ON comments(anime_id, created_at DESC);
 *Результат*: успішне виконання запиту `DROP TABLE`, якщо таблиця існувала.
 
 ```SQL
-DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS public.comments;
 ```
 
 
@@ -37,13 +37,10 @@ DROP TABLE IF EXISTS comments;
 *Результат*: успішне виконання запиту `INSERT` та додавання 3 нових коментарів до таблиці.
 
 ```SQL
-INSERT INTO comments(author_id, anime_id, content, created_at, is_edited) VALUES
-    ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce',
-    'Comment Example 1', '2026-10-05 18:00:00Z', FALSE),
-    ('67676767-6767-6767-6767-676767676767', '40404040-4040-4040-4040-404040404040',
-    'Comment Example 2', '2026-10-05 18:30:00Z', FALSE),
-    ('14881488-1488-1488-1488-148814881488', '34343434-3434-3434-3434-343434343434', 
-    'Comment Example 3', '2026-10-05 19:00:00Z', TRUE);
+INSERT INTO public.comments(author_id, anime_id, content, created_at, is_edited) VALUES
+    ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 'Comment Example 1', '2026-10-05 18:00:00Z', FALSE),
+    ('67676767-6767-6767-6767-676767676767', '40404040-4040-4040-4040-404040404040', 'Comment Example 2', '2026-10-05 18:30:00Z', FALSE),
+    ('14881488-1488-1488-1488-148814881488', '34343434-3434-3434-3434-343434343434', 'Comment Example 3', '2026-10-05 19:00:00Z', TRUE);
 ```
 
 ### Mandatory only colums
@@ -52,7 +49,7 @@ INSERT INTO comments(author_id, anime_id, content, created_at, is_edited) VALUES
 *Результат*: успішне виконання запиту `INSERT` та додавання 3 нових коментарів до таблиці.
 
 ```SQL
-INSERT INTO comments(author_id, anime_id, content) VALUES
+INSERT INTO public.comments(author_id, anime_id, content) VALUES
     ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 'Comment Example 4'),
     ('67676767-6767-6767-6767-676767676767', '40404040-4040-4040-4040-404040404040', 'Comment Example 5'),
     ('14881488-1488-1488-1488-148814881488', '34343434-3434-3434-3434-343434343434', 'Comment Example 6');
@@ -64,7 +61,7 @@ INSERT INTO comments(author_id, anime_id, content) VALUES
 *Результат*: успішне виконання запиту `INSERT` з частиною `RETURNING`.
 
 ```SQL
-INSERT INTO comments(author_id, anime_id, content)
+INSERT INTO public.comments(author_id, anime_id, content)
 VALUES ('11111111-1111-4111-8111-111111111111', '40404040-4040-4040-4040-404040404040', 'Comment Example 7')
 RETURNING comment_id, author_id, anime_id, content, created_at;
 ```
@@ -76,12 +73,12 @@ RETURNING comment_id, author_id, anime_id, content, created_at;
 *Результат*: успішне виконання запиту `INSERT` з використанням `SELECT` та частини `RETURNING`.
 
 ```SQL
-INSERT INTO comments(author_id, anime_id, content)
-SELECT users.user_id, animes.anime_id, 'Comment added via nickname'
-FROM users
-CROSS JOIN animes
-WHERE users.nickname = 'dadencukillia'
-    AND animes.anime_id = '40404040-4040-4040-4040-404040404040'
+INSERT INTO public.comments(author_id, anime_id, content)
+SELECT
+    user_id, '40404040-4040-4040-4040-404040404040', 'Comment added via nickname'
+FROM public.users
+WHERE
+    nickname = 'dadencukillia'
 RETURNING comment_id, author_id, anime_id, content, created_at;
 ```
 
@@ -90,11 +87,12 @@ RETURNING comment_id, author_id, anime_id, content, created_at;
 *Результат*: успішне виконання запиту `INSERT` з умовою `WHERE` у підзапиті та частиною `RETURNING`.
 
 ```SQL
-INSERT INTO comments(author_id, anime_id, content)
+INSERT INTO public.comments(author_id, anime_id, content)
 SELECT users.user_id, 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 'Comment only for active users'
-FROM users
-WHERE users.user_id = '11111111-1111-4111-8111-111111111111'
-	AND users.user_status = 'active'
+FROM public.users
+WHERE 
+    users.user_id = '11111111-1111-4111-8111-111111111111' AND
+    users.user_status = 'active'
 RETURNING comment_id, author_id, anime_id, content, created_at;
 ```
 
@@ -107,7 +105,7 @@ RETURNING comment_id, author_id, anime_id, content, created_at;
 *Результат*: успішне виконання запиту `SELECT` та повернення всіх записів.
 
 ```SQL
-SELECT * FROM comments;
+SELECT * FROM public.comments;
 ```
 
 ### Select public only info (no `WHERE`, specified fields)
@@ -117,7 +115,7 @@ SELECT * FROM comments;
 
 ```SQL
 SELECT comment_id, author_id, anime_id, content, created_at, is_edited 
-FROM comments;
+FROM public.comments;
 ```
 
 ### API production example
@@ -138,14 +136,14 @@ SELECT
     users.user_id,
     users.nickname,
     users.avatar_url
-FROM comments
-INNER JOIN users ON 
+FROM public.comments
+INNER JOIN public.users ON 
     users.user_id = comments.author_id
 WHERE 
-    comments.anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
-    AND (
-        (SELECT last_comment_id FROM pagination) IS NULL 
-        OR comments.comment_id < (SELECT last_comment_id FROM pagination)
+    comments.anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce' AND
+    (
+        (SELECT last_comment_id FROM pagination) IS NULL OR
+        comments.comment_id < (SELECT last_comment_id FROM pagination)
     )
 ORDER BY comments.comment_id DESC
 LIMIT 100;
@@ -166,8 +164,9 @@ LIMIT 100;
 SELECT
     users.nickname,
     COUNT(comments.comment_id) AS total_comments
-FROM comments
-JOIN users ON users.user_id = comments.author_id
+FROM public.comments
+INNER JOIN public.users ON
+    users.user_id = comments.author_id
 GROUP BY users.user_id, users.nickname
 ORDER BY total_comments DESC, users.nickname ASC
 LIMIT 10 
@@ -184,9 +183,11 @@ SELECT
     comments.content,
     comments.created_at,
     animes.title_ua
-FROM comments
-JOIN animes ON animes.anime_id = comments.anime_id
-WHERE comments.created_at >= now() - INTERVAL '1 days'
+FROM public.comments
+JOIN public.animes ON
+    animes.anime_id = comments.anime_id
+WHERE
+    comments.created_at >= now() - INTERVAL '1 days'
 ORDER BY comments.created_at DESC
 LIMIT 10 
 OFFSET 10 * 0;
@@ -201,8 +202,9 @@ OFFSET 10 * 0;
 *Результат*: успішне виконання запиту `UPDATE`.
 
 ```SQL
-UPDATE comments
-SET content = 'Updated comment example 1',
+UPDATE public.comments
+SET
+    content = 'Updated comment example 1',
     is_edited = TRUE
 WHERE comment_id = 1;
 ```
@@ -213,8 +215,9 @@ WHERE comment_id = 1;
 *Результат*: успішне виконання запиту `UPDATE` з частиною `RETURNING`.
 
 ```SQL
-UPDATE comments
-SET content = 'Updated comment example 2',
+UPDATE public.comments
+SET
+    content = 'Updated comment example 2',
     is_edited = TRUE
 WHERE comment_id = 2
 RETURNING comment_id, content, is_edited, created_at;
@@ -227,8 +230,9 @@ RETURNING comment_id, content, is_edited, created_at;
 *Результат*: успішне виконання запиту `UPDATE` з частиною `RETURNING`.
 
 ```SQL
-UPDATE comments
-SET content = 'Edited by the author',
+UPDATE public.comments
+SET
+    content = 'Edited by the author',
     is_edited = TRUE
 WHERE comment_id = 2
     AND author_id = '67676767-6767-6767-6767-676767676767'
@@ -240,12 +244,14 @@ RETURNING comment_id, author_id, content, is_edited;
 *Результат*: успішне виконання запиту `UPDATE` з використанням `FROM` та частини `RETURNING`.
 
 ```SQL
-UPDATE comments
-SET content = '[This comment is hidden]',
+UPDATE public.comments
+SET
+    content = '[This comment is hidden]',
     is_edited = TRUE
-FROM users
-WHERE users.user_id = comments.author_id
-    AND users.user_status = 'banned'
+FROM public.users
+WHERE
+    users.user_id = comments.author_id AND
+    users.user_status = 'banned'
 RETURNING comments.comment_id, comments.author_id, comments.content;
 ```
 
@@ -258,7 +264,7 @@ RETURNING comments.comment_id, comments.author_id, comments.content;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-DELETE FROM comments;
+DELETE FROM public.comments;
 ```
 
 ### Delete with filter (`WHERE`)
@@ -267,7 +273,7 @@ DELETE FROM comments;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-DELETE FROM comments
+DELETE FROM public.comments
 WHERE comment_id = 1;
 ```
 
@@ -276,7 +282,7 @@ WHERE comment_id = 1;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-DELETE FROM comments
+DELETE FROM public.comments
 WHERE author_id = '67676767-6767-6767-6767-676767676767';
 ```
 
@@ -286,7 +292,7 @@ WHERE author_id = '67676767-6767-6767-6767-676767676767';
 *Результат*: успішне виконання запиту `DELETE` з частиною `RETURNING`.
 
 ```SQL
-DELETE FROM comments
+DELETE FROM public.comments
 WHERE comment_id = 1
 RETURNING comment_id, author_id, anime_id, content;
 ```
@@ -298,9 +304,10 @@ RETURNING comment_id, author_id, anime_id, content;
 *Результат*: успішне виконання запиту `DELETE` з використанням `USING` та частини `RETURNING`.
 
 ```SQL
-DELETE FROM comments
-USING users
-WHERE users.user_id = comments.author_id
-    AND users.user_status = 'banned'
+DELETE FROM public.comments
+USING public.users
+WHERE
+    users.user_id = comments.author_id AND
+    users.user_status = 'banned'
 RETURNING comments.comment_id, comments.author_id;
 ```

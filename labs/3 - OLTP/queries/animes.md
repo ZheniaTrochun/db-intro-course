@@ -9,11 +9,11 @@
 
 
 ```SQL
-CREATE TYPE anime_format_enum AS ENUM('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
-CREATE TYPE anime_status_enum AS ENUM('upcoming', 'ongoing', 'cancelled', 'finished');
-CREATE TYPE mpaa_rating_enum AS ENUM('g', 'pg', 'pg13', 'r', 'nc17');
+CREATE TYPE IF NOT EXISTS public.anime_format_enum AS ENUM('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
+CREATE TYPE IF NOT EXISTS public.anime_status_enum AS ENUM('upcoming', 'ongoing', 'cancelled', 'finished');
+CREATE TYPE IF NOT EXISTS public.mpaa_rating_enum AS ENUM('g', 'pg', 'pg13', 'r', 'nc17');
 
-CREATE TABLE animes(
+CREATE TABLE IF NOT EXISTS public.animes(
   anime_id UUID PRIMARY KEY DEFAULT uuidv7(),
   slug TEXT NOT NULL UNIQUE,
   title_ua TEXT NOT NULL DEFAULT '',
@@ -35,7 +35,7 @@ CREATE TABLE animes(
   available BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE INDEX idx_anime_available ON animes(available);
+CREATE INDEX IF NOT EXISTS idx_anime_available ON public.animes(available);
 ```
 
 ## 🗑 Drop table
@@ -45,10 +45,8 @@ CREATE INDEX idx_anime_available ON animes(available);
   
 ```SQL
 BEGIN;
-
-  DROP TABLE IF EXISTS animes CASCADE;
-  DROP TYPE IF EXISTS anime_format_enum, anime_status_enum, mpaa_rating_enum;
-
+  DROP TABLE IF EXISTS public.animes CASCADE;
+  DROP TYPE IF EXISTS public.anime_format_enum, public.anime_status_enum, public.mpaa_rating_enum;
 COMMIT;
 ```
 
@@ -56,25 +54,22 @@ COMMIT;
 ## ✨ Insert queries
 
 ### IDs
+
+- `34343434-3434-3434-3434-343434343434`
+- `40404040-4040-4040-4040-404040404040`
+- `f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce`
+
 *Мета*: Вставити нові записи в таблицю animes з використанням автоматично згенерованих ID.
 *Очікуваний результат*: Нові записи вставлені в таблицю animes.
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-INSERT INTO animes(
+INSERT INTO public.animes(
   slug, title_ua, title_en, title_original, year_released, episodes_count, age_restriction, anime_status
 ) VALUES 
-(
-  'naruto', 'Наруто', 'Naruto', 'ナルト', 
-  2002, 220, 'pg13', 'finished'
-),
-(
-  'one-piece', 'Ван Піс', 'One Piece', 'ONE PIECE', 
-  1999, 1000, 'pg13', 'ongoing'
-),
-(
-  'demon-slayer', 'Вбивця демонів', 'Demon Slayer', 'Demon Slayer', 2019, 26, 'pg13', 'finished'
-);
+    ('naruto', 'Наруто', 'Naruto', 'ナルト', 2002, 220, 'pg13', 'finished'),
+    ('one-piece', 'Ван Піс', 'One Piece', 'ONE PIECE', 1999, 1000, 'pg13', 'ongoing'),
+    ('demon-slayer', 'Вбивця демонів', 'Demon Slayer', 'Demon Slayer', 2019, 26, 'pg13', 'finished');
  ```
 
 ### All colums
@@ -83,7 +78,7 @@ INSERT INTO animes(
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-INSERT INTO animes(
+INSERT INTO public.animes(
   anime_id, slug, title_ua, title_en, title_original, anime_description, 
   cover_url, production_studio, mal_id, anilist_id, hikka_id, imdb_id, 
   year_released, avg_episode_duration, episodes_count, age_restriction, 
@@ -110,7 +105,7 @@ INSERT INTO animes(
   'hikka_jjk', 'tt11126994', 2020, 24, 24, 'pg13', 'ongoing', 'tv', TRUE
 );
 
-INSERT INTO animes(
+INSERT INTO public.animes(
   anime_id, slug, title_ua, title_en, title_original, anime_description,
   cover_url, production_studio, year_released, episodes_count, age_restriction,
   anime_status, anime_format, available
@@ -142,7 +137,7 @@ INSERT INTO animes(
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-INSERT INTO animes(slug)
+INSERT INTO public.animes(slug)
 VALUES ('digimon-beatbreak');
 ```
 
@@ -154,24 +149,26 @@ VALUES ('digimon-beatbreak');
 
 ```SQL
 SELECT anime_id, slug, title_ua, title_en
-FROM animes 
+FROM public.animes 
 WHERE slug = 'attack-on-titan';
 ```
 
 ### Some interesting examples (optional)
 
+*Це OLAP*.
 *Мета*: Порахувати доступні аніме за кожним статусом.
 *Очікуваний результат*: Кількість доступних аніме для кожного непорожнього значення `anime_status`.
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
 SELECT 
-  anime_status,
-  COUNT(*) AS total_count_animes
-FROM animes
-WHERE available = TRUE 
-  AND anime_status IS NOT NULL
-GROUP BY anime_status
+    anime_status,
+    COUNT(*) AS total_count_animes
+FROM public.animes
+WHERE 
+    available = TRUE AND
+    anime_status IS NOT NULL
+GROUP BY anime_status;
 ```
 
 *Мета*: Знайти всі аніме, які були випущені у поточному році та доступні для перегляду.
@@ -180,15 +177,16 @@ GROUP BY anime_status
 
 ```SQL
 SELECT 
-  anime_id, 
-  slug, 
-  title_ua, 
-  year_released, 
-  cover_url, 
-  episodes_count 
-FROM animes 
-WHERE available = TRUE 
-  AND year_released = EXTRACT(YEAR FROM now()::date)
+    anime_id, 
+    slug, 
+    title_ua, 
+    year_released, 
+    cover_url, 
+    episodes_count 
+FROM public.animes 
+WHERE 
+    available = TRUE AND 
+    year_released = EXTRACT(YEAR FROM now()::date)
 ORDER BY year_released DESC;
 ```
 
@@ -203,13 +201,14 @@ SELECT
   title_ua, 
   cover_url, 
   anime_description 
-FROM animes 
-WHERE available = TRUE 
-  AND (
-    cover_url IS NULL 
-    OR cover_url = '' 
-    OR anime_description = ''
-  );
+FROM public.animes 
+WHERE 
+    available = TRUE AND 
+    (
+        cover_url IS NULL OR
+        cover_url = '' OR
+        anime_description = ''
+    );
 ```
 
 ## 📨 Select queries
@@ -221,7 +220,7 @@ WHERE available = TRUE
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-SELECT * FROM animes;
+SELECT * FROM public.animes;
 ```
 
 ### Select public only info (no `WHERE`, specified fields)
@@ -238,7 +237,7 @@ SELECT
   title_en, 
   year_released, 
   episodes_count
-FROM animes;
+FROM public.animes;
 ```
 
 ### API production example (like in `GET /api/anime/:id/comments`, `GET /api/user` etc)
@@ -250,27 +249,19 @@ FROM animes;
 `GET /api/v1/animes/attack-on-titan`
 ```SQL
 SELECT 
-  anime_id, 
-  slug, 
-  title_ua, 
-  title_en, 
-  title_original, 
-  anime_description, 
-  cover_url, 
-  production_studio, 
-  mal_id, 
-  anilist_id, 
-  hikka_id, 
-  imdb_id, 
-  year_released, 
-  avg_episode_duration, 
-  episodes_count, 
-  age_restriction, 
-  anime_status, 
-  anime_format
-FROM animes
-WHERE slug = 'attack-on-titan' 
-  AND available = TRUE;
+  anime_id, slug, 
+  title_ua, title_en, 
+  title_original, anime_description, 
+  cover_url, production_studio, 
+  mal_id, anilist_id, 
+  hikka_id, imdb_id, 
+  year_released, avg_episode_duration, 
+  episodes_count, age_restriction, 
+  anime_status, anime_format
+FROM public.animes
+WHERE
+    slug = 'attack-on-titan' AND
+    available = TRUE;
 ```
 
 ### Some interesting examples (optional)
@@ -278,7 +269,6 @@ WHERE slug = 'attack-on-titan'
 - [x] ORDER BY
 - [x] LIMIT
 - [x] OFFSET
-- [x] GROUP BY
 
 *Мета*: Вибрати останні 18 доступних аніме, відсортованих за зменшенням anime_id.
 *Очікуваний результат*: 18 останніх доступних аніме, відсортованих за зменшенням anime_id.
@@ -293,10 +283,10 @@ SELECT
   cover_url, 
   episodes_count, 
   available 
-FROM animes 
+FROM public.animes 
 WHERE available = TRUE
 ORDER BY anime_id DESC 
-LIMIT 18 OFFSET 0;
+LIMIT 18;
 ```
 
 ## 🔄 Update queries
@@ -307,7 +297,7 @@ LIMIT 18 OFFSET 0;
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-UPDATE animes 
+UPDATE public.animes 
 SET
   anime_description = 'Після того, як його рідне місто було зруйноване, Ерен Єгер присягається очистити землю від титанів.',
   anime_status = 'finished'
@@ -320,7 +310,7 @@ WHERE slug = 'attack-on-titan';
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-UPDATE animes 
+UPDATE public.animes 
 SET available = FALSE 
 WHERE age_restriction = 'pg13'
 RETURNING anime_id, slug, age_restriction, available;
@@ -331,13 +321,12 @@ RETURNING anime_id, slug, age_restriction, available;
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-UPDATE animes 
+UPDATE public.animes 
 SET available = TRUE
 WHERE
-  title_ua <> ''
-  AND title_en <> '' 
-  AND title_original <> ''
-  AND available = FALSE
+    title_ua <> '' AND
+    title_en <> '' AND
+    title_original <> ''
 RETURNING anime_id, slug, age_restriction, available;
 ```
 
@@ -348,23 +337,14 @@ RETURNING anime_id, slug, age_restriction, available;
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-UPDATE animes 
+UPDATE public.animes 
 SET anime_status = 'finished'
-WHERE year_released = EXTRACT(YEAR FROM now()::date)
-  AND anime_status = 'ongoing'
-  AND episodes_count > 0;
+WHERE 
+    year_released = extract(YEAR FROM now()::date) AND
+    anime_status = 'ongoing' AND
+    episodes_count > 0;
 ```
 
-*Мета*: Перенести дату виходу наступного епізоду конкретного аніме на 7 днів уперед.
-*Очікуваний результат*: Для аніме з указаним `anime_id` дата епізоду збільшена на 7 днів, а оновлений запис повернуто.
-*Чи успішно виконано*: Ні, цей запит не відповідає таблиці `animes`, оскільки працює з таблицею `upcoming_episodes`.
-
-```SQL
-UPDATE upcoming_episodes
-SET episode_date = episode_date + INTERVAL '7 days'
-WHERE anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
-RETURNING anime_id, episode_name, episode_date;
-```
 
 ## ⛔ Delete queries
 
@@ -384,9 +364,10 @@ DELETE FROM animes;
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-DELETE FROM animes 
-WHERE (title_ua IS NULL OR title_ua = '') 
-  AND available = FALSE;
+DELETE FROM public.animes 
+WHERE
+    (title_ua IS NULL OR title_ua = '') AND
+    available = FALSE;
 ```
 
 ### Delete and return (`WHERE`, `RETURNING`)
@@ -395,10 +376,13 @@ WHERE (title_ua IS NULL OR title_ua = '')
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-DELETE FROM animes 
-WHERE anime_status = 'finished' 
-  AND (anime_description <> '' 
-      OR production_studio IS NULL) 
+DELETE FROM public.animes 
+WHERE
+    anime_status = 'finished' AND 
+    (
+        anime_description <> '' OR
+        production_studio IS NULL
+    ) 
 RETURNING anime_id, slug, title_ua;
 ```
 
@@ -409,13 +393,14 @@ RETURNING anime_id, slug, title_ua;
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-DELETE FROM animes anm 
-WHERE anm.anime_status = 'finished' 
-  AND NOT EXISTS (
-    SELECT 1
-    FROM episodes ep 
-    WHERE ep.anime_id = anm.anime_id
-  ) 
+DELETE FROM public.animes anm 
+WHERE 
+    anm.anime_status = 'finished' AND
+    NOT EXISTS (
+        SELECT 1
+        FROM episodes ep 
+        WHERE ep.anime_id = anm.anime_id
+    ) 
 RETURNING anm.anime_id, anm.slug, anm.title_ua;
 ```
 
@@ -424,8 +409,9 @@ RETURNING anm.anime_id, anm.slug, anm.title_ua;
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-DELETE FROM animes 
-WHERE anime_status = 'upcoming' 
-  AND year_released < EXTRACT(YEAR FROM now()::date) - 3
+DELETE FROM public.animes 
+WHERE
+    anime_status = 'upcoming' AND
+    year_released < extract(YEAR FROM now()::date) - 3
 RETURNING anime_id, slug, year_released;
 ```

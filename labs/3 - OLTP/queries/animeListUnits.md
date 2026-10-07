@@ -4,11 +4,11 @@
 Створити таблицю anime_list_units, таблиця успішно створюється у базі даних, виконання успішне.
 
 ```SQL
-CREATE TYPE anime_list_unit_status_enum AS ENUM('finished', 'watching', 'delayed', 'dropped');
+CREATE TYPE IF NOT EXISTS public.anime_list_unit_status_enum AS ENUM('finished', 'watching', 'delayed', 'dropped');
 
-CREATE TABLE anime_list_units(
+CREATE TABLE IF NOT EXISTS public.anime_list_units(
   user_id UUID NOT NULL,
-  anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
+  anime_id UUID NOT NULL REFERENCES public.animes(anime_id) ON DELETE CASCADE,
   watched_episodes INT NOT NULL DEFAULT 0 CHECK(watched_episodes >= 0),
   repeat_times INT NOT NULL DEFAULT 0 CHECK(repeat_times >= 0),
   started_watching DATE NOT NULL DEFAULT now()::date,
@@ -24,8 +24,8 @@ CREATE TABLE anime_list_units(
 
 ```SQL
 BEGIN;
-    DROP TABLE anime_list_units;
-    DROP TYPE anime_list_unit_status_enum;
+    DROP TABLE IF EXISTS public.anime_list_units;
+    DROP TYPE IF NOT EXISTS public.anime_list_unit_status_enum;
 COMMIT;
 ```
 
@@ -36,7 +36,7 @@ COMMIT;
 Наповнити таблицю anime_list_units детермінованими записами. Таблиця отримала 5 нових записів, запит виконано успішно.
 
 ```SQL
-INSERT INTO anime_list_units(user_id, anime_id, watched_episodes, repeat_times, started_watching, list_unit_status, grade) VALUES
+INSERT INTO public.anime_list_units(user_id, anime_id, watched_episodes, repeat_times, started_watching, list_unit_status, grade) VALUES
     ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 1, 0, now()::date - INTERVAL '1 day', 'watching', NULL),
     ('11111111-1111-4111-8111-111111111111', '40404040-4040-4040-4040-404040404040', 10, 2, now()::date, 'finished', NULL),
     ('67676767-6767-6767-6767-676767676767', '40404040-4040-4040-4040-404040404040', 12, 0, '2008-01-08', 'finished', 5),
@@ -48,7 +48,7 @@ INSERT INTO anime_list_units(user_id, anime_id, watched_episodes, repeat_times, 
 Додати у таблицю записи про початок перегляду тайтлів юзерами. Таблиця отримала 5 нових записів, запит виконано успішно.
 
 ```SQL
-INSERT INTO anime_list_units(user_id, anime_id) VALUES
+INSERT INTO public.anime_list_units(user_id, anime_id) VALUES
     ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'),
     ('11111111-1111-4111-8111-111111111111', '40404040-4040-4040-4040-404040404040'),
     ('67676767-6767-6767-6767-676767676767', '40404040-4040-4040-4040-404040404040'),
@@ -63,14 +63,14 @@ INSERT INTO anime_list_units(user_id, anime_id) VALUES
 
 ```SQL
 WITH list_unit AS (
-	INSERT INTO anime_list_units(user_id, anime_id) VALUES
+	INSERT INTO public.anime_list_units(user_id, anime_id) VALUES
 	    ('11111111-1111-4111-8111-111111111111', 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce')
 	RETURNING anime_id, watched_episodes, repeat_times, list_unit_status, grade
 ) SELECT 
 	list_unit.anime_id, list_unit.watched_episodes, list_unit.repeat_times, list_unit.list_unit_status, list_unit.grade,
 	animes.slug, animes.title_ua, animes.title_en, animes.title_original, animes.cover_url
 FROM list_unit
-INNER JOIN animes
+INNER JOIN public.animes
 ON animes.anime_id = list_unit.anime_id;
 ```
 
@@ -81,14 +81,15 @@ ON animes.anime_id = list_unit.anime_id;
 Отримати всі записи з таблички з усіма полями. Запит виконується без помилок.
 
 ```SQL
-SELECT * FROM anime_list_units;
+SELECT * FROM public.anime_list_units;
 ```
 
 ### Select public only info (no `WHERE`, specified fields)
 Отримати всі записи з таблички з усіма публічними полями. Запит виконується без помилок.
 
 ```SQL
-SELECT user_id, anime_id, watched_episodes, repeat_times, list_unit_status, grade FROM anime_list_units;
+SELECT user_id, anime_id, watched_episodes, repeat_times, list_unit_status, grade
+FROM public.anime_list_units;
 ```
 
 ### API production example
@@ -105,8 +106,8 @@ OFFSET, щоб вказати сторінку (5 - це шоста сторін
 SELECT 
     list_unit.anime_id, list_unit.watched_episodes, list_unit.repeat_times, list_unit.list_unit_status, list_unit.grade,
 	animes.slug, animes.title_ua, animes.title_en, animes.title_original, animes.cover_url
-FROM anime_list_units AS list_unit
-INNER JOIN animes ON
+FROM public.anime_list_units AS list_unit
+INNER JOIN public.animes ON
     animes.anime_id = list_unit.anime_id
 WHERE
     list_unit.user_id = '11111111-1111-4111-8111-111111111111'
@@ -124,8 +125,9 @@ OFFSET 100 * 5;
 Виконання успішне, без помилок.
 
 ```SQL
-UPDATE anime_list_units
-SET watched_episodes = 10,
+UPDATE public.anime_list_units
+SET
+    watched_episodes = 10,
     repeat_times = 1,
     list_unit_status = 'finished',
     grade = 5
@@ -138,8 +140,9 @@ WHERE
 Оновити запис та повернути старі дані. Запит виконується успішно
 
 ```SQL
-UPDATE anime_list_units
-SET watched_episodes = 10,
+UPDATE public.anime_list_units
+SET
+    watched_episodes = 10,
     repeat_times = 1,
     list_unit_status = 'finished',
     grade = 5
@@ -163,15 +166,16 @@ WITH entry AS (
         list_unit.user_id, list_unit.anime_id, list_unit.list_unit_status, 
         animes.episodes_count,
         10 AS watched_episodes -- replace on backend
-    FROM anime_list_units AS list_unit
-    INNER JOIN animes ON
+    FROM public.anime_list_units AS list_unit
+    INNER JOIN public.animes ON
         animes.anime_id = list_unit.anime_id
     WHERE 
         list_unit.user_id = '11111111-1111-4111-8111-111111111111' AND
         list_unit.anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
     LIMIT 1
-) UPDATE anime_list_units AS target
-SET watched_episodes = least(entry.watched_episodes, entry.episodes_count),
+) UPDATE public.anime_list_units AS target
+SET
+    watched_episodes = least(entry.watched_episodes, entry.episodes_count),
     list_unit_status = CASE
         WHEN entry.watched_episodes >= entry.episodes_count THEN 'finished'
         ELSE entry.list_unit_status
@@ -190,14 +194,14 @@ RETURNING target.watched_episodes, target.repeat_times, target.list_unit_status;
 Видалити всі записи. Запит виконується без проблем.
 
 ```SQL
-DELETE FROM anime_list_units;
+DELETE FROM public.anime_list_units;
 ```
 
 ### Delete with filter (`WHERE`)
 Видалити запис про аніме з акаунту користувача. Запит виконується успішно.
 
 ```SQL
-DELETE FROM anime_list_units
+DELETE FROM public.anime_list_units
 WHERE
     user_id = '11111111-1111-4111-8111-111111111111' AND
     anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce';
@@ -207,7 +211,7 @@ WHERE
 Видалити запис про аніме з акаунту користувача та повернути видалені дані. Запит виконується успішно.
 
 ```SQL
-DELETE FROM anime_list_units
+DELETE FROM public.anime_list_units
 WHERE
     user_id = '11111111-1111-4111-8111-111111111111' AND
     anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'

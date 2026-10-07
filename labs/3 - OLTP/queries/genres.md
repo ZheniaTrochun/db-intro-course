@@ -7,7 +7,7 @@
 *Результат*: успішне виконання запитів `CREATE TYPE`, `CREATE TABLE` та `CREATE INDEX`.
 
 ```SQL
-CREATE TYPE genre_type_enum AS ENUM(
+CREATE TYPE IF NOT EXISTS public.genre_type_enum AS ENUM(
     'action','adventure',
     'avant_garde','award_winning',
     'boys_love','comedy',
@@ -50,14 +50,14 @@ CREATE TYPE genre_type_enum AS ENUM(
     'shoujo','shounen'
 );
 
-CREATE TABLE genres(
-  anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS public.genres(
+  anime_id UUID NOT NULL REFERENCES public.animes(anime_id) ON DELETE CASCADE,
   genre_type genre_type_enum NOT NULL,
 
   PRIMARY KEY(anime_id, genre_type)
 );
 
-CREATE INDEX idx_genre_type ON genres(genre_type);
+CREATE INDEX IF NOT EXISTS idx_genre_type ON public.genres(genre_type);
 ```
 
 ## 🗑 Drop table
@@ -68,100 +68,48 @@ CREATE INDEX idx_genre_type ON genres(genre_type);
 
 ```SQL
 BEGIN;
-  DROP TABLE IF EXISTS genres CASCADE;
-  DROP TYPE IF EXISTS genre_type_enum;
+  DROP TABLE IF EXISTS public.genres;
+  DROP TYPE IF EXISTS public.genre_type_enum;
 COMMIT;
 ```
 
 ## ✨ Insert queries
 
 ### All colums
-*Мета*: додати нові жанри до таблиці `genres`.
-*Очікуваний результат*: нові жанри будуть додані до таблиці `genres`.
-*Результат*: успішне виконання запиту `INSERT` та додавання нових жанрів до таблиці.
+*Мета*: призначити нові жанри до певних аніме.
+*Очікуваний результат*: нові запити будуть додані до таблиці `genres`.
+*Результат*: успішне виконання запиту `INSERT` та додавання нових записів до таблиці.
 
 ```SQL
-INSERT INTO genres(anime_id, genre_type)
-VALUES 
-(
-  '34343434-3434-3434-3434-343434343434',
-  'action'
-),
-(
-  '34343434-3434-3434-3434-343434343434',
-  'fantasy'
-),
-(
-  '018f3a5e-7a1b-7123-8abc-100000000001',
-  'action'
-),
-(
-  '018f3a5e-7a1b-7123-8abc-100000000001',
-  'supernatural'
-),
-(
-  '018f3a5e-7a1b-7123-8abc-200000000002',
-  'action'
-),
-(
-  '018f3a5e-7a1b-7123-8abc-200000000002',
-  'fantasy'
-),
-(
-  '018f3a5e-7a1b-7123-8abc-200000000002',
-  'urban_fantasy'
-),
-(
-  '018f3a5e-7a1b-7123-8abc-100000000001',
-  'gore'
-),
-(
-  '018f3a5e-7a1b-7123-8abc-100000000001',
-  'horror'
-),
-(
-  '018f3a5e-7a1b-7123-8abc-300000000003',
-  'fantasy'
-),
-(
-  '018f3a5e-7a1b-7123-8abc-300000000003',
-  'drama'
-),
-(
-  'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce',
-  'action'
-),
-(
-  'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce',
-  'supernatural'
-),
-(
-  'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce',
-  'school'
-),
-(
-  '40404040-4040-4040-4040-404040404040',
-  'action'
-),
-(
-  '40404040-4040-4040-4040-404040404040',
-  'super_power'
-),
-(
-  '40404040-4040-4040-4040-404040404040',
-  'school'
-);
+INSERT INTO public.genres(anime_id, genre_type) VALUES 
+    ('34343434-3434-3434-3434-343434343434', 'action'),
+    ('34343434-3434-3434-3434-343434343434', 'fantasy'),
+    ('018f3a5e-7a1b-7123-8abc-100000000001', 'action'),
+    ('018f3a5e-7a1b-7123-8abc-100000000001', 'supernatural'),
+    ('018f3a5e-7a1b-7123-8abc-200000000002', 'action'),
+    ('018f3a5e-7a1b-7123-8abc-200000000002', 'fantasy'),
+    ('018f3a5e-7a1b-7123-8abc-200000000002', 'urban_fantasy'),
+    ('018f3a5e-7a1b-7123-8abc-100000000001', 'gore'),
+    ('018f3a5e-7a1b-7123-8abc-100000000001', 'horror'),
+    ('018f3a5e-7a1b-7123-8abc-300000000003', 'fantasy'),
+    ('018f3a5e-7a1b-7123-8abc-300000000003', 'drama'),
+    ('f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 'action'),
+    ('f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 'supernatural'),
+    ('f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce', 'school'),
+    ('40404040-4040-4040-4040-404040404040', 'action'),
+    ('40404040-4040-4040-4040-404040404040', 'super_power'),
+    ('40404040-4040-4040-4040-404040404040', 'school');
 
 ```
 
 ### With returning part (`RETURNING`, optional)
-*Мета*: додати новий жанр та отримати повернені дані.
+*Мета*: призначити новий жанр до аніме та отримати дані.
 *Очікуваний результат*: новий жанр буде доданий до таблиці `genres`, а також будуть повернуті дані про цей жанр.
 *Результат*: успішне виконання запиту `INSERT` з частиною `RETURNING`.
 
 ```SQL
-INSERT INTO genres(anime_id, genre_type)
-VALUES ('018f3a5e-7a1b-7123-8abc-300000000003', 'adventure')
+INSERT INTO public.genres(anime_id, genre_type) VALUES
+    ('018f3a5e-7a1b-7123-8abc-300000000003', 'adventure')
 RETURNING anime_id, genre_type;
 ```
 
@@ -173,7 +121,7 @@ RETURNING anime_id, genre_type;
 *Результат*: успішне виконання запиту `SELECT` та повернення всіх записів.
 
 ```SQL
-SELECT * FROM genres;
+SELECT * FROM public.genres;
 ```
 
 ### Select public only info (no `WHERE`, specified fields)
@@ -182,8 +130,7 @@ SELECT * FROM genres;
 *Результат*: успішне виконання запиту `SELECT` та повернення типів жанрів.
 
 ```SQL
-SELECT genre_type 
-FROM genres;
+SELECT genre_type FROM public.genres;
 ```
 
 ### API production example (like in `GET /api/anime/:id/comments`, `GET /api/user` etc)
@@ -195,7 +142,7 @@ FROM genres;
 
 ```SQL
 SELECT genre_type 
-FROM genres
+FROM public.genres
 WHERE anime_id = '34343434-3434-3434-3434-343434343434'
 ORDER BY genre_type ASC;
 ```
@@ -215,25 +162,29 @@ ORDER BY genre_type ASC;
 SELECT 
   a.title_ua,
   g.genre_type
-FROM animes a
-JOIN genres g ON a.anime_id = g.anime_id
-WHERE a.available = TRUE
+FROM public.animes a
+JOIN public.genres g ON
+    a.anime_id = g.anime_id
+WHERE
+    a.available = TRUE
 ORDER BY a.title_ua ASC
-LIMIT 18 OFFSET 0;
+LIMIT 18;
 ```
 
 ## 🔄 Update queries
 
 ### Update some fields (`WHERE`)
-*Мета*: оновити тип жанру для певного аніме.
+*Мета*: замінити жанр для певного аніме.
 *Очікуваний результат*: тип жанру буде оновлений.
 *Результат*: успішне виконання запиту `UPDATE`.
 
 ```SQL
-UPDATE genres
-SET genre_type = 'fantasy'
-WHERE anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
-  AND genre_type = 'supernatural';
+UPDATE public.genres
+SET
+    genre_type = 'fantasy'
+WHERE
+    anime_id = '018f3a5e-7a1b-7123-8abc-100000000001' AND
+    genre_type = 'supernatural';
 ```
 
 ### Update fields returning values (`WHERE`, `RETURNING`)
@@ -242,10 +193,12 @@ WHERE anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
 *Результат*: успішне виконання запиту `UPDATE` з частиною `RETURNING`.
 
 ```SQL
-UPDATE genres
-SET genre_type = 'shounen'
-WHERE anime_id = '018f3a5e-7a1b-7123-8abc-200000000002'
-  AND genre_type = 'action'
+UPDATE public.genres
+SET
+    genre_type = 'shounen'
+WHERE
+    anime_id = '018f3a5e-7a1b-7123-8abc-200000000002' AND
+    genre_type = 'action'
 RETURNING anime_id, genre_type;
 ```
 
@@ -256,12 +209,14 @@ RETURNING anime_id, genre_type;
 *Результат*: запит не виконується, оскільки значення `fantasy` відсутнє в ENUM `genre_type_enum`.
 
 ```SQL
-UPDATE genres g
-SET genre_type = 'fantasy'
-FROM animes a
-WHERE g.anime_id = a.anime_id
-  AND g.genre_type = 'fantasy'
-  AND a.year_released >= 2020
+UPDATE public.genres g
+SET
+    genre_type = 'fantasy'
+FROM public.animes a
+WHERE
+    g.anime_id = a.anime_id AND
+    g.genre_type = 'fantasy' AND
+    a.year_released >= 2020
 RETURNING g.anime_id, g.genre_type;
 ```
 
@@ -273,7 +228,7 @@ RETURNING g.anime_id, g.genre_type;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-DELETE FROM genres;
+DELETE FROM public.genres;
 ```
 
 ### Delete with filter (`WHERE`)
@@ -282,9 +237,10 @@ DELETE FROM genres;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-DELETE FROM genres
-WHERE anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
-  AND genre_type = 'school';
+DELETE FROM public.genres
+WHERE
+    anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce' AND
+    genre_type = 'school';
 ```
 
 ### Delete and return (`WHERE`, `RETURNING`)
@@ -293,8 +249,9 @@ WHERE anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce'
 *Результат*: успішне виконання запиту `DELETE` з частиною `RETURNING`.
 
 ```SQL
-DELETE FROM genres
-WHERE anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
-  AND genre_type = 'horror'
+DELETE FROM public.genres
+WHERE
+    anime_id = '018f3a5e-7a1b-7123-8abc-100000000001' AND
+    genre_type = 'horror'
 RETURNING anime_id, genre_type;
 ```

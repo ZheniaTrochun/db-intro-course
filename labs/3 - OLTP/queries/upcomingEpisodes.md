@@ -7,15 +7,15 @@
 *Результат*: успішне виконання запитів `CREATE TABLE` та `CREATE INDEX`.
 
 ```SQL
-CREATE TABLE upcoming_episodes(
-  anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS public.upcoming_episodes(
+  anime_id UUID NOT NULL REFERENCES public.animes(anime_id) ON DELETE CASCADE,
   episode_name TEXT NOT NULL CHECK(length(trim(episode_name)) > 0),
   episode_date TIMESTAMPTZ NOT NULL DEFAULT now(),
 
   PRIMARY KEY(anime_id, episode_name)
 );
 
-CREATE INDEX idx_upcoming_episode_date ON upcoming_episodes(episode_date ASC);
+CREATE INDEX IF NOT EXISTS idx_upcoming_episode_date ON public.upcoming_episodes(episode_date ASC);
 ```
 
 ## 🗑 Drop table
@@ -26,9 +26,7 @@ CREATE INDEX idx_upcoming_episode_date ON upcoming_episodes(episode_date ASC);
 
 ```SQL
 BEGIN;
-
-  DROP TABLE IF EXISTS upcoming_episodes;
-
+  DROP TABLE IF EXISTS public.upcoming_episodes;
 COMMIT;
 ```
 
@@ -41,23 +39,10 @@ COMMIT;
 *Результат*: успішне виконання запиту `INSERT` та додавання нового епізоду до таблиці.
 
 ```SQL
-INSERT INTO upcoming_episodes(anime_id, episode_name, episode_date)
-VALUES
-(
-  '018f3a5e-7a1b-7123-8abc-100000000001',
-  'Серія 13: Новий контракт',
-  now() + INTERVAL '2 days'
-),
-(
-  '018f3a5e-7a1b-7123-8abc-200000000002',
-  'Серія 14: Тіньовий монарх',
-  now() + INTERVAL '5 days'
-),
-(
-  '018f3a5e-7a1b-7123-8abc-300000000003',
-  'Серія 29: Шлях на північ',
-  now() + INTERVAL '7 days'
-);
+INSERT INTO public.upcoming_episodes(anime_id, episode_name, episode_date) VALUES
+    ('018f3a5e-7a1b-7123-8abc-100000000001', 'Серія 13: Новий контракт', now() + INTERVAL '2 days'),
+    ('018f3a5e-7a1b-7123-8abc-200000000002', 'Серія 14: Тіньовий монарх', now() + INTERVAL '5 days'),
+    ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 29: Шлях на північ', now() + INTERVAL '7 days');
 ```
 
 ### Mandatory only colums
@@ -66,8 +51,8 @@ VALUES
 *Результат*: успішне виконання запиту `INSERT` та додавання нового епізоду до таблиці.
 
 ```SQL
-INSERT INTO upcoming_episodes(anime_id, episode_name)
-VALUES ('018f3a5e-7a1b-7123-8abc-100000000001', 'Спецепізод: Інтерв''ю з автором');
+INSERT INTO public.upcoming_episodes(anime_id, episode_name) VALUES
+    ('018f3a5e-7a1b-7123-8abc-100000000001', 'Спецепізод: Інтерв''ю з автором');
 ```
 
 ### With returning part (`RETURNING`, optional)
@@ -76,23 +61,18 @@ VALUES ('018f3a5e-7a1b-7123-8abc-100000000001', 'Спецепізод: Інте�
 *Результат*: успішне виконання запиту `INSERT` з частиною `RETURNING`.
 
 ```SQL
-INSERT INTO upcoming_episodes(anime_id, episode_name, episode_date)
-VALUES (
-  '018f3a5e-7a1b-7123-8abc-200000000002',
-  'Серія 15: Подвійні врайта',
-  now() + INTERVAL '12 days'
-)
+INSERT INTO public.upcoming_episodes(anime_id, episode_name, episode_date) VALUES
+    ('018f3a5e-7a1b-7123-8abc-200000000002', 'Серія 15: Подвійні врайта', now() + INTERVAL '12 days')
 RETURNING anime_id, episode_name, episode_date;
 ```
 
-### Some interesting examples (optional)
+### Some interesting examples
 *Мета*: заповнення таблиці даними для подальшого використання в запитах `SELECT`, `UPDATE`, `DELETE` та інших.
 *Очікуваний результат*: таблиця `upcoming_episodes` заповнена даними, які можна використовувати для тестування запитів.
 *Результат*: успішне виконання запитів `INSERT` та заповнення таблиці даними.
 
 ```SQL
-INSERT INTO upcoming_episodes(anime_id, episode_name, episode_date)
-VALUES 
+INSERT INTO public.upcoming_episodes(anime_id, episode_name, episode_date) VALUES 
   ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 30: Випробування мага', now() + INTERVAL '14 days'),
   ('018f3a5e-7a1b-7123-8abc-300000000003', 'Серія 31: Зелений ліс', now() + INTERVAL '21 days');
 ```
@@ -102,11 +82,13 @@ VALUES
 *Результат*: запит `INSERT ... SELECT` синтаксично коректний, але за поточними тестовими даними не додає жодного епізоду.
 
 ```SQL
-INSERT INTO upcoming_episodes(anime_id, episode_name, episode_date)
-SELECT anime_id, 'Серія 16: Битва у підземеллі', now() + INTERVAL '19 days'
-FROM animes
-WHERE slug = 'solo-leveling-season-2' 
-  AND available = TRUE;
+INSERT INTO public.upcoming_episodes(anime_id, episode_name, episode_date)
+SELECT
+    anime_id, 'Серія 16: Битва у підземеллі', now() + INTERVAL '19 days'
+FROM public.animes
+WHERE
+    slug = 'solo-leveling-season-2' AND
+    available = TRUE;
 ```
 
 
@@ -118,7 +100,7 @@ WHERE slug = 'solo-leveling-season-2'
 *Результат*: успішне виконання запиту `SELECT` та повернення всіх записів.
 
 ```SQL
-SELECT * FROM upcoming_episodes;
+SELECT * FROM public.upcoming_episodes;
 ```
 
 ### Select public only info (no `WHERE`, specified fields)
@@ -128,7 +110,7 @@ SELECT * FROM upcoming_episodes;
 
 ```SQL
 SELECT episode_name, episode_date 
-FROM upcoming_episodes;
+FROM public.upcoming_episodes;
 ```
 
 ### API production example (like in `GET /api/anime/:id/comments`, `GET /api/user` etc)
@@ -142,9 +124,10 @@ FROM upcoming_episodes;
 SELECT 
   episode_name, 
   episode_date 
-FROM upcoming_episodes
-WHERE anime_id = '018f3a5e-7a1b-7123-8abc-200000000002'
-  AND episode_date >= now()
+FROM public.upcoming_episodes
+WHERE
+    anime_id = '018f3a5e-7a1b-7123-8abc-200000000002' AND
+    episode_date >= now()
 ORDER BY episode_date;
 ```
 
@@ -166,23 +149,27 @@ SELECT
   a.cover_url,
   ue.episode_name,
   ue.episode_date
-FROM upcoming_episodes ue
-JOIN animes a ON a.anime_id = ue.anime_id
-WHERE ue.episode_date >= now()
+FROM public.upcoming_episodes ue
+INNER JOIN public.animes a ON
+    a.anime_id = ue.anime_id
+WHERE
+    ue.episode_date >= now()
 ORDER BY ue.episode_date ASC
 LIMIT 5 OFFSET 0;
 ```
 
+*Це OLAP*.
 *Мета*: отримати кількість майбутніх епізодів для кожного аніме, відсортованих за кількістю епізодів.
 *Очікуваний результат*: повертається список аніме з кількістю майбутніх епізодів, відсортованих за кількістю епізодів.
 *Результат*: успішне виконання запиту `SELECT` з використанням `JOIN`, `GROUP BY` та `ORDER BY`.
 
 ```SQL
 SELECT 
-  a.title_ua,
-  COUNT(ue.episode_name) AS total_upcoming
-FROM upcoming_episodes ue
-JOIN animes a ON a.anime_id = ue.anime_id
+    a.title_ua,
+    COUNT(ue.episode_name) AS total_upcoming
+FROM public.upcoming_episodes ue
+INNER JOIN public.animes a ON
+    a.anime_id = ue.anime_id
 GROUP BY a.title_ua
 ORDER BY total_upcoming;
 ```
@@ -195,10 +182,12 @@ ORDER BY total_upcoming;
 *Результат*: успішне виконання запиту `UPDATE` та оновлення дати виходу епізоду.
 
 ```SQL
-UPDATE upcoming_episodes
-SET episode_date = now() + INTERVAL '4 days'
-WHERE anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
-  AND episode_name = 'Серія 13: Новий контракт';
+UPDATE public.upcoming_episodes
+SET
+    episode_date = now() + INTERVAL '4 days'
+WHERE
+    anime_id = '018f3a5e-7a1b-7123-8abc-100000000001' AND
+    episode_name = 'Серія 13: Новий контракт';
 ```
 
 ### Update fields returning values (`WHERE`, `RETURNING`)
@@ -207,10 +196,12 @@ WHERE anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
 *Результат*: успішне виконання запиту `UPDATE` та повернення інформації про оновлений епізод.
 
 ```SQL
-UPDATE upcoming_episodes
-SET episode_name = 'Серія 29: Початок нової арки'
-WHERE anime_id = '018f3a5e-7a1b-7123-8abc-300000000003'
-  AND episode_name = 'Серія 29: Шлях на північ'
+UPDATE public.upcoming_episodes
+SET
+    episode_name = 'Серія 29: Початок нової арки'
+WHERE
+    anime_id = '018f3a5e-7a1b-7123-8abc-300000000003' AND
+    episode_name = 'Серія 29: Шлях на північ'
 RETURNING anime_id, episode_name, episode_date;
 ```
 
@@ -222,7 +213,7 @@ RETURNING anime_id, episode_name, episode_date;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-DELETE FROM upcoming_episodes;
+DELETE FROM public.upcoming_episodes;
 ```
 
 ### Delete with filter (`WHERE`)
@@ -231,7 +222,7 @@ DELETE FROM upcoming_episodes;
 *Результат*: успішне виконання запиту `DELETE` та видалення відповідних записів.
 
 ```SQL
-DELETE FROM upcoming_episodes
+DELETE FROM public.upcoming_episodes
 WHERE episode_date < now();
 ```
 
@@ -241,8 +232,9 @@ WHERE episode_date < now();
 *Результат*: успішне виконання запиту `DELETE` та повернення інформації про видалений епізод.
 
 ```SQL
-DELETE FROM upcoming_episodes
-WHERE anime_id = '018f3a5e-7a1b-7123-8abc-100000000001'
-  AND episode_name = 'Спецепізод: Інтерв''ю з автором'
+DELETE FROM public.upcoming_episodes
+WHERE
+    anime_id = '018f3a5e-7a1b-7123-8abc-100000000001' AND
+    episode_name = 'Спецепізод: Інтерв''ю з автором'
 RETURNING anime_id, episode_name, episode_date;
 ```

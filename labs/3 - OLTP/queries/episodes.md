@@ -4,18 +4,18 @@
 Створити таблицю episodes, таблиця успішно створюється у базі даних, виконання успішне.
 
 ```SQL
-CREATE TYPE episode_localization_type_enum AS ENUM('sub', 'dub');
+CREATE TYPE IF NOT EXISTS public.episode_localization_type_enum AS ENUM('sub', 'dub');
 
-CREATE TABLE episodes(
+CREATE TABLE IF NOT EXISTS public.episodes(
   episode_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
+  anime_id UUID NOT NULL REFERENCES public.animes(anime_id) ON DELETE CASCADE,
   source_url TEXT NOT NULL,
   episode_name TEXT NOT NULL CHECK(length(trim(episode_name)) > 0),
   localization_studio TEXT NOT NULL DEFAULT '',
   localization_type episode_localization_type_enum
 );
 
-CREATE INDEX idx_episodes_anime_id ON episodes(anime_id);
+CREATE INDEX IF NOT EXISTS idx_episodes_anime_id ON public.episodes(anime_id);
 ```
 
 
@@ -23,8 +23,8 @@ CREATE INDEX idx_episodes_anime_id ON episodes(anime_id);
 
 ```SQL
 BEGIN;
-    DROP TABLE episodes;
-    DROP TYPE episode_localization_type_enum;
+    DROP TABLE IF EXISTS public.episodes;
+    DROP TYPE IF EXISTS public.episode_localization_type_enum;
 COMMIT;
 ```
 
@@ -35,7 +35,7 @@ COMMIT;
 Наповнити таблицю episodes записами. Таблиця отримала 7 нових записів, запит виконано успішно.
 
 ```SQL
-INSERT INTO episodes(anime_id, source_url, episode_name, localization_studio, localization_type) VALUES
+INSERT INTO public.episodes(anime_id, source_url, episode_name, localization_studio, localization_type) VALUES
     ('34343434-3434-3434-3434-343434343434', 'https://minecraft.net/trailer.mp4', 'EP1', 'ДжекРіден', 'sub'),
     ('40404040-4040-4040-4040-404040404040', 'https://archlinux.org/how-to-install-linux.mp4', 'SP1', 'Clan Kaizoku', 'dub'),
     ('34343434-3434-3434-3434-343434343434', 'https://cdn.microsoft.net/how-to-uninstall-windows.mp4', 'EP2', 'ДжекРіден', 'sub'),
@@ -49,7 +49,7 @@ INSERT INTO episodes(anime_id, source_url, episode_name, localization_studio, lo
 Наповнити таблицю episodes записами та повернути їхні дані. Таблиця отримала 7 нових записів, запит виконано успішно.
 
 ```SQL
-INSERT INTO episodes(anime_id, source_url, episode_name, localization_studio, localization_type) VALUES
+INSERT INTO public.episodes(anime_id, source_url, episode_name, localization_studio, localization_type) VALUES
     ('34343434-3434-3434-3434-343434343434', 'https://minecraft.net/trailer.mp4', 'EP1', 'ДжекРіден', 'sub'),
     ('40404040-4040-4040-4040-404040404040', 'https://archlinux.org/how-to-install-linux.mp4', 'SP1', 'Clan Kaizoku', 'dub'),
     ('34343434-3434-3434-3434-343434343434', 'https://cdn.microsoft.net/how-to-uninstall-windows.mp4', 'EP2', 'ДжекРіден', 'sub'),
@@ -67,7 +67,7 @@ RETURNING anime_id, source_url, episode_name, localization_studio, localization_
 Отримати всі записи серій. Таблиця повертає успішно всі 7 запитів.
 
 ```SQL
-SELECT * FROM episodes;
+SELECT * FROM public.episodes;
 ```
 
 ### Select public only info (no `WHERE`, specified fields)
@@ -75,7 +75,7 @@ SELECT * FROM episodes;
 
 ```SQL
 SELECT anime_id, source_url, episode_name, localization_studio, localization_type
-FROM episodes;
+FROM public.episodes;
 ```
 
 ### API production example
@@ -84,7 +84,7 @@ FROM episodes;
 `GET /api/anime/f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce/episodes`
 ```SQL
 SELECT source_url, episode_name, localization_studio, localization_type
-FROM episodes
+FROM public.episodes
 WHERE anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce';
 ```
 
@@ -97,17 +97,21 @@ WHERE anime_id = 'f1cef1ce-f1ce-f1ce-f1ce-f1cef1cef1ce';
 
 ```SQL
 UPDATE episodes
-SET source_url = replace(source_url, 'https://darknet.com', 'https://darknet.net')
-WHERE source_url LIKE 'https://darknet.com%';
+SET
+    source_url = replace(source_url, 'https://darknet.com', 'https://darknet.net')
+WHERE
+    source_url LIKE 'https://darknet.com%';
 ```
 
 ### Update fields returning values (`WHERE`, `RETURNING`)
 Виконати заміну домену та повернути змінені записи. Запит виконується успішно.
 
 ```SQL
-UPDATE episodes
-SET source_url = replace(source_url, 'https://darknet.com', 'https://darknet.net')
-WHERE source_url LIKE 'https://darknet.com%'
+UPDATE public.episodes
+SET
+    source_url = replace(source_url, 'https://darknet.com', 'https://darknet.net')
+WHERE
+    source_url LIKE 'https://darknet.com%'
 RETURNING anime_id, source_url, episode_name, localization_studio, localization_type;
 ```
 
@@ -118,7 +122,7 @@ RETURNING anime_id, source_url, episode_name, localization_studio, localization_
 Видалити всі записи з таблички episodes. Запит виконується без проблем.
 
 ```SQL
-DELETE FROM episodes;
+DELETE FROM public.episodes;
 ```
 
 ### Delete with filter (`WHERE`)
@@ -126,7 +130,7 @@ DELETE FROM episodes;
 Запит успішно видаляє потрібні записи.
 
 ```SQL
-DELETE FROM episodes
+DELETE FROM public.episodes
 WHERE localization_studio = 'FanVoxUA';
 ```
 
@@ -135,7 +139,7 @@ WHERE localization_studio = 'FanVoxUA';
 Запит успішно видаляє потрібні записи.
 
 ```SQL
-DELETE FROM episodes
+DELETE FROM public.episodes
 WHERE localization_studio = 'FanVoxUA'
 RETURNING anime_id, source_url, episode_name, localization_studio, localization_type;
 ```

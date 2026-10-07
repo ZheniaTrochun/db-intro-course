@@ -6,10 +6,10 @@
 *Результат*: успішне виконання запитів `CREATE TYPE`, `CREATE TABLE` та `CREATE INDEX`.
 
 ```SQL
-CREATE TYPE user_status_enum AS ENUM('active', 'banned', 'deactivated');
-CREATE TYPE user_role_enum AS ENUM('user', 'admin');
+CREATE TYPE IF NOT EXISTS public.user_status_enum AS ENUM('active', 'banned', 'deactivated');
+CREATE TYPE IF NOT EXISTS public.user_role_enum AS ENUM('user', 'admin');
 
-CREATE TABLE users(
+CREATE TABLE IF NOT EXISTS public.users(
     user_id UUID PRIMARY KEY DEFAULT uuidv7(),
     nickname VARCHAR(30) NOT NULL UNIQUE,
     full_name VARCHAR(100) NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE users(
     CONSTRAINT check_user_auth_method CHECK(password_hash IS NOT NULL OR google_id IS NOT NULL)
 );
 
-CREATE INDEX idx_user_status ON users(user_status);
+CREATE INDEX IF NOT EXISTS idx_user_status ON public.users(user_status);
 ```
 
 
@@ -44,8 +44,8 @@ CREATE INDEX idx_user_status ON users(user_status);
 
 ```SQL
 BEGIN;
-    DROP TABLE IF EXISTS users CASCADE;
-    DROP TYPE IF EXISTS user_role_enum, user_status_enum;
+    DROP TABLE IF EXISTS public.users CASCADE;
+    DROP TYPE IF EXISTS public.user_role_enum, public.user_status_enum;
 COMMIT;
 ```
 
@@ -64,7 +64,8 @@ COMMIT;
 *Результат*: успішне виконання запиту `INSERT` та додавання 3 нових записів до таблиці.
 
 ```SQL
-INSERT INTO users(user_id, nickname, full_name, email, google_id, bio, password_hash,
+INSERT INTO public.users(
+    user_id, nickname, full_name, email, google_id, bio, password_hash,
     avatar_url, social_networks, max_streak, timezone, streak_start_date, last_watch_date, profile_frame_url,
     profile_background_url, user_role, user_status, created_at, updated_at
 ) VALUES 
@@ -91,7 +92,7 @@ INSERT INTO users(user_id, nickname, full_name, email, google_id, bio, password_
 *Результат*: успішне виконання запиту `INSERT` та додавання 3 нових записів до таблиці (запит слід виконувати на порожній таблиці через унікальні поля).
 
 ```SQL
-INSERT INTO users(nickname, full_name, email, google_id) VALUES 
+INSERT INTO public.users(nickname, full_name, email, google_id) VALUES 
     ('ApostolQleg', 'Oleg Bondarenko', 'oleg0@email.example', '104566789012345678901'),
     ('dadencukillia', 'Illia Diadenchuk', 'illia1@email.example', '117492058372950481729'),
     ('XxMariavxX', 'Maria Synevych', 'maria2@email.example', '109483726154958372610');
@@ -103,8 +104,8 @@ INSERT INTO users(nickname, full_name, email, google_id) VALUES
 *Результат*: успішне виконання запиту `INSERT` з частиною `RETURNING`.
 
 ```SQL
-INSERT INTO users(nickname, full_name, email, google_id)
-VALUES ('newbie_user', 'Petro Poroshenko', 'petro3@email.example', '100000000000000000003')
+INSERT INTO public.users(nickname, full_name, email, google_id) VALUES
+    ('newbie_user', 'Petro Poroshenko', 'petro3@email.example', '100000000000000000003')
 RETURNING user_id, nickname, email, user_status, created_at;
 ```
 
@@ -115,15 +116,15 @@ RETURNING user_id, nickname, email, user_status, created_at;
 *Результат*: успішне виконання запиту `INSERT` з частиною `RETURNING` (обмеження `check_user_auth_method` виконується завдяки `password_hash`).
 
 ```SQL
-INSERT INTO users(nickname, full_name, email, password_hash, timezone, social_networks)
-VALUES (
-    'password_user',
-    'Ivan Ivanenko',
-    'ivan4@email.example',
-    'the best hashed password',
-    'Europe/Kyiv',
-    ARRAY['https://t.me/ivan']
-)
+INSERT INTO public.users(nickname, full_name, email, password_hash, timezone, social_networks) VALUES
+    (
+        'password_user',
+        'Ivan Ivanenko',
+        'ivan4@email.example',
+        'the best hashed password',
+        'Europe/Kyiv',
+        ARRAY['https://t.me/ivan']
+    )
 RETURNING user_id, nickname, timezone;
 ```
 
@@ -132,12 +133,11 @@ RETURNING user_id, nickname, timezone;
 *Результат*: успішне виконання запиту `INSERT` з частинами `ON CONFLICT` та `RETURNING`.
 
 ```SQL
-INSERT INTO users(nickname, full_name, email, google_id)
-VALUES ('google_user', 'Oleg Bondarenko', 'oleg0@email.example', '104566789012345678901')
-ON CONFLICT (email) DO 
-UPDATE 
-    SET 
-    google_id = COALESCE(users.google_id, EXCLUDED.google_id),
+INSERT INTO public.users(nickname, full_name, email, google_id) VALUES
+    ('google_user', 'Oleg Bondarenko', 'oleg0@email.example', '104566789012345678901')
+ON CONFLICT(email) DO 
+UPDATE SET 
+    google_id = coalesce(users.google_id, excluded.google_id),
     updated_at = now()
 RETURNING user_id, nickname, google_id, updated_at;
 ```
@@ -151,7 +151,7 @@ RETURNING user_id, nickname, google_id, updated_at;
 *Результат*: успішне виконання запиту `SELECT` та повернення всіх записів.
 
 ```SQL
-SELECT * FROM users;
+SELECT * FROM public.users;
 ```
 
 ### Select public only info (no `WHERE`, specified fields)
@@ -161,24 +161,18 @@ SELECT * FROM users;
 
 ```SQL
 SELECT 
-    user_id, 
-    nickname, 
-    full_name, 
-    bio,
-    avatar_url, 
-    social_networks, 
-    max_streak,
-    profile_frame_url,
-    profile_background_url, 
-    user_role, 
-    user_status,
-    created_at,
+    user_id, nickname, 
+    full_name, bio,
+    avatar_url, social_networks, 
+    max_streak, profile_frame_url,
+    profile_background_url, user_role, 
+    user_status, created_at,
     CASE 
         WHEN last_watch_date IS NULL OR streak_start_date IS NULL THEN 0
         WHEN (now() AT TIME ZONE timezone)::date - last_watch_date <= 1 THEN (last_watch_date - streak_start_date + 1)
         ELSE 0
     END AS current_streak
-FROM users;
+FROM public.users;
 ```
 
 ### API production example
@@ -189,24 +183,18 @@ FROM users;
 `GET /api/user/11111111-1111-4111-8111-111111111111`
 ```SQL
 SELECT 
-    user_id, 
-    nickname, 
-    full_name, 
-    bio,
-    avatar_url, 
-    social_networks, 
-    max_streak,
-    profile_frame_url,
-    profile_background_url, 
-    user_role, 
-    user_status,
-    created_at,
+    user_id, nickname, 
+    full_name, bio,
+    avatar_url, social_networks, 
+    max_streak, profile_frame_url,
+    profile_background_url, user_role, 
+    user_status, created_at,
     CASE 
         WHEN last_watch_date IS NULL OR streak_start_date IS NULL THEN 0
         WHEN (now() AT TIME ZONE timezone)::date - last_watch_date <= 1 THEN (last_watch_date - streak_start_date + 1)
         ELSE 0
     END AS current_streak
-FROM users
+FROM public.users
 WHERE user_id = '11111111-1111-4111-8111-111111111111';
 ```
 
@@ -223,17 +211,16 @@ WHERE user_id = '11111111-1111-4111-8111-111111111111';
 
 ```SQL
 SELECT
-    user_id,
-    nickname,
-    avatar_url,
-    max_streak
-FROM users
+    user_id, nickname,
+    avatar_url, max_streak
+FROM public.users
 WHERE user_status = 'active'
 ORDER BY max_streak DESC, nickname ASC
 LIMIT 10 
 OFFSET 10 * 0;
 ```
 
+*Це OLAP*.
 *Мета*: отримати 5 користувачів з найбільшою кількістю завершених аніме у списку.
 *Очікуваний результат*: повертається список із максимум 5 користувачів з кількістю аніме зі статусом `finished`, відсортований за цією кількістю у спадаючому порядку.
 *Результат*: успішне виконання запиту `SELECT` з використанням `LEFT JOIN`, `GROUP BY`, `ORDER BY`, `LIMIT` та `OFFSET`.
@@ -242,14 +229,13 @@ OFFSET 10 * 0;
 SELECT
     users.nickname,
     COUNT(list_unit.anime_id) AS finished_count
-FROM users
-LEFT JOIN anime_list_units list_unit
-    ON users.user_id = list_unit.user_id
-    AND list_unit.list_unit_status = 'finished'
+FROM public.users
+LEFT JOIN public.anime_list_units list_unit ON
+    users.user_id = list_unit.user_id AND
+    list_unit.list_unit_status = 'finished'
 GROUP BY users.user_id, users.nickname
 ORDER BY finished_count DESC, users.nickname ASC
-LIMIT 5 
-OFFSET 5 * 0;
+LIMIT 5 OFFSET 5 * 0;
 ```
 
 
@@ -261,8 +247,9 @@ OFFSET 5 * 0;
 *Результат*: успішне виконання запиту `UPDATE`.
 
 ```SQL
-UPDATE users
-SET nickname = 'newApostolQleg',
+UPDATE public.users
+SET
+    nickname = 'newApostolQleg',
     full_name = 'New Full Name',
     bio = 'Updated bio and full public profile',
     avatar_url = 'https://new-avatar-url',
@@ -270,7 +257,8 @@ SET nickname = 'newApostolQleg',
     profile_background_url = 'https://new-background-url',
     social_networks = ARRAY['https://t.me/new_oleg', 'https://github.com/new_oleg'],
     updated_at = now()
-WHERE user_id = '11111111-1111-4111-8111-111111111111';
+WHERE
+    user_id = '11111111-1111-4111-8111-111111111111';
 ```
 
 ### Update fields returning values (`WHERE`, `RETURNING`)
@@ -279,8 +267,9 @@ WHERE user_id = '11111111-1111-4111-8111-111111111111';
 *Результат*: успішне виконання запиту `UPDATE` з частиною `RETURNING`.
 
 ```SQL
-UPDATE users
-SET nickname = 'newApostolQleg',
+UPDATE public.users
+SET
+    nickname = 'newApostolQleg',
     full_name = 'New Full Name',
     bio = 'Updated bio and full public profile',
     avatar_url = 'https://new-avatar-url',
@@ -288,7 +277,8 @@ SET nickname = 'newApostolQleg',
     profile_background_url = 'https://new-background-url',
     social_networks = ARRAY['https://t.me/new_oleg', 'https://github.com/new_oleg'],
     updated_at = now()
-WHERE user_id = '11111111-1111-4111-8111-111111111111'
+WHERE
+    user_id = '11111111-1111-4111-8111-111111111111'
 RETURNING user_id, nickname, bio, avatar_url, updated_at;
 ```
 
@@ -299,11 +289,13 @@ RETURNING user_id, nickname, bio, avatar_url, updated_at;
 *Результат*: успішне виконання запиту `UPDATE` з умовою за роллю та частиною `RETURNING`.
 
 ```SQL
-UPDATE users
-SET user_status = 'banned',
+UPDATE public.users
+SET
+    user_status = 'banned',
     updated_at = now()
-WHERE user_id = '11111111-1111-4111-8111-111111111111'
-    AND user_role <> 'admin'
+WHERE
+    user_id = '11111111-1111-4111-8111-111111111111' AND
+    user_role <> 'admin'
 RETURNING user_id, nickname, user_status, updated_at;
 ```
 
@@ -312,15 +304,16 @@ RETURNING user_id, nickname, user_status, updated_at;
 *Результат*: успішне виконання запиту `UPDATE` з використанням `RETURNING`.
 
 ```SQL
-UPDATE users
-SET streak_start_date = CASE
+UPDATE public.users
+SET
+    streak_start_date = CASE
         WHEN last_watch_date IS NULL
             OR streak_start_date IS NULL
             OR (now() AT TIME ZONE timezone)::date - last_watch_date > 1
         THEN (now() AT TIME ZONE timezone)::date
         ELSE streak_start_date
     END,
-    max_streak = GREATEST(
+    max_streak = greatest(
         max_streak,
         CASE
             WHEN last_watch_date IS NULL
@@ -332,7 +325,8 @@ SET streak_start_date = CASE
     ),
     last_watch_date = (now() AT TIME ZONE timezone)::date,
     updated_at = now()
-WHERE user_id = '11111111-1111-4111-8111-111111111111'
+WHERE
+    user_id = '11111111-1111-4111-8111-111111111111'
 RETURNING user_id, streak_start_date, last_watch_date, max_streak;
 ```
 
@@ -345,7 +339,7 @@ RETURNING user_id, streak_start_date, last_watch_date, max_streak;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-DELETE FROM users;
+DELETE FROM public.users;
 ```
 
 ### Delete with filter (`WHERE`)
@@ -354,7 +348,7 @@ DELETE FROM users;
 *Результат*: успішне виконання запиту `DELETE`.
 
 ```SQL
-DELETE FROM users
+DELETE FROM public.users
 WHERE user_id = '11111111-1111-4111-8111-111111111111';
 ```
 
@@ -364,7 +358,7 @@ WHERE user_id = '11111111-1111-4111-8111-111111111111';
 *Результат*: успішне виконання запиту `DELETE` з частиною `RETURNING`.
 
 ```SQL
-DELETE FROM users
+DELETE FROM public.users
 WHERE user_id = '11111111-1111-4111-8111-111111111111'
 RETURNING user_id, nickname, email, user_status;
 ```
@@ -376,9 +370,10 @@ RETURNING user_id, nickname, email, user_status;
 *Результат*: успішне виконання запиту `DELETE` з частиною `RETURNING`.
 
 ```SQL
-DELETE FROM users
-WHERE user_status = 'deactivated'
-    AND updated_at < now() - INTERVAL '1 year'
+DELETE FROM public.users
+WHERE
+    user_status = 'deactivated' AND
+    updated_at < now() - INTERVAL '1 year'
 RETURNING user_id, nickname, updated_at;
 ```
 
@@ -387,10 +382,11 @@ RETURNING user_id, nickname, updated_at;
 *Результат*: успішне виконання запиту `DELETE` з використанням підзапиту `NOT EXISTS` та частини `RETURNING`.
 
 ```SQL
-DELETE FROM users
-WHERE users.last_watch_date IS NULL
-    AND users.created_at < now() - INTERVAL '30 days'
-    AND NOT EXISTS (
+DELETE FROM public.users
+WHERE
+    users.last_watch_date IS NULL AND
+    users.created_at < now() - INTERVAL '30 days' ABD
+    NOT EXISTS (
         SELECT 1 FROM sessions WHERE sessions.user_id = users.user_id
     )
 RETURNING users.user_id, users.nickname, users.created_at;
