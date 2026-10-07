@@ -24,3 +24,29 @@
 ### 3. Перехід до 3NF (Усунення транзитивних залежностей)
 *   **Модифікація:** З таблиці product я видалила стовпець category_id. Замість нього я створила нову таблицю product_category, первинний ключ якої є складеним і побудований з полів product_id та category_id.
 *   **Логічне обґрунтування:** Це дозволило реалізувати зв'язок багато-до-багатьох між товарами та категоріями через два зв'язки один-до-багатьох. Усі неключові атрибути товарів тепер залежать виключно від свого первинного ключа product_id. Транзитивні аномалії та дублювання описів ліквідовано, схема повністю перебуває в 3NF.
+
+## Інші зміни впроваджені під час виконання лабораторних робіт
+### Модернізація ідентифікаторів (Перехід від SERIAL до IDENTITY)
+```sql
+ALTER TABLE brand ALTER COLUMN brand_id DROP DEFAULT, 
+ALTER COLUMN brand_id ADD GENERATED ALWAYS AS IDENTITY;
+
+ALTER TABLE category ALTER COLUMN category_id DROP DEFAULT, 
+ALTER COLUMN category_id ADD GENERATED ALWAYS AS IDENTITY;
+
+ALTER TABLE customer ALTER COLUMN customer_id DROP DEFAULT, 
+ALTER COLUMN customer_id ADD GENERATED ALWAYS AS IDENTITY;
+
+ALTER TABLE product ALTER COLUMN product_id DROP DEFAULT, 
+ALTER COLUMN product_id ADD GENERATED ALWAYS AS IDENTITY;
+
+ALTER TABLE orders ALTER COLUMN orders_id DROP DEFAULT, 
+ALTER COLUMN orders_id ADD GENERATED ALWAYS AS IDENTITY;
+```
+### Зміна типу статусів замовлень 
+```sql
+ALTER TABLE orders ALTER COLUMN orders_status TYPE VARCHAR(50);
+DROP TYPE IF EXISTS order_status_type;
+CREATE TYPE order_status_type AS ENUM ('New', 'In Progress', 'Shipped', 'Delivered', 'Cancelled');
+ALTER TABLE orders ALTER COLUMN orders_status TYPE order_status_type USING orders_status::order_status_type;
+```
