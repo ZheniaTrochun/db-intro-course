@@ -21,8 +21,8 @@ CREATE INDEX IF NOT EXISTS idx_comments_anime_created ON public.comments(anime_i
 
 ## 🗑 Drop table
 *Мета*: видалити таблицю `comments`, якщо вона існує.
-*Очікуваний результат*: таблиця `comments` разом з індексом `idx_comments_anime_created` буде видалена з бази даних, якщо вона існує.
-*Результат*: успішне виконання запиту `DROP TABLE`, якщо таблиця існувала.
+*Очікуваний результат*: таблиця `comments` буде видалена з бази даних, якщо вона існує.
+*Результат*: успішне виконання запиту `DROP TABLE`.
 
 ```SQL
 DROP TABLE IF EXISTS public.comments;
@@ -206,7 +206,8 @@ UPDATE public.comments
 SET
     content = 'Updated comment example 1',
     is_edited = TRUE
-WHERE comment_id = 1;
+WHERE
+    comment_id = 1;
 ```
 
 ### Update fields returning values (`WHERE`, `RETURNING`)
@@ -219,7 +220,8 @@ UPDATE public.comments
 SET
     content = 'Updated comment example 2',
     is_edited = TRUE
-WHERE comment_id = 2
+WHERE
+    comment_id = 2
 RETURNING comment_id, content, is_edited, created_at;
 ```
 
@@ -234,8 +236,9 @@ UPDATE public.comments
 SET
     content = 'Edited by the author',
     is_edited = TRUE
-WHERE comment_id = 2
-    AND author_id = '67676767-6767-6767-6767-676767676767'
+WHERE
+    comment_id = 2 AND
+    author_id = '67676767-6767-6767-6767-676767676767'
 RETURNING comment_id, author_id, content, is_edited;
 ```
 

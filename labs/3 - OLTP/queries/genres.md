@@ -7,7 +7,7 @@
 *Результат*: успішне виконання запитів `CREATE TYPE`, `CREATE TABLE` та `CREATE INDEX`.
 
 ```SQL
-CREATE TYPE IF NOT EXISTS public.genre_type_enum AS ENUM(
+CREATE TYPE public.genre_type_enum AS ENUM(
     'action','adventure',
     'avant_garde','award_winning',
     'boys_love','comedy',

@@ -6,8 +6,8 @@
 *Результат*: успішне виконання запитів `CREATE TYPE`, `CREATE TABLE` та `CREATE INDEX`.
 
 ```SQL
-CREATE TYPE IF NOT EXISTS public.user_status_enum AS ENUM('active', 'banned', 'deactivated');
-CREATE TYPE IF NOT EXISTS public.user_role_enum AS ENUM('user', 'admin');
+CREATE TYPE public.user_status_enum AS ENUM('active', 'banned', 'deactivated');
+CREATE TYPE public.user_role_enum AS ENUM('user', 'admin');
 
 CREATE TABLE IF NOT EXISTS public.users(
     user_id UUID PRIMARY KEY DEFAULT uuidv7(),

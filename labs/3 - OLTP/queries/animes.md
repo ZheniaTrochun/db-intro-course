@@ -1,17 +1,15 @@
 # animes by @XxMariavxX
 
 ## ❇️ Create table
-Мета, очікуваний результат, чи успішно виконано
 *Мета*: Створити переліки (ENUM) та таблицю animes з потрібними полями та обмеженнями, а також індекс для швидкого пошуку за полем available
-*Очікуваний результат*: Створено 3 типи ENUM, таблицю animes та 1 індекс.
-
+*Очікуваний результат*: Створено 3 типи ENUM та таблицю animes.
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 
 ```SQL
-CREATE TYPE IF NOT EXISTS public.anime_format_enum AS ENUM('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
-CREATE TYPE IF NOT EXISTS public.anime_status_enum AS ENUM('upcoming', 'ongoing', 'cancelled', 'finished');
-CREATE TYPE IF NOT EXISTS public.mpaa_rating_enum AS ENUM('g', 'pg', 'pg13', 'r', 'nc17');
+CREATE TYPE public.anime_format_enum AS ENUM('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
+CREATE TYPE public.anime_status_enum AS ENUM('upcoming', 'ongoing', 'cancelled', 'finished');
+CREATE TYPE public.mpaa_rating_enum AS ENUM('g', 'pg', 'pg13', 'r', 'nc17');
 
 CREATE TABLE IF NOT EXISTS public.animes(
   anime_id UUID PRIMARY KEY DEFAULT uuidv7(),
@@ -39,8 +37,8 @@ CREATE INDEX IF NOT EXISTS idx_anime_available ON public.animes(available);
 ```
 
 ## 🗑 Drop table
-*Мета*: Запит для повного видалення таблиці та її даних
-*Очікуваний результат*: Таблиця animes та її дані видалені.
+*Мета*: Запит для повного видалення таблиці з даними та пов'язаних з нею типів.
+*Очікуваний результат*: Таблиця animes з даними видалені, переліки також.
 *Чи успішно виконано*: Так, запит виконано успішно.
   
 ```SQL
@@ -143,17 +141,17 @@ VALUES ('digimon-beatbreak');
 
 ### Select by slug
 
-*Мета*: Вибрати ідентифікатор, slug та назви аніме з певним slug.
+*Мета*: Вибрати ідентифікатор та назви аніме за певним slug.
 *Очікуваний результат*: Запис із таблиці `animes` зі slug = 'attack-on-titan' і полями `anime_id`, `slug`, `title_ua`, `title_en`.
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-SELECT anime_id, slug, title_ua, title_en
+SELECT anime_id, title_ua, title_en
 FROM public.animes 
 WHERE slug = 'attack-on-titan';
 ```
 
-### Some interesting examples (optional)
+### Some interesting examples
 
 *Це OLAP*.
 *Мета*: Порахувати доступні аніме за кожним статусом.
@@ -270,7 +268,7 @@ WHERE
 - [x] LIMIT
 - [x] OFFSET
 
-*Мета*: Вибрати останні 18 доступних аніме, відсортованих за зменшенням anime_id.
+*Мета*: Вибрати останні 18 доступних аніме, відсортованих за зменшенням anime_id (є моживість пагінації).
 *Очікуваний результат*: 18 останніх доступних аніме, відсортованих за зменшенням anime_id.
 *Чи успішно виконано*: Так, запит виконано успішно.
 
@@ -286,7 +284,8 @@ SELECT
 FROM public.animes 
 WHERE available = TRUE
 ORDER BY anime_id DESC 
-LIMIT 18;
+LIMIT 18
+OFFSET 18 * 0;
 ```
 
 ## 🔄 Update queries
@@ -311,8 +310,10 @@ WHERE slug = 'attack-on-titan';
 
 ```SQL
 UPDATE public.animes 
-SET available = FALSE 
-WHERE age_restriction = 'pg13'
+SET
+    available = FALSE
+WHERE
+    age_restriction = 'pg13'
 RETURNING anime_id, slug, age_restriction, available;
 ```
 
@@ -322,7 +323,8 @@ RETURNING anime_id, slug, age_restriction, available;
 
 ```SQL
 UPDATE public.animes 
-SET available = TRUE
+SET
+    available = TRUE
 WHERE
     title_ua <> '' AND
     title_en <> '' AND
@@ -338,7 +340,8 @@ RETURNING anime_id, slug, age_restriction, available;
 
 ```SQL
 UPDATE public.animes 
-SET anime_status = 'finished'
+SET
+    anime_status = 'finished'
 WHERE 
     year_released = extract(YEAR FROM now()::date) AND
     anime_status = 'ongoing' AND
@@ -355,7 +358,7 @@ WHERE
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
-DELETE FROM animes;
+DELETE FROM public.animes;
 ```
 
 ### Delete with filter (`WHERE`)

@@ -4,7 +4,7 @@
 Створити таблицю episodes, таблиця успішно створюється у базі даних, виконання успішне.
 
 ```SQL
-CREATE TYPE IF NOT EXISTS public.episode_localization_type_enum AS ENUM('sub', 'dub');
+CREATE TYPE public.episode_localization_type_enum AS ENUM('sub', 'dub');
 
 CREATE TABLE IF NOT EXISTS public.episodes(
   episode_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

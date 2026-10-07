@@ -4,7 +4,7 @@
 Створити таблицю anime_list_units, таблиця успішно створюється у базі даних, виконання успішне.
 
 ```SQL
-CREATE TYPE IF NOT EXISTS public.anime_list_unit_status_enum AS ENUM('finished', 'watching', 'delayed', 'dropped');
+CREATE TYPE public.anime_list_unit_status_enum AS ENUM('finished', 'watching', 'delayed', 'dropped');
 
 CREATE TABLE IF NOT EXISTS public.anime_list_units(
   user_id UUID NOT NULL,
