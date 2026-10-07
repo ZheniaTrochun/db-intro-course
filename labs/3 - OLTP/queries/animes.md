@@ -171,7 +171,7 @@ GROUP BY anime_status;
 ```
 
 *Мета*: Знайти всі аніме, які були випущені у поточному році та доступні для перегляду.
-*Очікуваний результат*: Записи з таблиці animes, де available = TRUE та year_released = поточний рік.
+*Очікуваний результат*: Записи з таблиці animes, де available = TRUE та year_released > 2000.
 *Чи успішно виконано*: Так, запит виконано успішно.
 
 ```SQL
@@ -185,7 +185,7 @@ SELECT
 FROM public.animes 
 WHERE 
     available = TRUE AND 
-    year_released = EXTRACT(YEAR FROM now()::date)
+    year_released > 2000
 ORDER BY year_released DESC;
 ```
 
