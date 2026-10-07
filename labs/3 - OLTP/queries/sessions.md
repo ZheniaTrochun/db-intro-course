@@ -58,7 +58,7 @@ INSERT INTO public.sessions(
     'Safari', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)', 
     'Tokyo, Japan', '192.168.1.20'),
     ('14881488-1488-1488-1488-148814881488', repeat('c', 96)::bytea, 
-    now() + INTERVAL '1 month', 'Desktop', 'MacBook Pro', 'macOS Sonoma', 
+    now() + INTERVAL '1 day', 'Desktop', 'MacBook Pro', 'macOS Sonoma', 
     'Chrome', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', 
     'New York, USA', '192.168.1.30');
 ```
@@ -96,7 +96,7 @@ RETURNING session_id, user_id, expire_time;
 INSERT INTO public.sessions(user_id, refresh_token, device_type, device_name)
 SELECT 
     user_id, 
-    repeat('d', 96)::bytea, 
+    repeat('h', 96)::bytea, 
     'Tablet', 'iPad Air'
 FROM public.users
 WHERE
