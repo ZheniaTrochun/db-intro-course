@@ -34,11 +34,11 @@
 - Факультет:
   - INT | ID факультет | PK;
   - VARCHAR | Назва факультету;
-  - INT | Номер корпусу;
+  - VARCHAR | Номер корпусу;
 - Кафедра:
   - INT | ID кафедри | PK;
   - VARCHAR | Назва кафедри;
-  - INT | Кабінет/корпус;
+  - VARCHAR | Кабінет/корпус;
   - INT | ID факультету | FK;
 - Спеціальність:
   - INT | ID спеціальності | PK;
@@ -58,6 +58,7 @@
 - Викладач:
   - INT | ID викладача | PK;
   - VARCHAR | ПІБ;
+  - VARCHAR | Email (унікальний);
   - VARCHAR | Вчене звання/посада;
   - INT | ID кафедри | FK;
 - Курс/Дисципліна:
@@ -93,7 +94,7 @@ erDiagram
     SPECIALTY ||--|{ ACADEMIC_GROUP : ""
     ACADEMIC_GROUP ||--o{ STUDENT : ""
     DEPARTMENT ||--|{ TEACHER : ""
-    DEPARTMENT ||--o{ COURSE : ""
+    DEPARTMENT ||--|{ COURSE : ""
     STUDENT ||--o{ ENROLLMENT : ""
     COURSE ||--o{ ENROLLMENT : ""
     TEACHER ||--o{ COURSE : ""
@@ -101,14 +102,14 @@ erDiagram
     FACULTY {
         int faculty_id PK
         varchar faculty_name
-        int building_number
+        varchar building_number
     }
 
     DEPARTMENT {
         int department_id PK
         int faculty_id FK
         varchar department_name
-        int office_building
+        varchar office_building
     }
 
     SPECIALTY {
@@ -136,6 +137,7 @@ erDiagram
         int teacher_id PK
         int department_id FK
         varchar full_name
+        varchar email
         varchar academic_rank
     }
 
@@ -158,9 +160,12 @@ erDiagram
 
 ## Обмеження та бізнес-правила:
 
-- Унікальність: корпоративні email студентів і викладачів мають бути суворо унікальними
+- Унікальність: 
+  - корпоративні email студентів і викладачів мають бути суворо унікальними
+  - код спеціальності та назва групи мають бути унікальними в межах системи
 - Валідація балів та кредитів: 
   - підсумкова оцінка за курс має перебувати в діапазоні від 0 до 100 балів
   - кількість кредитів ECTS для курсу повинна бути в межах від 1 до 12
+  - номер семестру приймає значення від 1 до 8
 - Ліміти реєстрацій: студент не може зареєструватися на один і той самий курс двічі в рамках одного семестру
 - Максимальне навантаження: максимальна сума кредитів за один семестр для одного студента не повинна перевищувати 30 кредитів ECTS
