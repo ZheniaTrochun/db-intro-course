@@ -229,6 +229,6 @@ WHERE episode_date < now();
 DELETE FROM public.upcoming_episodes
 WHERE
     anime_id = '018f3a5e-7a1b-7123-8abc-100000000001' AND
-    episode_name = 'Спецепізод: Інтерв\'ю з автором'
+    episode_name = 'Спецепізод: Інтерв''ю з автором'
 RETURNING anime_id, episode_name, episode_date;
 ```
