@@ -1,17 +1,19 @@
 ```mermaid
 erDiagram
     DEPARTMENT ||--o{ COURSE : "includes"
-    STUDENT ||--|{ COURSE : "enrolls in"
-    STUDENT ||--o{ VACANCY : "applies for"
-    STUDENT }o--|| DORM : "lives in"
-    STUDENT }o--|| USER : "linked to"
-    STUDENT }|--o| ROOMS : "assigned to"
-    STUDENT ||--o| PARKING_SLOTS : "uses"
+    COURSE ||--o{ ENROLLMENT : "has"
+    STUDENT ||--o{ ENROLLMENT : "enrolls via"
+    VACANCY ||--o{ APPLICATION : "receives"
+    STUDENT ||--o{ APPLICATION : "submits"
+    STUDENT |o--|| USER : "linked to"
+    USER ||--o| DORM_ADMIN : "linked to"
+    STUDENT }o--o| DORM : "lives in"
+    ROOMS |o--o{ STUDENT : "houses"
     DORM ||--|{ ROOMS : "contains"
+    STUDENT |o--o| PARKING_SLOTS : "uses"
     DORM ||--o{ PARKING_SLOTS : "has"
-    DORM ||--|{ ADMIN_OF_THE_DORM : "managed by"
-    USER ||--o{ ADMIN_OF_THE_DORM : "linked to"
-    ADMIN_OF_THE_DORM ||--o{ PARKING_SLOTS : "uses"
+    DORM_ADMIN |o--o{ PARKING_SLOTS : "uses"
+    DORM ||--O{ DORM_ADMIN : "managed by"
 
     DEPARTMENT {
         int DepartmentID PK
@@ -21,45 +23,56 @@ erDiagram
     COURSE {
         int CourseID PK
         int DepartmentID FK
+        string CourseTitle
+    }
+
+    ENROLLMENT {
+        int EnrollmentID PK
         int StudentID FK
+        int CourseID FK
+        date EnrollmentDate
+        string Grade
     }
 
     VACANCY {
         int VacancyID PK
-        int StudentID FK
         string CompanyName
         string JobName
     }
 
+    APPLICATION {
+        int ApplicationID PK
+        int StudentID FK
+        int VacancyID FK
+        date ApplicationDate
+        string Status
+    }
+
     STUDENT {
         int StudentID PK
-        string FirstName
-        string LastName
-        string Email
         int EnrollmentYear
         int DormID FK
-        string Status
+        int RoomID FK
+        enum Status
         int UserID FK
     }
 
-    ADMIN_OF_THE_DORM {
+    DORM_ADMIN {
         int AdminID PK
-        string FirstName
-        string LastName
-        string Email
         int UserID FK
         int DormID FK
     }
 
     DORM {
         int DormID PK
-        int address UK
+        string Address UK
     }
 
     ROOMS {
         int RoomID PK
-        int StudentId FK
         int DormID FK
+        string RoomNumber
+        int Floor
     }
 
     PARKING_SLOTS {
@@ -67,6 +80,7 @@ erDiagram
         int StudentID FK
         int DormID FK
         int AdminID FK
+        string SlotNumber
     }
 
     USER {

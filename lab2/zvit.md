@@ -1,7 +1,7 @@
 # Звіт: Реляційна схема бази даних для системи управління студентами та гуртожитками
 
 ## 1. users
-Зберігає облікові дані користувачів системи (базова таблиця для ролей STUDENT та ADMIN_OF_THE_DORM).
+Зберігає облікові дані користувачів системи (базова таблиця для ролей STUDENT та DORM_ADMIN).
 - `user_id` (PK) — унікальний ідентифікатор
 - `first_name`, `last_name` — ім'я та прізвище
 - `email` (UNIQUE, NOT NULL) — унікальна електронна пошта
@@ -17,55 +17,79 @@
 ## 3. dorm
 Довідник гуртожитків.
 - `dorm_id` (PK)
-- `parking_slot_id` (FK → parking_slots.parking_slot_id) — паркомісце, пов'язане з гуртожитком
+- `address` (UNIQUE, NOT NULL) — адреса гуртожитку
 
-## 4. student
-Основна таблиця студентів.
-- `student_id` (PK)
-- `first_name`, `last_name`, `email` (UNIQUE, NOT NULL)
-- `enrollment_year` — рік вступу
-- `dorm_id` (FK → dorm.dorm_id) — гуртожиток, у якому проживає студент
-- `status` — статус студента
-- `user_id` (FK → users.user_id) — пов'язаний обліковий запис
-
-## 5. admin_of_the_dorm
-Адміністратори гуртожитків.
-- `admin_id` (PK)
-- `first_name`, `last_name`, `email` (UNIQUE, NOT NULL)
-- `user_id` (FK → users.user_id) — пов'язаний обліковий запис
-- `dorm_id` (FK → dorm.dorm_id) — гуртожиток, яким керує адміністратор
-
-## 6. rooms
+## 4. rooms
 Кімнати в гуртожитках.
 - `room_id` (PK)
-- `student_id` (FK → student.student_id) — студент, якому призначена кімната
-- `dorm_id` (FK → dorm.dorm_id) — гуртожиток, до якого належить кімната
+- `dorm_id` (FK → dorm.dorm_id, NOT NULL) — гуртожиток, до якого належить кімната
+- `room_number` (NOT NULL) — номер кімнати
+- `floor` — поверх
+
+Таблиця не містить посилання на студента: одна кімната може мешкати кількох студентів, тому зв'язок реалізований у зворотний бік — через `student.room_id`.
+
+## 5. student
+Основна таблиця студентів. Особисті дані (ім'я, прізвище, email) не зберігаються повторно — доступні через join з `users` за `user_id`.
+- `student_id` (PK)
+- `enrollment_year` — рік вступу
+- `dorm_id` (FK → dorm.dorm_id, `NULL` дозволено) — гуртожиток, до якого прикріплений студент; `NULL`, якщо ще не призначено
+- `room_id` (FK → rooms.room_id, `NULL` дозволено) — кімната, у якій мешкає студент; `NULL`, доки не призначено
+- `status` (`student_status` ENUM: enrolled / on_leave / graduated / expelled)
+- `user_id` (FK → users.user_id, NOT NULL) — пов'язаний обліковий запис
+
+При видаленні `dorm` або `rooms` відповідні поля в `student` скидаються в `NULL` (`ON DELETE SET NULL`) — студент не видаляється разом із гуртожитком чи кімнатою.
+
+## 6. dorm_admin
+Адміністратори гуртожитків. Особисті дані — лише через `users`, без дублювання.
+- `admin_id` (PK)
+- `user_id` (FK → users.user_id, NOT NULL) — пов'язаний обліковий запис
+- `dorm_id` (FK → dorm.dorm_id, NOT NULL) — гуртожиток, яким керує адміністратор
 
 ## 7. parking_slots
 Паркувальні місця.
 - `parking_slot_id` (PK)
-- `student_id` (FK → student.student_id) — студент, який використовує місце
-- `dorm_id` (FK → dorm.dorm_id) — гуртожиток, до якого належить місце
-- `admin_id` (FK → admin_of_the_dorm.admin_id) — адміністратор, що керує місцем
+- `student_id` (FK → student.student_id, `NULL` дозволено) — студент, який використовує місце; `NULL` — місце вільне
+- `dorm_id` (FK → dorm.dorm_id, NOT NULL) — гуртожиток, до якого належить місце
+- `admin_id` (FK → dorm_admin.admin_id, `NULL` дозволено) — адміністратор, що опрацював місце; `NULL`, якщо ще не призначено
+- `slot_number` (NOT NULL) — номер паркомісця
+
+При видаленні студента чи адміністратора відповідні поля скидаються в `NULL` (`ON DELETE SET NULL`) — місце звільняється, а не видаляється.
 
 ## 8. course
-Курси, що читаються на кафедрах.
+Каталог курсів, що читаються на кафедрах.
 - `course_id` (PK)
-- `department_id` (FK → department.department_id) — кафедра, яка веде курс
-- `student_id` (FK → student.student_id) — студент, записаний на курс
+- `department_id` (FK → department.department_id, NOT NULL) — кафедра, яка веде курс
+- `course_title` (NOT NULL) — назва курсу
 
-## 9. vacancy
-Вакансії, на які подаються студенти.
+## 9. enrollment
+Асоціативна таблиця "багато-до-багатьох" між `student` і `course`: один студент може бути записаний на кілька курсів, один курс може мати кількох студентів.
+- `enrollment_id` (PK)
+- `student_id` (FK → student.student_id, NOT NULL, `ON DELETE CASCADE`)
+- `course_id` (FK → course.course_id, NOT NULL, `ON DELETE CASCADE`)
+- `enrollment_date` — дата зарахування (за замовчуванням поточна дата)
+- `grade` — оцінка/результат (`NULL`, доки курс не завершено)
+- `UNIQUE (student_id, course_id)` — студент не може бути записаний на той самий курс двічі
+
+## 10. vacancy
+Каталог вакансій компаній-партнерів університету, доступний багатьом студентам одночасно.
 - `vacancy_id` (PK)
-- `student_id` (FK → student.student_id) — студент, який подав заявку
-- `company_name` — назва компанії
-- `job_name` — назва посади
+- `company_name` (NOT NULL) — назва компанії
+- `job_name` (NOT NULL) — назва посади
+
+## 11. application
+Асоціативна таблиця "багато-до-багатьох" між `student` і `vacancy`: студент може подати заявки на кілька вакансій, вакансія може отримати заявки від кількох студентів.
+- `application_id` (PK)
+- `student_id` (FK → student.student_id, NOT NULL, `ON DELETE CASCADE`)
+- `vacancy_id` (FK → vacancy.vacancy_id, NOT NULL, `ON DELETE CASCADE`)
+- `application_date` — дата подачі заявки (за замовчуванням поточна дата)
+- `status` — стан заявки (`submitted` / `accepted` / `rejected`, за замовчуванням `'submitted'`)
+- `UNIQUE (student_id, vacancy_id)` — не допускаються дублікати заявок на ту саму вакансію
 
 ## Важливі припущення та обмеження
 
-- Таблиця `users` є базовою для `student` та `admin_of_the_dorm` — обидві сутності пов'язані з обліковим записом через `user_id`.
-- Зв'язки `USER → STUDENT` та `USER → ADMIN_OF_THE_DORM` у вихідній ERD позначені як "один-до-багатьох" (`||--o{`), тому `UNIQUE` на `user_id` у цих таблицях **не додається**: один користувач формально може бути пов'язаний з кількома записами студента/адміністратора.
-- Вихідна ERD містила циклічну залежність: `DORM` посилається на `PARKING_SLOTS` (через `ParkingSlotID`), а `PARKING_SLOTS` посилається назад на `DORM` (через `DormID`). Вирішено так: таблиця `dorm` створюється з полем `parking_slot_id` без обмеження зовнішнього ключа, а саме обмеження (`FOREIGN KEY`) додається пізніше через `ALTER TABLE`, коли таблиця `parking_slots` вже існує. Дані для `dorm.parking_slot_id` заповнюються через `UPDATE` після вставки рядків у `parking_slots`.
+- Таблиця `users` є базовою для `student` та `dorm_admin` — обидві сутності пов'язані з обліковим записом через `user_id`, і жодна з них не дублює особисті дані (ім'я, прізвище, email).
+- `course` і `vacancy` — каталоги (довідники), а не особисті записи студента: зв'язок зі студентами реалізовано через асоціативні таблиці `enrollment` та `application` відповідно, що коректно реалізує зв'язки "багато-до-багатьох".
+- FK на кімнату зберігається в `student.room_id`, а не в `rooms`, оскільки одна кімната може мешкати кількох студентів (обмеження на максимальну кількість, наприклад 4, нотацією ER/SQL-схемою напряму не виражається і має перевірятись тригером `BEFORE INSERT/UPDATE`).
 - Сутність `USER` перейменована в `users`, оскільки `USER` є зарезервованим словом у PostgreSQL.
-- Усі поля email мають обмеження `UNIQUE NOT NULL` для запобігання дублюванню користувачів/студентів/адміністраторів.
-- Кожна таблиця заповнена 3–7 тестовими рядками для перевірки коректності зв'язків.
+- Поле `email` у `users` має обмеження `UNIQUE NOT NULL` для запобігання дублюванню користувачів.
+- Кожна таблиця заповнена тестовими рядками, включно з прикладами необов'язкових зв'язків: студент без гуртожитку/кімнати (`student_id = 5`) та вільне паркомісце без студента й адміністратора.
