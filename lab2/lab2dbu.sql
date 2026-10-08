@@ -24,30 +24,39 @@ CREATE TABLE rooms (
     room_id     SERIAL PRIMARY KEY,
     dorm_id     INTEGER NOT NULL REFERENCES dorm(dorm_id),
     room_number VARCHAR(10) NOT NULL,
-    floor       INTEGER
+    floor       INTEGER,
+    UNIQUE (room_id, dorm_id)
 );
 
 CREATE TABLE student (
     student_id      SERIAL PRIMARY KEY,
     enrollment_year INTEGER,
     dorm_id         INTEGER REFERENCES dorm(dorm_id) ON DELETE SET NULL,
-    room_id         INTEGER REFERENCES rooms(room_id) ON DELETE SET NULL,
+    room_id         INTEGER,
     status          student_status NOT NULL DEFAULT 'enrolled',
-    user_id         INTEGER NOT NULL REFERENCES users(user_id)
+    user_id         INTEGER NOT NULL REFERENCES users(user_id),
+    CHECK (room_id IS NULL OR dorm_id IS NOT NULL),
+    -- кімната має належати тому ж гуртожитку, що й студент
+    FOREIGN KEY (room_id, dorm_id) REFERENCES rooms(room_id, dorm_id)
+        ON DELETE SET NULL (room_id)
 );
 
 CREATE TABLE dorm_admin (
     admin_id SERIAL PRIMARY KEY,
     user_id  INTEGER NOT NULL REFERENCES users(user_id),
-    dorm_id  INTEGER NOT NULL REFERENCES dorm(dorm_id)
+    dorm_id  INTEGER NOT NULL REFERENCES dorm(dorm_id),
+    UNIQUE (admin_id, dorm_id)
 );
 
 CREATE TABLE parking_slots (
     parking_slot_id SERIAL PRIMARY KEY,
     student_id      INTEGER REFERENCES student(student_id) ON DELETE SET NULL,
     dorm_id         INTEGER NOT NULL REFERENCES dorm(dorm_id),
-    admin_id        INTEGER REFERENCES dorm_admin(admin_id) ON DELETE SET NULL,
-    slot_number     VARCHAR(10) NOT NULL
+    admin_id        INTEGER,
+    slot_number     VARCHAR(10) NOT NULL,
+    -- адміністратор має належати тому ж гуртожитку, що й паркомісце
+    FOREIGN KEY (admin_id, dorm_id) REFERENCES dorm_admin(admin_id, dorm_id)
+        ON DELETE SET NULL (admin_id)
 );
 
 CREATE TABLE course (

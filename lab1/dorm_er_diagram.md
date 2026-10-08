@@ -1,26 +1,25 @@
 ```mermaid
 erDiagram
-    DEPARTMENT ||--o{ COURSE : "includes"
-    COURSE ||--o{ ENROLLMENT : "has"
-    STUDENT ||--o{ ENROLLMENT : "enrolls via"
-    VACANCY ||--o{ APPLICATION : "receives"
-    STUDENT ||--o{ APPLICATION : "submits"
-    STUDENT |o--|| USER : "linked to"
-    USER ||--o| DORM_ADMIN : "linked to"
-    STUDENT }o--o| DORM : "lives in"
-    ROOMS |o--o{ STUDENT : "houses"
-    DORM ||--|{ ROOMS : "contains"
-    STUDENT |o--o| PARKING_SLOTS : "uses"
-    DORM ||--o{ PARKING_SLOTS : "has"
-    DORM_ADMIN |o--o{ PARKING_SLOTS : "uses"
-    DORM ||--O{ DORM_ADMIN : "managed by"
+    DEPARTMENTS ||--o{ COURSES : "includes"
+    COURSES ||--o{ ENROLLMENT : "has"
+    STUDENTS ||--o{ ENROLLMENT : "enrolls via"
+    VACANCIES ||--o{ APPLICATIONS : "receives"
+    STUDENTS ||--o{ APPLICATIONS : "submits"
+    STUDENTS |o--|| USERS : "linked to"
+    USERS ||--o| DORM_ADMINS : "linked to"
+    ROOMS |o--o{ STUDENTS : "houses"
+    DORMS ||--|{ ROOMS : "contains"
+    STUDENTS |o--o| PARKING_SLOTS : "uses"
+    DORMS ||--o{ PARKING_SLOTS : "has"
+    DORM_ADMINS |o--o{ PARKING_SLOTS : "uses"
+    DORMS ||--O{ DORM_ADMINS : "managed by"
 
-    DEPARTMENT {
+    DEPARTMENTS {
         int DepartmentID PK
         string DepartmentName
     }
 
-    COURSE {
+    COURSES {
         int CourseID PK
         int DepartmentID FK
         string CourseTitle
@@ -34,13 +33,13 @@ erDiagram
         string Grade
     }
 
-    VACANCY {
+    VACANCIES {
         int VacancyID PK
         string CompanyName
         string JobName
     }
 
-    APPLICATION {
+    APPLICATIONS {
         int ApplicationID PK
         int StudentID FK
         int VacancyID FK
@@ -48,22 +47,21 @@ erDiagram
         string Status
     }
 
-    STUDENT {
+    STUDENTS {
         int StudentID PK
         int EnrollmentYear
-        int DormID FK
         int RoomID FK
         enum Status
         int UserID FK
     }
 
-    DORM_ADMIN {
+    DORM_ADMINS {
         int AdminID PK
         int UserID FK
         int DormID FK
     }
 
-    DORM {
+    DORMS {
         int DormID PK
         string Address UK
     }
@@ -83,7 +81,7 @@ erDiagram
         string SlotNumber
     }
 
-    USER {
+    USERS {
         int UserID PK
         string FirstName
         string LastName
