@@ -23,6 +23,8 @@ create table zone(
     zone_name varchar(100)
 );
 
+----REGION ENTITIES ----
+
 create table monster_type(
     id int generated always as identity primary key,
     name varchar(128) not null,
@@ -44,9 +46,35 @@ create table npc(
     name varchar(128) not null
 );
 
+----ENDREGION ENTITIES ----
+
+----REGION ITEMS/TOOLS ----
+
+create type item_type as enum('weapon', 'food', 'armor', 'tool');
+
+create table item_template(
+    id int generated always as identity primary key,
+    name varchar(128) not null,
+    description varchar(128) not null,
+    max_stack smallint not null default 1,
+    rarity smallint not null default 0,
+    type item_type not null
+);
+
+create table item(
+    id int generated always as identity primary key,
+    item_tmpl_id int not null references item_template(id),
+    -- inv_id int not null references inventory(id),
+    inventory_slot smallint not null,
+    quantity smallint not null default 1,
+    price smallint not null default 0,
+    attributes jsonb,
+    enchantments jsonb
+);
+
 create table npc_item_relation(
     npc_id int not null references npc(id),
-    item_id int not null, --make reference item type
+    item_id int not null references item(id),
     trades boolean not null,
     sell_price int,
     buy_price int,
@@ -55,7 +83,7 @@ create table npc_item_relation(
 
 create table monster_drop(
     monster_id int not null references monster_type(id),
-    item_id int not null, --make reference item type
+    item_id int not null references item_template(id),
     primary key (monster_id,item_id)
 );
 
@@ -107,3 +135,4 @@ create table inventory(
 	gold int not null default 0,
 	capacity int not null default 20
 );
+----ENDREGION ITEMS/TOOLS ----
