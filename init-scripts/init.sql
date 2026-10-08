@@ -124,7 +124,7 @@ create table spell(
 
 create table character_spell(
 		character_id int not null references character(id),
-		spell_id int not null, --make reference item type
+		spell_id int not null references spell(id),
 		quantity int not null default 1,
 		primary key (character_id,spell_id)
 );
