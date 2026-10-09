@@ -1,0 +1,65 @@
+erDiagram
+    CLIENT ||--o{ BOOKING : places
+    COURT ||--o{ BOOKING : reserved_for
+    COACH ||--o{ BOOKING : trains
+    BOOKING ||--o{ BOOKING_EQUIPMENT : includes
+    EQUIPMENT ||--o{ BOOKING_EQUIPMENT : assigned_to
+    BOOKING ||--o{ PAYMENT : settles
+
+    CLIENT {
+        int client_id PK
+        string first_name
+        string last_name
+        string phone UK
+        string email
+    }
+
+    COURT {
+        int court_id PK
+        string court_name
+        string surface_type
+        boolean is_indoor
+        decimal hourly_rate
+    }
+
+    COACH {
+        int coach_id PK
+        string first_name
+        string last_name
+        string phone
+        decimal hourly_rate
+    }
+
+    EQUIPMENT {
+        int equipment_id PK
+        string item_name
+        string category
+        decimal rental_price
+    }
+
+    BOOKING {
+        int booking_id PK
+        int client_id FK
+        int court_id FK
+        int coach_id FK
+        date booking_date
+        time start_time
+        time end_time
+        decimal total_price
+        string status
+    }
+
+    BOOKING_EQUIPMENT {
+        int booking_id PK, FK
+        int equipment_id PK, FK
+        int quantity
+    }
+
+    PAYMENT {
+        int payment_id PK
+        int booking_id FK
+        timestamp payment_date
+        decimal amount
+        string payment_method
+        string status
+    }
