@@ -1,0 +1,40 @@
+erDiagram
+    USER ||--o{ VENUE : "owns"
+    USER |o--o{ REVIEW : "writes"
+    VENUE ||--o{ REVIEW : "receives"
+    USER ||--o{ USER_DELETION_REQUEST : "submits"
+
+    USER {
+        int id PK
+        string email
+        string pass_hash
+        string username
+        string name
+        URI pfp
+    }
+    VENUE {
+        int id PK
+        int user_id FK
+        enum review_status
+        double latitude
+        double longitude
+        string address
+        string name
+        URI photo
+        string phone_number
+        string extra_info
+    }
+    REVIEW {
+        int id PK
+        int venue_id FK
+        int user_id FK "nullable, anonymized on user deletion"
+        int rating
+        string text
+        URI photo
+    }
+    USER_DELETION_REQUEST {
+        int id PK
+        int user_id FK
+        datetime time
+        enum status
+    }
