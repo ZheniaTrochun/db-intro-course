@@ -1,0 +1,39 @@
+erDiagram
+    Customer --o{ Address : has
+    Customer --o{ Orders : places
+    Address --o{ Orders : delivery
+    Category --o{ Product : contains
+    Orders --o{ Payment : payments
+    Orders --|{ Order_Item : includes
+    Product --o{ Order_Item : ordered
+    Customer --o{ Review : writes
+    Product ||--o{ Review : receives
+    Customer {
+        int customer_id PK
+        string first_name
+        string last_name
+        string email UK
+        string phone
+        datetime registered_at
+    }
+    Address {
+        int address_id PK
+        int customer_id FK
+        string city
+        string street
+        string building
+        string postal_code
+    }
+    Category {
+        int category_id PK
+        string name UK
+        string description
+    }
+    Product {
+        int product_id PK
+        int category_id FK
+        string name
+        string description
+        decimal price
+        int stock_qty
+    }
