@@ -1,0 +1,52 @@
+erDiagram
+    USER ||--o{ VIDEO : uploads
+    USER ||--o{ COMMENT : writes
+    VIDEO ||--o{ COMMENT : has
+    USER ||--o{ VIDEO_LIKE : gives
+    VIDEO ||--o{ VIDEO_LIKE : receives
+    USER ||--o{ SUBSCRIPTION : subscriber
+    USER ||--o{ SUBSCRIPTION : channel
+
+    USER {
+        uuid user_id PK
+        string username UK
+        string email UK
+        string password_hash
+        string avatar_url
+        datetime created_at
+    }
+
+    VIDEO {
+        uuid video_id PK
+        uuid user_id FK
+        string title
+        string description
+        string video_url
+        string thumbnail_url
+        int duration_seconds
+        string visibility
+        datetime created_at
+    }
+
+    COMMENT {
+        uuid comment_id PK
+        uuid user_id FK
+        uuid video_id FK
+        string content
+        datetime created_at
+        datetime updated_at
+    }
+
+    VIDEO_LIKE {
+        uuid like_id PK
+        uuid user_id FK
+        uuid video_id FK
+        datetime created_at
+    }
+
+    SUBSCRIPTION {
+        uuid subscription_id PK
+        uuid subscriber_id FK
+        uuid channel_id FK
+        datetime created_at
+    }
