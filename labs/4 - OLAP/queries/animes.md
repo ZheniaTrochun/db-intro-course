@@ -52,7 +52,7 @@ GROUP BY episode_count;
 ```SQL
 SELECT 
   production_studio,
-  DISTINCT count(anime_id) AS total_animes,
+  count(DISTINCT anime_id) AS total_animes,
   sum(episodes_count) AS total_episodes,
   round(avg(avg_episode_duration), 1) AS avg_duration
 FROM animes
