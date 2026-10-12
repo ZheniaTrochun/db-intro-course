@@ -45,18 +45,15 @@ OFFSET 10 * 0;
 ```
 
 ## Запит, що повертає топ 10 жанрів за кількістю коментарів відповідних аніме
-**Використано:** `COUNT`, `GROUP BY`, багатотабличний `INNER JOIN`, підзапит `HAVING`
+**Використано:** `COUNT`, `GROUP BY`, `INNER JOIN`
 ```SQL
 SELECT
     genres.genre_type,
     count(comments.comment_id) AS total_comments
 FROM public.genres
-INNER JOIN public.animes ON
-    animes.anime_id = genres.anime_id
 INNER JOIN public.comments ON
-    comments.anime_id = animes.anime_id
+    comments.anime_id = genres.anime_id
 GROUP BY genres.genre_type
-HAVING count(comments.comment_id) > 0
 ORDER BY total_comments DESC, genres.genre_type ASC
 LIMIT 10 
 OFFSET 10 * 0;
