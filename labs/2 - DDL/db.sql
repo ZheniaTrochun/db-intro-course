@@ -13,7 +13,7 @@ CREATE TABLE PROPERTY_OWNER (
 CREATE TABLE PROPERTY (
     property_id INT generated always as identity PRIMARY KEY,
     owner_id INT not null,
-    address VARCHAR(80) not null unique,
+    adress VARCHAR(80) not null unique,
     FOREIGN KEY (owner_id) REFERENCES PROPERTY_OWNER(owner_id)
 );
 INSERT INTO property_owner (full_name, phone_number, passport_data)
@@ -32,7 +32,7 @@ VALUES (
         '+380631112233',
         'КБ987654'
     );
-INSERT INTO property (owner_id, address)
+INSERT INTO property (owner_id, adress)
 VALUES (1, 'м. Київ, вул. Хрещатик, буд. 10, кв. 5'),
     (
         1,
