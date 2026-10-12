@@ -61,11 +61,13 @@ VALUES (1, 'м. Київ, вул. Хрещатик, буд. 10, кв. 5'),
 INSERT INTO TENANT (full_name, phone_number)
 VALUES 
     ('Сидоренко Максим Петрович', '+380674445566'),
-    ('Гончар Анна Ігорівна', '+380505556677');
+    ('Гончар Анна Ігорівна', '+380505556677'),
+    ('Мельник Дмитро Олегович', '+380931239876');
 
 INSERT INTO REALTOR (full_name, phone_number, commission_rate)
 VALUES 
     ('Дмитренко Олег Олегович', '+380637778899', 5.00),
-    ('Ковальчук Світлана Миколаївна', '+380978889900', 4.50);
+    ('Ковальчук Світлана Миколаївна', '+380978889900', 4.50),
+    ('Павлюк Марина Сергіївна', '+380501112233', 4.00);
 CREATE TABLE APPLICATION (application_id INT PRIMARY KEY);
 CREATE TABLE LEASE_AGREEMENT (lease_id INT PRIMARY KEY);
