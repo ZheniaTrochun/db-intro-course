@@ -26,7 +26,14 @@ sql ddl інструкції (labs\2 - DDL\db.sql) були створені н�
   - owner_id - ...
   - adress - ...
 - TENANT:
-  -id
-- phone_number -
+  - tenant_id - унікальний ідентифікатор орендаря (Первинний ключ, GENERATED ALWAYS AS IDENTITY).
+  - full_name - повне ім'я орендаря (Обов'язкове поле, тип VARCHAR).
+  - phone_number - контактний телефон орендаря (Обов'язкове поле, унікальне UNIQUE).
+
+- REALTOR:
+  - realtor_id - унікальний ідентифікатор рієлтора (Первинний ключ, GENERATED ALWAYS AS IDENTITY).
+  - full_name - повне ім'я рієлтора (Обов'язкове поле, тип VARCHAR).
+  - phone_number - контактний телефон рієлтора (Обов'язкове поле, унікальне UNIQUE).
+  - commission_rate - відсоток комісії рієлтора (Обов'язкове поле, обмеження CHECK: значення не може бути від'ємним >= 0).
 
 ### Примітка:
