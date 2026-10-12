@@ -1,40 +1,61 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: NETWORK_SIMPLEX
+---
 erDiagram
-	direction LR
-	STUDENT {
-		int student_id PK ""  
-		string full_name  ""  
-		string faculty  ""  
-		int course  ""  
-		string group_name  ""  
-	}
+    direction TB
 
-	VISIT {
-		int visit_id PK ""  
-		int student_id FK ""  
-		date visit_date  ""  
-		time start_time  ""  
-		time end_time  ""  
-		string category  ""  
-	}
+    STUDENT ||--o{ VISIT : "здійснює"
+    VISIT ||--o{ INCIDENT : "пов'язаний з"
+    VISIT ||--o{ INCIDENT_PARTICIPANT : "бере участь"
+    INCIDENT ||--|{ INCIDENT_PARTICIPANT : "має учасників"
+    SECURITY_EMPLOYEE ||--o{ INCIDENT : "фіксує"
+    INCIDENT_TYPE ||--o{ INCIDENT : "визначає тип"
 
-	INCIDENT {
-		int incident_id PK ""  
-		int visit_id FK ""  
-		int employee_id FK "nullable"  
-		string type  ""  
-		string description  ""  
-		datetime date_time  ""  
-		string severity  ""  
-		string status  ""  
-	}
+    STUDENT {
+        int student_id PK
+        int group_id 
+        int faculty_id 
+        string full_name
+    }
 
-	SECURITY_EMPLOYEE {
-		int employee_id PK ""  
-		string full_name  ""  
-		string position  ""  
-		string phone  ""  
-	}
+    VISIT {
+        int visit_id PK
+        int student_id FK
+        string category
+        datetime started_at
+        datetime ended_at "nullable, >= started_at"
+    }
 
-	STUDENT||--o{VISIT:"  "
-	VISIT||--o{INCIDENT:"  "
-	SECURITY_EMPLOYEE||--o{INCIDENT:"  "
+    INCIDENT_TYPE {
+        int type_id PK
+        string name
+    }
+
+    INCIDENT {
+        int incident_id PK
+        int visit_id FK
+        int type_id FK
+        int employee_id FK
+        int status_id 
+        string description "nullable"
+        datetime occurred_at
+        string severity "Низький / Середній / Високий"
+        string status "Новий / У процесі / Опрацьовано / Закрито"
+    }
+
+    INCIDENT_PARTICIPANT {
+        int incident_id PK, FK
+        int visit_id PK, FK
+        int role_id FK
+    }
+
+    SECURITY_EMPLOYEE {
+        int employee_id PK
+        string full_name
+        string position
+        string phone 
+    }
