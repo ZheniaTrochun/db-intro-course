@@ -22,7 +22,7 @@
 - **СУБД:** PostgreSQL 15 (порт `5432`).
 - **Параметри підключення:** Host = `postgres`, Database = `postgres`, User = `postgres`, Password = `password123`.
 - **Веб-клієнт:** pgAdmin 4 (доступний за адресою `http://localhost:8080`, логін: `root@kpi.edu`, пароль: `password123`).
-- **Ініціалізація:** SQL-скрипт `01_schema.sql` розміщено в директорії `init-scripts/`, що забезпечує автоматичне створення таблиць та заповнення їх даними при первинному старті контейнера.
+- **Ініціалізація:** SQL-скрипт `schema.sql` розміщено в директорії `init-scripts/`, що забезпечує автоматичне створення таблиць та заповнення їх даними при первинному старті контейнера.
 
 ---
 
@@ -56,7 +56,7 @@
 
 ## 4. SQL-скрипт (DDL та DML)
 
-Нижче наведено повний зміст скрипту `init-scripts/01_schema.sql`:
+Нижче наведено повний зміст скрипту `init-scripts/schema.sql`:
 
 ```sql
 -- ==========================================
@@ -219,38 +219,6 @@ INSERT INTO grade_records (student_id, course_id, teacher_id, score, work_type, 
     (2, 1, 2, 85, 'Лабораторна робота №1', '2026-03-01'),
     (3, 1, 2, 70, 'Лабораторна робота №1', '2026-03-01');
 ```
-
----
-
-## 5. Докази виконання та результати запитів
-
-Усі таблиці успішно створено та заповнено даними за допомогою контейнеризованої СУБД PostgreSQL. Перевірку виконано в веб-клієнті **pgAdmin 4**.
-
-### 5.1. Дерево об'єктів у pgAdmin 4
-![Таблиці у pgAdmin](screenshots/tables.png)  
-*(На скріншоті видно створений сервер `postgres`, схему `public` та всі 10 таблиць)*
-
-### 5.2. Вибірка даних з таблиці `students`
-```sql
-SELECT * FROM students;
-```
-![Результат SELECT * FROM students](screenshots/students_select.png)
-
-### 5.3. Вибірка даних з таблиці `enrollments` (Зарахування на курси)
-```sql
-SELECT * FROM enrollments;
-```
-![Результат SELECT * FROM enrollments](screenshots/enrollments_select.png)
-
-### 5.4. Перевірка журналу оцінок (`grade_records`)
-```sql
-SELECT g.grade_id, s.full_name AS student, c.course_name, t.full_name AS teacher, g.score, g.work_type
-FROM grade_records g
-JOIN students s ON g.student_id = s.student_id
-JOIN courses c ON g.course_id = c.course_id
-JOIN teachers t ON g.teacher_id = t.teacher_id;
-```
-![Результат JOIN-запиту журналу оцінок](screenshots/grades_join_select.png)
 
 ---
 
