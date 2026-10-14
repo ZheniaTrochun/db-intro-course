@@ -1,114 +1,128 @@
+DROP TABLE IF EXISTS applications   CASCADE;
+DROP TABLE IF EXISTS vacancies       CASCADE;
+DROP TABLE IF EXISTS enrollments    CASCADE;
+DROP TABLE IF EXISTS courses        CASCADE;
+DROP TABLE IF EXISTS parking_slots CASCADE;
+DROP TABLE IF EXISTS dorm_admins    CASCADE;
+DROP TABLE IF EXISTS students       CASCADE;
+DROP TABLE IF EXISTS rooms         CASCADE;
+DROP TABLE IF EXISTS dorms          CASCADE;
+DROP TABLE IF EXISTS departments    CASCADE;
+DROP TABLE IF EXISTS users         CASCADE;
+DROP TYPE  IF EXISTS student_status;
+DROP TYPE  IF EXISTS user_status;
+DROP TYPE  IF EXISTS application_status;
+
+
 CREATE TYPE student_status AS ENUM ('enrolled', 'on_leave', 'graduated', 'expelled');
+CREATE TYPE user_status AS ENUM ('active', 'blocked');
+CREATE TYPE application_status AS ENUM ('submitted', 'accepted', 'rejected');
 
 CREATE TABLE users (
     user_id           SERIAL PRIMARY KEY,
-    first_name        VARCHAR(50) NOT NULL,
-    last_name         VARCHAR(50) NOT NULL,
-    email             VARCHAR(150) UNIQUE NOT NULL,
+    first_name        VARCHAR(50)  NOT NULL CHECK (first_name = trim(first_name) AND first_name <> ''),
+    last_name         VARCHAR(50)  NOT NULL CHECK (last_name = trim(last_name) AND last_name <> ''),
+    email             VARCHAR(150) UNIQUE NOT NULL CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$'),
     date_of_birth     DATE,
     registration_date DATE DEFAULT CURRENT_DATE,
-    status            VARCHAR(30)
+    status            user_status NOT NULL DEFAULT 'active'
 );
 
-CREATE TABLE department (
+CREATE TABLE departments (
     department_id   SERIAL PRIMARY KEY,
-    department_name VARCHAR(100) NOT NULL
+    department_name VARCHAR(100) NOT NULL CHECK (department_name = trim(department_name) AND department_name <> '')
 );
 
-CREATE TABLE dorm (
-    dorm_id SERIAL PRIMARY KEY,
-    address VARCHAR(150) UNIQUE NOT NULL
+CREATE TABLE dorms (
+    dorm_id     SERIAL PRIMARY KEY,
+    dorm_number INTEGER NOT NULL UNIQUE CHECK (dorm_number > 0),
+    address     VARCHAR(150) UNIQUE NOT NULL CHECK (address = trim(address) AND address <> '')
 );
 
 CREATE TABLE rooms (
     room_id     SERIAL PRIMARY KEY,
-    dorm_id     INTEGER NOT NULL REFERENCES dorm(dorm_id),
-    room_number VARCHAR(10) NOT NULL,
+    dorm_id     INTEGER NOT NULL REFERENCES dorms(dorm_id) ON DELETE RESTRICT,
+    room_number VARCHAR(10) NOT NULL CHECK (room_number = trim(room_number) AND room_number <> ''),
     floor       INTEGER,
-    UNIQUE (room_id, dorm_id)
+    UNIQUE (dorm_id, room_number)
 );
 
-CREATE TABLE student (
+CREATE TABLE students (
     student_id      SERIAL PRIMARY KEY,
     enrollment_year INTEGER,
-    dorm_id         INTEGER REFERENCES dorm(dorm_id) ON DELETE SET NULL,
-    room_id         INTEGER,
+    room_id         INTEGER REFERENCES rooms(room_id) ON DELETE RESTRICT,
     status          student_status NOT NULL DEFAULT 'enrolled',
-    user_id         INTEGER NOT NULL REFERENCES users(user_id),
-    CHECK (room_id IS NULL OR dorm_id IS NOT NULL),
-    -- кімната має належати тому ж гуртожитку, що й студент
-    FOREIGN KEY (room_id, dorm_id) REFERENCES rooms(room_id, dorm_id)
-        ON DELETE SET NULL (room_id)
+    user_id         INTEGER NOT NULL REFERENCES users(user_id) ON DELETE RESTRICT
 );
 
-CREATE TABLE dorm_admin (
+CREATE TABLE dorm_admins (
     admin_id SERIAL PRIMARY KEY,
-    user_id  INTEGER NOT NULL REFERENCES users(user_id),
-    dorm_id  INTEGER NOT NULL REFERENCES dorm(dorm_id),
+    user_id  INTEGER NOT NULL REFERENCES users(user_id) ON DELETE RESTRICT,
+    dorm_id  INTEGER NOT NULL REFERENCES dorms(dorm_id) ON DELETE RESTRICT,
     UNIQUE (admin_id, dorm_id)
 );
 
 CREATE TABLE parking_slots (
     parking_slot_id SERIAL PRIMARY KEY,
-    student_id      INTEGER REFERENCES student(student_id) ON DELETE SET NULL,
-    dorm_id         INTEGER NOT NULL REFERENCES dorm(dorm_id),
+    student_id      INTEGER UNIQUE REFERENCES students(student_id) ON DELETE SET NULL,
+    dorm_id         INTEGER NOT NULL REFERENCES dorms(dorm_id) ON DELETE RESTRICT,
     admin_id        INTEGER,
-    slot_number     VARCHAR(10) NOT NULL,
-    -- адміністратор має належати тому ж гуртожитку, що й паркомісце
-    FOREIGN KEY (admin_id, dorm_id) REFERENCES dorm_admin(admin_id, dorm_id)
+    slot_number     VARCHAR(10) NOT NULL CHECK (slot_number = trim(slot_number) AND slot_number <> ''),
+    CONSTRAINT fk_parking_admin_same_dorm
+        FOREIGN KEY (admin_id, dorm_id) REFERENCES dorm_admins(admin_id, dorm_id)
         ON DELETE SET NULL (admin_id)
 );
 
-CREATE TABLE course (
+CREATE TABLE courses (
     course_id     SERIAL PRIMARY KEY,
-    department_id INTEGER NOT NULL REFERENCES department(department_id),
-    course_title  VARCHAR(100) NOT NULL
+    department_id INTEGER NOT NULL REFERENCES departments(department_id) ON DELETE RESTRICT,
+    course_title  VARCHAR(100) NOT NULL CHECK (course_title = trim(course_title) AND course_title <> '')
 );
 
-CREATE TABLE enrollment (
+CREATE TABLE enrollments (
     enrollment_id   SERIAL PRIMARY KEY,
-    student_id      INTEGER NOT NULL REFERENCES student(student_id) ON DELETE CASCADE,
-    course_id       INTEGER NOT NULL REFERENCES course(course_id) ON DELETE CASCADE,
+    student_id      INTEGER NOT NULL REFERENCES students(student_id) ON DELETE CASCADE,
+    course_id       INTEGER NOT NULL REFERENCES courses(course_id) ON DELETE CASCADE,
     enrollment_date DATE DEFAULT CURRENT_DATE,
-    grade           VARCHAR(10),
+    grade           VARCHAR(10) CHECK (grade = trim(grade) AND grade <> ''),
     UNIQUE (student_id, course_id)
 );
 
-CREATE TABLE vacancy (
+CREATE TABLE vacancies (
     vacancy_id   SERIAL PRIMARY KEY,
-    company_name VARCHAR(100) NOT NULL,
-    job_name     VARCHAR(100) NOT NULL
+    company_name VARCHAR(100) NOT NULL CHECK (company_name = trim(company_name) AND company_name <> ''),
+    job_name     VARCHAR(100) NOT NULL CHECK (job_name = trim(job_name) AND job_name <> '')
 );
 
-CREATE TABLE application (
+CREATE TABLE applications (
     application_id   SERIAL PRIMARY KEY,
-    student_id       INTEGER NOT NULL REFERENCES student(student_id) ON DELETE CASCADE,
-    vacancy_id       INTEGER NOT NULL REFERENCES vacancy(vacancy_id) ON DELETE CASCADE,
+    student_id       INTEGER NOT NULL REFERENCES students(student_id) ON DELETE CASCADE,
+    vacancy_id       INTEGER NOT NULL REFERENCES vacancies(vacancy_id) ON DELETE CASCADE,
     application_date DATE DEFAULT CURRENT_DATE,
-    status           VARCHAR(30) DEFAULT 'submitted',
+    status           application_status NOT NULL DEFAULT 'submitted',
     UNIQUE (student_id, vacancy_id)
 );
 
 
 INSERT INTO users (first_name, last_name, email, date_of_birth, status) VALUES
-    ('Іван',    'Петренко',  'ivan.petrenko@example.com',  '2003-05-14', 'active'),
-    ('Марія',   'Коваль',    'maria.koval@example.com',    '2002-11-02', 'active'),
-    ('Олег',    'Бондар',    'oleg.bondar@example.com',    '2001-03-20', 'active'),
-    ('Анна',    'Сидоренко', 'anna.sydorenko@example.com', '2004-07-08', 'active'),
-    ('Сергій',  'Мельник',   'sergiy.melnyk@example.com',  '1985-01-15', 'active'),
-    ('Ольга',   'Ткаченко',  'olha.tkachenko@example.com', '1990-06-22', 'active'),
-    ('Павло',   'Кравець',   'pavlo.kravets@example.com',  '1988-09-30', 'active'),
-    ('Дмитро',  'Шевченко',  'dmytro.shevchenko@example.com', '2004-02-11', 'active');
+    ('Іван',   'Петренко',  'ivan.petrenko@example.com',     '2003-05-14', 'active'),
+    ('Марія',  'Коваль',    'maria.koval@example.com',       '2002-11-02', 'active'),
+    ('Олег',   'Бондар',    'oleg.bondar@example.com',       '2001-03-20', 'active'),
+    ('Анна',   'Сидоренко', 'anna.sydorenko@example.com',    '2004-07-08', 'active'),
+    ('Сергій', 'Мельник',   'sergiy.melnyk@example.com',     '1985-01-15', 'active'),
+    ('Ольга',  'Ткаченко',  'olha.tkachenko@example.com',    '1990-06-22', 'active'),
+    ('Павло',  'Кравець',   'pavlo.kravets@example.com',     '1988-09-30', 'active'),
+    ('Дмитро', 'Шевченко',  'dmytro.shevchenko@example.com', '2004-02-11', 'active');
 
-INSERT INTO department (department_name) VALUES
+INSERT INTO departments (department_name) VALUES
     ('Комп''ютерні науки'),
     ('Економіка'),
     ('Іноземні мови');
 
-INSERT INTO dorm (address) VALUES
-    ('вул. Степана Бандери 1-б'),
-    ('вул. Колотушкіна 1-а'),
-    ('вул. Тараса Шевченка 1-в');
+INSERT INTO dorms (dorm_number, address) VALUES
+    (1, 'вул. Степана Бандери 1-б'),
+    (2, 'вул. Колотушкіна 1-а'),
+    (3, 'вул. Тараса Шевченка 1-в');
 
 INSERT INTO rooms (dorm_id, room_number, floor) VALUES
     (1, '101', 1),
@@ -117,43 +131,43 @@ INSERT INTO rooms (dorm_id, room_number, floor) VALUES
     (2, '202', 2),
     (3, '301', 3);
 
-INSERT INTO student (enrollment_year, dorm_id, room_id, status, user_id) VALUES
-    (2022, 1, 1,    'enrolled',  1),
-    (2023, 1, 2,    'enrolled',  2),
-    (2021, 2, 3,    'graduated', 3),
-    (2022, 2, 4,    'on_leave',  4),
-    (2024, NULL, NULL, 'enrolled', 8);
+INSERT INTO students (enrollment_year, room_id, status, user_id) VALUES
+    (2022, 1,    'enrolled',  1),
+    (2023, 1,    'enrolled',  2),
+    (2021, 3,    'graduated', 3),
+    (2022, 4,    'on_leave',  4),
+    (2024, NULL, 'enrolled',  8);
 
-INSERT INTO dorm_admin (user_id, dorm_id) VALUES
+INSERT INTO dorm_admins (user_id, dorm_id) VALUES
     (5, 1),
     (6, 2),
     (7, 3);
 
 INSERT INTO parking_slots (student_id, dorm_id, admin_id, slot_number) VALUES
-    (1,    1, 1, 'P-101'),
-    (3,    2, 2, 'P-201'),
-    (4,    2, 2, 'P-202'),
+    (1,    1, 1,    'P-101'),
+    (3,    2, 2,    'P-201'),
+    (4,    2, 2,    'P-202'),
     (NULL, 3, NULL, 'P-301');
 
-INSERT INTO course (department_id, course_title) VALUES
+INSERT INTO courses (department_id, course_title) VALUES
     (1, 'Бази даних'),
     (1, 'Алгоритми та структури даних'),
     (2, 'Мікроекономіка'),
     (3, 'Англійська мова для IT');
 
-INSERT INTO enrollment (student_id, course_id, enrollment_date, grade) VALUES
+INSERT INTO enrollments (student_id, course_id, enrollment_date, grade) VALUES
     (1, 1, '2022-09-01', NULL),
     (1, 2, '2022-09-01', NULL),
     (2, 1, '2023-09-01', NULL),
     (3, 3, '2021-09-01', '92'),
     (4, 4, '2022-09-01', NULL);
 
-INSERT INTO vacancy (company_name, job_name) VALUES
+INSERT INTO vacancies (company_name, job_name) VALUES
     ('EPAM',        'Junior Developer'),
     ('Nova Poshta', 'Analyst'),
     ('Rozetka',     'Support Specialist');
 
-INSERT INTO application (student_id, vacancy_id, application_date, status) VALUES
+INSERT INTO applications (student_id, vacancy_id, application_date, status) VALUES
     (1, 1, '2024-03-01', 'submitted'),
     (1, 2, '2024-03-05', 'submitted'),
     (2, 2, '2024-03-02', 'accepted'),
@@ -161,13 +175,13 @@ INSERT INTO application (student_id, vacancy_id, application_date, status) VALUE
 
 
 SELECT * FROM users;
-SELECT * FROM department;
-SELECT * FROM dorm;
+SELECT * FROM departments;
+SELECT * FROM dorms;
 SELECT * FROM rooms;
-SELECT * FROM student;
-SELECT * FROM dorm_admin;
+SELECT * FROM students;
+SELECT * FROM dorm_admins;
 SELECT * FROM parking_slots;
-SELECT * FROM course;
-SELECT * FROM enrollment;
-SELECT * FROM vacancy;
-SELECT * FROM application;
+SELECT * FROM courses;
+SELECT * FROM enrollments;
+SELECT * FROM vacancies;
+SELECT * FROM applications;
