@@ -99,16 +99,14 @@ SELECT
     coalesce(sum(lu.watched_episodes), 0) AS episodes_watched,
     round(coalesce(sum(lu.watched_episodes * a.avg_episode_duration), 0) / 60.0, 1) AS hours_watched,
     round(avg(lu.grade), 2) AS avg_grade,
-    coalesce(c.comments_total, 0) AS comments_total
+    (
+        SELECT count(*) 
+        FROM public.comments c 
+        WHERE c.author_id = u.user_id
+    ) AS comments_total
 FROM public.users u
 LEFT JOIN public.anime_list_units lu ON lu.user_id = u.user_id
 LEFT JOIN public.animes a ON a.anime_id = lu.anime_id
-LEFT JOIN (
-    SELECT author_id, count(*) AS comments_total 
-    FROM public.comments 
-    WHERE author_id = '14881488-1488-1488-1488-148814881488'::uuid
-    GROUP BY author_id
-) c ON c.author_id = u.user_id
 WHERE u.user_id = '14881488-1488-1488-1488-148814881488'
-GROUP BY u.user_id, u.nickname, c.comments_total;
+GROUP BY u.user_id, u.nickname;
 ```
