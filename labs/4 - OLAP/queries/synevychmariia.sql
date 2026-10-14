@@ -154,12 +154,3 @@ ORDER BY round(avg(public.anime_list_units.grade), 2) DESC;
 SELECT title_ua, episodes_count
 FROM public.animes
 WHERE episodes_count = (SELECT max(episodes_count) FROM public.animes);
-
---Аніме, у яких немає епізодів (NOT EXISTS)
-SELECT public.animes.title_ua
-FROM public.animes
-WHERE NOT EXISTS (
-    SELECT *
-    FROM public.episodes
-    WHERE public.episodes.anime_id = public.animes.anime_id
-);
