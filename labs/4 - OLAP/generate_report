@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+DIRNAME="$(dirname "$0")"
+REPORT="$DIRNAME/report.md"
+
+echo "# By @XxMariavxX" > "$REPORT"
+cat "$DIRNAME/queries/synevychmariia.md" >> "$REPORT"
+echo >> "$REPORT"
+echo "# By @ApostolQleg" >> "$REPORT"
+cat "$DIRNAME/queries/apostololeg.md" >> "$REPORT"
+echo >> "$REPORT"
+echo "# By @dadencukillia" >> "$REPORT"
+cat "$DIRNAME/queries/dadencukillia.md" >> "$REPORT"
+echo >> "$REPORT"
