@@ -1,5 +1,6 @@
 ## Запит, що повертає топ 10 найактивніших коментаторів
 **Опис**: Запит підраховує загальну кількість коментарів для кожного користувача за допомогою `INNER JOIN` та повертає 10 найактивніших авторів у порядку спадання кількості коментарів.
+
 **Використано:** `COUNT`, `GROUP BY`, `INNER JOIN`.
 ```SQL
 SELECT
@@ -16,6 +17,7 @@ OFFSET 10 * 0;
 
 ## Запит, що повертає топ 10 людей за кількістю завершених аніме
 **Опис:** Запит групує користувачів і підраховує кількість аніме зі статусом «finished» у їхніх списках, повертаючи перших 10 людей.
+
 **Використано:** `COUNT`, `GROUP BY`, `LEFT JOIN`.
 ```SQL
 SELECT
@@ -33,6 +35,7 @@ OFFSET 10 * 0;
 
 ## Запит, що повертає топ 10 аніме за кількістю коментарів
 **Опис:** Запит агрегує коментарі для кожного тайтлу через `RIGHT JOIN` (демонстративний приклад) та виводить 10 найбільш обговорюваних аніме.
+
 **Використано:** `COUNT`, `GROUP BY`, `RIGHT JOIN`
 ```SQL
 SELECT
@@ -49,6 +52,7 @@ OFFSET 10 * 0;
 
 ## Запит, що повертає топ 10 жанрів за кількістю коментарів відповідних аніме
 **Опис:** Запит об'єднує жанри з коментарями відповідних аніме через `INNER JOIN`, підраховує загальну кількість коментарів у межах кожного жанру та повертає 10 найпопулярніших жанрів за кількістю коментарів.
+
 **Використано:** `COUNT`, `GROUP BY`, `INNER JOIN`
 ```SQL
 SELECT
@@ -65,6 +69,7 @@ OFFSET 10 * 0;
 
 ## Запит, що повертає топ 10 регіонів за і з відсотком сесій користувачів в цьому регіоні
 **Опис:** Запит підраховує кількість сесій для кожного визначеного регіону та обчислює його відсоткову частку від загальної кількості всіх сесій за допомогою вкладеного підзапиту `SELECT`, повертаючи 10 найпопулярніших регіонів.
+
 **Використано:** багато `COUNT`, `GROUP BY`, підзапит `SELECT`
 ```SQL
 SELECT
@@ -79,4 +84,31 @@ GROUP BY sessions.user_location
 ORDER BY total_sessions DESC, sessions.user_location ASC
 LIMIT 10 
 OFFSET 10 * 0;
+```
+
+## Запит, що повертає дуже багато статистичної публічної інформації користувача для профілю
+**Опис:** Комплексний агрегуючий запит для формування картки профілю. Обчислює розмір списку, кількість завершених аніме, сумарно переглянуті епізоди, проглянуті години та середню оцінку від користувача через `LEFT JOIN`.
+
+**Використано:** `COUNT`, `SUM`, `AVG`, `FILTER`, `COALESCE`, `ROUND`, `GROUP BY`, багатотабличний `LEFT JOIN`, підзапит`SELECT`
+```SQL
+SELECT
+    u.user_id, 
+    u.nickname,
+    count(lu.anime_id) AS list_size,
+    count(*) FILTER (WHERE lu.list_unit_status = 'finished') AS finished,
+    coalesce(sum(lu.watched_episodes), 0) AS episodes_watched,
+    round(coalesce(sum(lu.watched_episodes * a.avg_episode_duration), 0) / 60.0, 1) AS hours_watched,
+    round(avg(lu.grade), 2) AS avg_grade,
+    coalesce(c.comments_total, 0) AS comments_total
+FROM public.users u
+LEFT JOIN public.anime_list_units lu ON lu.user_id = u.user_id
+LEFT JOIN public.animes a ON a.anime_id = lu.anime_id
+LEFT JOIN (
+    SELECT author_id, count(*) AS comments_total 
+    FROM public.comments 
+    WHERE author_id = '14881488-1488-1488-1488-148814881488'::uuid
+    GROUP BY author_id
+) c ON c.author_id = u.user_id
+WHERE u.user_id = '14881488-1488-1488-1488-148814881488'
+GROUP BY u.user_id, u.nickname, c.comments_total;
 ```
