@@ -28,6 +28,8 @@ GROUP BY a.anime_id, a.slug, a.title_ua;
 
 Тож, за такої умови цей приклад не можна назвати ніяк інакше як **демонстративним** ✨.
 
+**P.S.:** CROSS JOIN тут краще було б замінити на INNER JOIN, але я хочу показати на скільки багато типів JOIN я знаю.
+
 ```SQL
 SELECT a.anime_id, b.episodes_count AS anime_episodes, max(a.translated_eps) AS translated_episodes
 FROM (
