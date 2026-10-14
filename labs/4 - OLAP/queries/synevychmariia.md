@@ -20,13 +20,13 @@ ORDER BY total_count_animes DESC;
 ```SQL
 SELECT
     production_studio,
-    count(*) AS total_animes,
-    sum(episodes_count) AS total_episodes,
-    round(avg(NULLIF(avg_episode_duration, 0)), 1) AS avg_duration
+    count(*),
+    sum(episodes_count),
+    round(avg(NULLIF(avg_episode_duration, 0)), 1)
 FROM public.animes
 WHERE production_studio <> ''
 GROUP BY production_studio
-ORDER BY total_episodes DESC, production_studio;
+ORDER BY sum(episodes_count) DESC, production_studio;
 ```
 
 ## Статистика аніме за форматом
@@ -35,13 +35,13 @@ ORDER BY total_episodes DESC, production_studio;
 ```SQL
 SELECT
     anime_format,
-    count(*) AS total_titles,
-    round(avg(episodes_count), 1) AS avg_episodes,
-    max(episodes_count) AS max_episodes,
-    min(episodes_count) AS min_episodes
+    count(*),
+    round(avg(episodes_count), 1),
+    max(episodes_count),
+    min(episodes_count)
 FROM public.animes
 GROUP BY anime_format
-ORDER BY total_titles DESC;
+ORDER BY count(*) DESC;
 ```
 
 ------
@@ -51,12 +51,12 @@ ORDER BY total_titles DESC;
 
 ```SQL
 SELECT
-    gt.genre_type,
-    count(g.anime_id) AS anime_count
-FROM unnest(enum_range(NULL::public.genre_type_enum)) AS gt(genre_type)
-LEFT JOIN public.genres g ON g.genre_type = gt.genre_type
-GROUP BY gt.genre_type
-ORDER BY anime_count DESC, gt.genre_type;
+    unnest,
+    count(public.genres.anime_id)
+FROM unnest(enum_range(NULL::public.genre_type_enum))
+LEFT JOIN public.genres ON public.genres.genre_type = unnest
+GROUP BY unnest
+ORDER BY count(public.genres.anime_id) DESC, unnest;
 ```
 
 ## Рахує кількість аніме за жанром, де кількість аніме більше 2
@@ -65,11 +65,11 @@ ORDER BY anime_count DESC, gt.genre_type;
 ```SQL
 SELECT
     genre_type,
-    count(*) AS anime_count
+    count(*)
 FROM public.genres
 GROUP BY genre_type
 HAVING count(*) > 2
-ORDER BY anime_count DESC, genre_type;
+ORDER BY count(*) DESC, genre_type;
 ```
 
 ---------
@@ -78,17 +78,17 @@ ORDER BY anime_count DESC, genre_type;
 
 ```SQL
 SELECT
-    a.anime_id,
-    a.title_ua,
-    a.title_en,
-    count(ue.episode_name) AS upcoming_episodes_count
-FROM public.animes a
-INNER JOIN public.upcoming_episodes ue ON ue.anime_id = a.anime_id
-WHERE a.available = TRUE
-  AND ue.episode_date >= current_date
-  AND ue.episode_date <  current_date + 1
-GROUP BY a.anime_id, a.title_ua, a.title_en
-ORDER BY upcoming_episodes_count DESC;
+        public.animes.anime_id,
+        public.animes.title_ua,
+        public.animes.title_en,
+        count(public.upcoming_episodes.episode_name)
+FROM public.animes
+INNER JOIN public.upcoming_episodes ON public.upcoming_episodes.anime_id = public.animes.anime_id
+WHERE public.animes.available = TRUE
+    AND public.upcoming_episodes.episode_date >= current_date
+    AND public.upcoming_episodes.episode_date <  current_date + 1
+GROUP BY public.animes.anime_id, public.animes.title_ua, public.animes.title_en
+ORDER BY count(public.upcoming_episodes.episode_name) DESC;
 ```
 
 ## Рахує всі заплановані епізоди для кожного аніме
@@ -96,13 +96,13 @@ ORDER BY upcoming_episodes_count DESC;
 
 ```SQL
 SELECT
-    a.anime_id,
-    a.title_ua,
-    count(ue.episode_name) AS upcoming_episodes_count
-FROM public.upcoming_episodes ue
-INNER JOIN public.animes a ON a.anime_id = ue.anime_id
-GROUP BY a.anime_id, a.title_ua
-ORDER BY upcoming_episodes_count DESC;
+    public.animes.anime_id,
+    public.animes.title_ua,
+    count(public.upcoming_episodes.episode_name)
+FROM public.upcoming_episodes
+INNER JOIN public.animes ON public.animes.anime_id = public.upcoming_episodes.anime_id
+GROUP BY public.animes.anime_id, public.animes.title_ua
+ORDER BY count(public.upcoming_episodes.episode_name) DESC;
 ```
 
 ## Аніме, у яких у розкладі більше одного епізоду
@@ -111,11 +111,11 @@ ORDER BY upcoming_episodes_count DESC;
 ```SQL
 SELECT
     anime_id,
-    count(episode_name) AS episodes_in_schedule
+    count(episode_name)
 FROM public.upcoming_episodes
 GROUP BY anime_id
 HAVING count(episode_name) > 1
-ORDER BY episodes_in_schedule DESC;
+ORDER BY count(episode_name) DESC;
 ```
 
 ---------
@@ -134,17 +134,17 @@ ORDER BY episodes_count DESC;
 ```
 
 ## Студії з середньою кількістю серій вище загальної середньої (підзапит у HAVING)
-Опис: Цей запит групує аніме за студією та повертає лише ті студії, у яких середня кількість серій вища за середню по всій базі. Середнє по базі обчислюється підзапитом у реченні `HAVING`. Студії з порожньою назвою відкидаються.
+Опис: Цей запит групує аніме за студією та повертає лише ті студії, у яких середня кількість серій вища за середню по всій базі. Середнє по базі обчислюється підзапитом у реченні `HAVING`; аніме з нульовою кількістю серій (значення за замовчуванням) у ньому не враховуються, щоб не занижувати середнє (так само, як у запиті з підзапитом у `WHERE`). Студії з порожньою назвою відкидаються
 
 ```SQL
 SELECT
     production_studio,
-    round(avg(episodes_count), 1) AS avg_episodes
+    round(avg(episodes_count), 1)
 FROM public.animes
 WHERE production_studio <> ''
 GROUP BY production_studio
-HAVING avg(episodes_count) > (SELECT avg(episodes_count) FROM public.animes)
-ORDER BY avg_episodes DESC;
+HAVING avg(episodes_count) > (SELECT avg(episodes_count) FROM public.animes WHERE episodes_count > 0)
+ORDER BY round(avg(episodes_count), 1) DESC;
 ```
 
 ## Топ 10 аніме за кількістю завантажених серій (підзапит у SELECT)
@@ -152,12 +152,15 @@ ORDER BY avg_episodes DESC;
 
 ```SQL
 SELECT
-    a.title_ua,
+    public.animes.title_ua,
     (SELECT count(*)
-     FROM public.episodes e
-     WHERE e.anime_id = a.anime_id) AS uploaded_episodes
-FROM public.animes a
-ORDER BY uploaded_episodes DESC, a.title_ua
+    FROM public.episodes
+    WHERE public.episodes.anime_id = public.animes.anime_id)
+FROM public.animes
+ORDER BY (SELECT count(*)
+        FROM public.episodes
+        WHERE public.episodes.anime_id = public.animes.anime_id) DESC,
+        public.animes.title_ua
 LIMIT 10;
 ```
 
@@ -167,13 +170,13 @@ LIMIT 10;
 
 ```SQL
 SELECT
-    u.user_id  AS user_in_users,
-    lu.user_id AS user_in_lists,
-    count(lu.anime_id) AS units
-FROM public.users u
-FULL JOIN public.anime_list_units lu ON lu.user_id = u.user_id
-GROUP BY u.user_id, lu.user_id
-ORDER BY units DESC;
+    public.users.user_id,
+    public.anime_list_units.user_id,
+    count(public.anime_list_units.anime_id)
+FROM public.users
+FULL JOIN public.anime_list_units ON public.anime_list_units.user_id = public.users.user_id
+GROUP BY public.users.user_id, public.anime_list_units.user_id
+ORDER BY count(public.anime_list_units.anime_id) DESC;
 ```
 
 ## Середня оцінка за жанром (багатотабличне об'єднання з агрегацією)
@@ -181,15 +184,15 @@ ORDER BY units DESC;
 
 ```SQL
 SELECT
-    g.genre_type,
-    count(*) AS rated_count,
-    round(avg(lu.grade), 2) AS avg_grade
-FROM public.genres g
-INNER JOIN public.animes a ON a.anime_id = g.anime_id
-INNER JOIN public.anime_list_units lu ON lu.anime_id = a.anime_id
-WHERE a.available = TRUE
-  AND lu.grade IS NOT NULL
-GROUP BY g.genre_type
+        public.genres.genre_type,
+        count(*),
+        round(avg(public.anime_list_units.grade), 2)
+FROM public.genres
+INNER JOIN public.animes ON public.animes.anime_id = public.genres.anime_id
+INNER JOIN public.anime_list_units ON public.anime_list_units.anime_id = public.animes.anime_id
+WHERE public.animes.available = TRUE
+    AND public.anime_list_units.grade IS NOT NULL
+GROUP BY public.genres.genre_type
 HAVING count(*) >= 3
-ORDER BY avg_grade DESC;
+ORDER BY round(avg(public.anime_list_units.grade), 2) DESC;
 ```
