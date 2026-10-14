@@ -196,3 +196,24 @@ GROUP BY public.genres.genre_type
 HAVING count(*) >= 3
 ORDER BY round(avg(public.anime_list_units.grade), 2) DESC;
 ```
+## Аніме з найбільшою кількістю серій
+Опис: Цей запит повертає аніме з найбільшою кількістю серій. Він використовує підзапит у `WHERE`, щоб знайти максимальну кількість серій серед усіх аніме, і повертає всі тайтли, які мають цю кількість серій (у випадку, якщо таких тайтлів декілька). Результат сортується за назвою тайтлу.
+
+```SQL
+SELECT title_ua, episodes_count
+FROM public.animes
+WHERE episodes_count = (SELECT max(episodes_count) FROM public.animes);
+```
+
+## Аніме, у яких немає епізодів (NOT EXISTS)
+Опис: Цей запит повертає аніме, у яких немає жодного епізоду. Він використовує підзапит у `WHERE` з умовою `NOT EXISTS`, щоб перевірити, чи існують записи в таблиці `episodes` для кожного аніме. Якщо записів немає, то аніме потрапляє у результат.
+
+```SQL
+SELECT public.animes.title_ua
+FROM public.animes
+WHERE NOT EXISTS (
+    SELECT *
+    FROM public.episodes
+    WHERE public.episodes.anime_id = public.animes.anime_id
+);
+```
