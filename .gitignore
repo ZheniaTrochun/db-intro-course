@@ -5,6 +5,8 @@ data/
 dumps/*
 !dumps/base.dump
 **/venv
+**/.venv
+seed.sql
 **/__pycache__
 exercises/tests/golden_snapshots/**
 !exercises/tests/golden_snapshots/base/
