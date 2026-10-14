@@ -54,15 +54,6 @@ GROUP BY genre_type
 HAVING count(anime_id) > 2
 ORDER BY anime_count DESC;
 
---Рахує кількість аніме за жанром, де кількість аніме більше 2
-
-SELECT 
-    animes.title_ua,
-    animes.anime_status,
-    genres.genre_type
-FROM public.genres
-INNER JOIN public.animes ON genres.anime_id = animes.anime_id;
-
 --Рахує кількість майбутніх епізодів для кожного аніме, де дата виходу епізоду дорівнює поточній даті
 
 SELECT 
