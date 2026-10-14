@@ -79,3 +79,24 @@ ORDER BY genre_rank ASC
 LIMIT 5
 OFFSET 5 * 0;
 ```
+
+
+# Тривіальний запит для підрахунку індексу терплячості жанрів
+Дуже крутий запит, щоб зайвий раз переконатися у тому, що ніхто не любить
+еччі, але всі дивляться ісекаї.
+А якщо серйозно, то цей запит показує на скільки глядачі додивлюються тайтли окремих жанрів.
+Безкорисно? Так воно і є. Цікаво? Мабуть так.
+
+```SQL
+SELECT
+    g.genre_type,
+    coalesce(avg(lu.watched_episodes), 0) / greatest(1, max(a.episodes_count)) AS patience_index
+FROM public.genres g
+INNER JOIN public.animes a ON
+    a.anime_id = g.anime_id
+LEFT JOIN public.anime_list_units lu ON
+    lu.anime_id = g.anime_id
+    AND lu.list_unit_status <> 'watching'
+GROUP BY g.genre_type
+ORDER BY patience_index DESC;
+```
