@@ -3,7 +3,10 @@
 Додатково повертає інформацію про саме аніме.
 
 ```SQL
-SELECT a.anime_id, a.slug, a.title_ua, round(avg(lu.grade), 0) AS grade
+SELECT
+    a.anime_id, a.slug, a.title_ua,
+    round(avg(lu.grade), 0) AS grade,
+    count(lu.grade) AS grades_count
 FROM public.anime_list_units lu
 INNER JOIN animes AS a ON
     a.anime_id = lu.anime_id
@@ -32,7 +35,8 @@ FROM (
     FROM public.episodes
     GROUP BY anime_id, localization_studio, localization_type
 ) a
-INNER JOIN public.animes b ON
+CROSS JOIN public.animes b
+WHERE
     b.anime_id = a.anime_id
 GROUP BY a.anime_id, b.episodes_count
 HAVING
