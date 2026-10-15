@@ -9,7 +9,7 @@ CREATE TABLE security_employee (
     employee_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     full_name   VARCHAR(150) NOT NULL,
     position    VARCHAR(100) NOT NULL,
-    phone       VARCHAR(20)  NOT NULL
+    phone       VARCHAR(20)  NOT NULL UNIQUE
 );
 
 CREATE TABLE incident_type (
@@ -17,11 +17,21 @@ CREATE TABLE incident_type (
     name    VARCHAR(100) NOT NULL UNIQUE
 );
 
+CREATE TABLE incident_status (
+    status_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name      VARCHAR(30) NOT NULL UNIQUE
+);
+
+CREATE TABLE participant_role (
+    role_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name    VARCHAR(50) NOT NULL UNIQUE
+);
+
 CREATE TABLE visit (
     visit_id   INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     student_id INTEGER     NOT NULL,
-    category   VARCHAR(50) NOT NULL,
-    started_at TIMESTAMP   NOT NULL,
+    category   VARCHAR(50) NOT NULL DEFAULT 'Відпочинок',
+    started_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at   TIMESTAMP,
     CONSTRAINT fk_visit_student
         FOREIGN KEY (student_id) REFERENCES student (student_id),
@@ -34,21 +44,20 @@ CREATE TABLE incident (
     visit_id    INTEGER     NOT NULL,
     type_id     INTEGER     NOT NULL,
     employee_id INTEGER     NOT NULL,
-    status_id   INTEGER     NOT NULL,
+    status_id   INTEGER     NOT NULL DEFAULT 1,
     description TEXT,
     occurred_at TIMESTAMP   NOT NULL,
     severity    VARCHAR(20) NOT NULL,
-    status      VARCHAR(20) NOT NULL,
     CONSTRAINT fk_incident_visit
         FOREIGN KEY (visit_id) REFERENCES visit (visit_id),
     CONSTRAINT fk_incident_type
         FOREIGN KEY (type_id) REFERENCES incident_type (type_id),
     CONSTRAINT fk_incident_employee
         FOREIGN KEY (employee_id) REFERENCES security_employee (employee_id),
+    CONSTRAINT fk_incident_status
+        FOREIGN KEY (status_id) REFERENCES incident_status (status_id),
     CONSTRAINT chk_incident_severity
-        CHECK (severity IN ('Низький', 'Середній', 'Високий')),
-    CONSTRAINT chk_incident_status
-        CHECK (status IN ('Новий', 'У процесі', 'Опрацьовано'))
+        CHECK (severity IN ('Низький', 'Середній', 'Високий'))
 );
 
 CREATE TABLE incident_participant (
@@ -60,5 +69,7 @@ CREATE TABLE incident_participant (
     CONSTRAINT fk_participant_incident
         FOREIGN KEY (incident_id) REFERENCES incident (incident_id),
     CONSTRAINT fk_participant_visit
-        FOREIGN KEY (visit_id) REFERENCES visit (visit_id)
+        FOREIGN KEY (visit_id) REFERENCES visit (visit_id),
+    CONSTRAINT fk_participant_role
+        FOREIGN KEY (role_id) REFERENCES participant_role (role_id)
 );
