@@ -44,10 +44,20 @@ CREATE TABLE LEASE_AGREEMENT (
     start_date DATE not null,
     end_date DATE not null CHECK (end_date > start_date),
     rental_amount DECIMAL(12, 2) not null CHECK (rental_amount > 0),
-    agency_commission DECIMAL(12, 2) not null CHECK (agency_commission > 0),
+    agency_commission DECIMAL(12, 2) CHECK (agency_commission >= 0),
     FOREIGN KEY (property_id) REFERENCES PROPERTY(property_id),
     FOREIGN KEY (tenant_id) REFERENCES TENANT(tenant_id),
-    FOREIGN KEY (realtor_id) REFERENCES REALTOR(realtor_id)
+    FOREIGN KEY (realtor_id) REFERENCES REALTOR(realtor_id),
+    constraint ch_ex_rieltor check(
+        (
+            realtor_id is not null
+            and agency_commission is not null
+        )
+        or (
+            realtor_id is null
+            and agency_commission is null
+        )
+    )
 );
 INSERT INTO property_owner (full_name, phone_number, passport_data)
 VALUES (
