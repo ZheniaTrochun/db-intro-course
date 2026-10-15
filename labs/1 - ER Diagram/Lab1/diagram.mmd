@@ -1,0 +1,61 @@
+erDiagram
+    SUPPLIER ||--o{ SUPPLY_ORDER : "supplies"
+    SUPPLY_ORDER ||--|{ SUPPLY_ITEM : "contains"
+    PRODUCT ||--o{ SUPPLY_ITEM : "included_in"
+    WAREHOUSE_LOCATION ||--o{ SUPPLY_ITEM : "stores"
+    PRODUCT ||--o{ INVENTORY_MOVEMENT : "moves"
+    WAREHOUSE_LOCATION ||--o{ INVENTORY_MOVEMENT : "source_location"
+    WAREHOUSE_LOCATION ||--o{ INVENTORY_MOVEMENT : "target_location"
+
+    SUPPLIER {
+        UUID id PK
+        TEXT company_name
+        TEXT contact_person
+        TEXT phone
+        TEXT email UK
+        TEXT address
+    }
+
+    SUPPLY_ORDER {
+        UUID id PK
+        TEXT order_number UK
+        UUID supplier_id FK
+        TIMESTAMP supply_date
+        NUMERIC total_cost
+        ENUM status "draft/received/cancelled"
+    }
+
+    SUPPLY_ITEM {
+        BIGSERIAL id PK
+        UUID supply_id FK
+        UUID product_id FK
+        UUID location_id FK
+        INTEGER quantity
+        NUMERIC unit_price
+    }
+
+    PRODUCT {
+        UUID id PK
+        VARCHAR(50) sku_code UK
+        VARCHAR(150) name
+        TEXT description
+        ENUM unit "piece/kg/liter/box/pallet"
+        INTEGER min_stock_level
+    }
+
+    WAREHOUSE_LOCATION {
+        UUID id PK
+        VARCHAR(50) location_code UK
+        VARCHAR(50) zone
+        VARCHAR(50) shelf_number
+        INTEGER max_capacity
+    }
+
+    INVENTORY_MOVEMENT {
+        BIGSERIAL id PK
+        UUID product_id FK
+        UUID from_location_id FK
+        UUID to_location_id FK
+        INTEGER quantity
+        TIMESTAMP movement_date
+    }
