@@ -1,17 +1,5 @@
-DROP TABLE IF EXISTS applications   CASCADE;
-DROP TABLE IF EXISTS vacancies       CASCADE;
-DROP TABLE IF EXISTS enrollments    CASCADE;
-DROP TABLE IF EXISTS courses        CASCADE;
-DROP TABLE IF EXISTS parking_slots CASCADE;
-DROP TABLE IF EXISTS dorm_admins    CASCADE;
-DROP TABLE IF EXISTS students       CASCADE;
-DROP TABLE IF EXISTS rooms         CASCADE;
-DROP TABLE IF EXISTS dorms          CASCADE;
-DROP TABLE IF EXISTS departments    CASCADE;
-DROP TABLE IF EXISTS users         CASCADE;
-DROP TYPE  IF EXISTS student_status;
-DROP TYPE  IF EXISTS user_status;
-DROP TYPE  IF EXISTS application_status;
+DROP TABLE IF EXISTS applications, vacancies, enrollments, courses, parking_slots, dorm_admins, students, rooms, dorms, departments, users;
+DROP TYPE  IF EXISTS student_status, user_status, application_status;
 
 
 CREATE TYPE student_status AS ENUM ('enrolled', 'on_leave', 'graduated', 'expelled');
@@ -129,7 +117,8 @@ INSERT INTO rooms (dorm_id, room_number, floor) VALUES
     (1, '102', 1),
     (2, '201', 2),
     (2, '202', 2),
-    (3, '301', 3);
+    (3, '301', 3),
+	(3, '228', 2);
 
 INSERT INTO students (enrollment_year, room_id, status, user_id) VALUES
     (2022, 1,    'enrolled',  1),
