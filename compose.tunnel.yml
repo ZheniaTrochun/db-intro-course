@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: docker.io/postgres:17.5-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: docker.io/dpage/pgadmin4:latest
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "True"
+      PGADMIN_CONFIG_PROXY_X_FOR_COUNT: 1
+      PGADMIN_CONFIG_PROXY_X_PROTO_COUNT: 1
+      PGADMIN_CONFIG_PROXY_X_HOST_COUNT: 1
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+  cloudflared:
+    image: docker.io/cloudflare/cloudflared:2026.2.0
+    restart: unless-stopped
+    command: tunnel run --url http://pgadmin:80 --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin_data:
