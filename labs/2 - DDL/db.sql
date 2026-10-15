@@ -28,7 +28,7 @@ CREATE TABLE REALTOR (
     commission_rate DECIMAL(4, 2) not null CHECK (commission_rate >= 0)
 );
 CREATE TABLE APPLICATION (
-    application_id INT PRIMARY KEY,
+    application_id INT generated always as identity PRIMARY KEY,
     tenant_id INT not null,
     property_id INT not null,
     submission_date DATE not null,
@@ -37,7 +37,7 @@ CREATE TABLE APPLICATION (
     FOREIGN KEY (property_id) REFERENCES PROPERTY(property_id)
 );
 CREATE TABLE LEASE_AGREEMENT (
-    lease_id INT PRIMARY KEY,
+    lease_id INT generated always as identity PRIMARY KEY,
     property_id INT not null,
     tenant_id INT not null,
     realtor_id INT,
@@ -86,18 +86,16 @@ VALUES ('Дмитренко Олег Олегович', '+380637778899', 5.00),
     ),
     ('Павлюк Марина Сергіївна', '+380501112233', 4.00);
 INSERT INTO APPLICATION (
-        application_id,
         tenant_id,
         property_id,
         submission_date,
         status
     )
-VALUES (1, 1, 1, '2026-09-01', 'схвалено'),
-    (2, 2, 2, '2026-09-03', 'схвалено'),
-    (3, 3, 3, '2026-09-05', 'в обробці'),
-    (4, 1, 4, '2026-09-07', 'схвалено');
+VALUES (1, 1, '2026-09-01', 'схвалено'),
+    (2, 2, '2026-09-03', 'схвалено'),
+    (3, 3, '2026-09-05', 'в обробці'),
+    (1, 4, '2026-09-07', 'схвалено');
 INSERT INTO LEASE_AGREEMENT (
-        lease_id,
         property_id,
         tenant_id,
         realtor_id,
@@ -110,7 +108,6 @@ VALUES (
         1,
         1,
         1,
-        1,
         '2026-10-01',
         '2027-09-30',
         15000.00,
@@ -120,14 +117,12 @@ VALUES (
         2,
         2,
         2,
-        2,
         '2026-10-05',
         '2027-04-05',
         12000.00,
         540.00
     ),
     (
-        3,
         4,
         1,
         3,
