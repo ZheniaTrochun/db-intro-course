@@ -56,6 +56,7 @@ CREATE TABLE parking_slots (
     dorm_id         INTEGER NOT NULL REFERENCES dorms(dorm_id) ON DELETE RESTRICT,
     admin_id        INTEGER,
     slot_number     VARCHAR(10) NOT NULL CHECK (slot_number = trim(slot_number) AND slot_number <> ''),
+	UNIQUE(dorm_id, slot_number),
     CONSTRAINT fk_parking_admin_same_dorm
         FOREIGN KEY (admin_id, dorm_id) REFERENCES dorm_admins(admin_id, dorm_id)
         ON DELETE SET NULL (admin_id)
