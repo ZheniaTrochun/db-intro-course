@@ -1,145 +1,121 @@
-# Сутності:
-
-## player:
-
+player:
 Таблиця з інформацією про гравця
 
-`player_id` - (IDENTITY) - Ідентифікатор гравця **(PK)**
-`nickname` - (TEXT) - Ігровий псевдонім **UNIQUE**
-`first_name` - (TEXT) - Ім’я гравця
-`last_name` - (TEXT) - Прізвище гравця
-`country` - (ENUM) - Країна яку гравець представляє
-`date_of_birth` - (DATE) - Дата народження
+player_id - (IDENTITY) - Ідентифікатор гравця (PK)
+nickname - (TEXT) - Ігровий псевдонім UNIQUE
+first_name - (TEXT) - Ім’я гравця
+last_name - (TEXT) - Прізвище гравця
+country - (ENUM) - Країна яку гравець представляє
+date_of_birth - (DATE) - Дата народження
 
-#### player - team_player (1:N/0)
-
+player - team_player (1:N/0)
 Один гравець може бути учасником багатьох команд або жодної команди
 Показує гравця як учасника команди
 
-## team_player:
-
+team_player:
 Таблиця яка зберігає інформацію про гравця як учсника команди
 
-`team_player_id` - (IDENTITY) - Ідентифікатор учасника команди **(PK)**
-`player_id` - Ідентифікатор гравця, позичений з таблиці Players **(FK)**
-`game_team_id` - Ідентифікатор команди по грі, позичений з таблиці Game Team **(FK)**
-`join_date` - Дата приєднання до команди
-`leave_date` - Дата виходу з команди (якщо був)
-`role` - Роль у команді
+team_player_id - (IDENTITY) - Ідентифікатор учасника команди (PK)
+player_id - Ідентифікатор гравця, позичений з таблиці Players (FK)
+game_team_id - Ідентифікатор команди по грі, позичений з таблиці Game Team (FK)
+join_date - Дата приєднання до команди
+leave_date - Дата виходу з команди (якщо був)
+role - Роль у команді
 
-## game_team:
-
+game_team:
 У цій таблиці зберігаються команди які представляють загальну команду (на приклад NAVI) у конкретній грі (на приклад команда NAVI в CS2)
 
-`game_team_id` - (IDENTITY) - Ідентифікатор команди по грі **(PK)**
-`game_id` - Ідентифікатор гри, позичений з таблиці Game **(FK)**
-`team_id` - Ідентифікатор команди, позичений з таблиці Team **(FK)**
-`coach_name` — Ім'я та прізвище тренера команди.
+game_team_id - (IDENTITY) - Ідентифікатор команди по грі (PK)
+game_id - Ідентифікатор гри, позичений з таблиці Game (FK)
+team_id - Ідентифікатор команди, позичений з таблиці Team (FK)
+coach_name — Ім'я та прізвище тренера команди.
 
-#### game_team - team_player (1:N)
-
+game_team - team_player (1:N)
 У одній команді по грі має бути мінімум один гравець
 Гравці знаходяться в команді
 
-#### game_team - match_participant (1:N/0)
-
+game_team - match_participant (1:N/0)
 Одна команда по грі може бути учасником матчів, а може і не приймати жодної участі
 Команда приймає участь у матчах
 
-#### game_team - tournament (1/0:N/0)
-
+game_team - tournament (1/0:N/0)
 Команда по грі як може так і не може бути переможцем кількох або жодного турнірів. В той час як у турніра може ще не бути жодного переможця.
 У турніра є переможець
 
-## game:
-
+game:
 Таблиця де зберігаються ігри по яких можуть бути організовані турніри
 
-`game_id` - (IDENTITY) - Ідентифікатор гри **(PK)**
-`game_name` - (TEXT) - Назва гри **UNIQUE**
-`genre` - (game_genre) - Жанр гри
+game_id - (IDENTITY) - Ідентифікатор гри (PK)
+game_name - (TEXT) - Назва гри UNIQUE
+genre - (game_genre) - Жанр гри
 
-#### game - tournament (1:N/0)
-
+game - tournament (1:N/0)
 Турнір проводится по одній конкретній грі, але є ігри по яким турніри не проводяться
 Гра повинна проводитися по одній, конкретній грі
 
-#### game - game_team (1:N/0)
-
+game - game_team (1:N/0)
 Команда є прив’язана до гри, але не всі ігри прив’язані до команд
 Команда повинна спеціалізуватися лише в одній грі
 
-## tournament:
-
+tournament:
 Таблиця з даними про турніру
 
-`tournamentID` - (IDENTITY) - Ідентифікатор турніру **(PK)**
-`organizer_id` - (INT) - Ідентифікатор організатора турніру, позичений з таблиці Organizer **(FK)**
-`game_id` - (INT) - Ідентифікатор гри, позичений з таблиці Game **(FK)**
-`winner_id` - (INT) - Ідентифіцатор переможця турніру, позичений з таблиці Game team **(FK)**
-`prize` - (TEXT) - Приз фонд турніра
-`tournament_name` - (TEXT) - Назва турніру
-`start_date` - (TIMESTAMPTZ) - Дата початку турніру
-`status` - (tournament_status) - Статус турніру, наприклад запланований, у процесі проведення або завершений.
+tournamentID - (IDENTITY) - Ідентифікатор турніру (PK)
+organizer_id - (INT) - Ідентифікатор організатора турніру, позичений з таблиці Organizer (FK)
+game_id - (INT) - Ідентифікатор гри, позичений з таблиці Game (FK)
+winner_id - (INT) - Ідентифіцатор переможця турніру, позичений з таблиці Game team (FK)
+prize - (TEXT) - Приз фонд турніра
+tournament_name - (TEXT) - Назва турніру
+start_date - (TIMESTAMPTZ) - Дата початку турніру
+status - (tournament_status) - Статус турніру, наприклад запланований, у процесі проведення або завершений.
 
-#### tournament - match (1:N/0)
-
+tournament - match (1:N/0)
 В одному турнірі проводятся декілька матчів. Проте матчі можуть бути ще не запланованими, а отже не існувати.
 Матч повинен бути частиною турніру
 
-## organizer:
-
+organizer:
 Таблиця з даними про організатора турніру
 
-`organizer_id` - (IDENTITY) - Ідентифікатор організатора **(PK)**
-`organizer_name` - (TEXT) - Ім’я організатора **UNIQUE**
+organizer_id - (IDENTITY) - Ідентифікатор організатора (PK)
+organizer_name - (TEXT) - Ім’я організатора UNIQUE
 
-#### organizer - tournament (1:N/0)
-
+organizer - tournament (1:N/0)
 У турнірів є організатори, але не всі організатори при реєстрації одразу проводити турнір.
 У турніра завжди є організатор
 
-## match:
-
+match:
 У цій таблиці зберігається інформація про матчі турніру
 
-`match_id` - (IDENTITY) - Ідентифікатор матчу **(PK)**
-`tournament_id` — Ідентифікатор турніру, у рамках якого проводиться матч, позичений з таблиці Tournament **(FK)**
-`date` — Дата та час проведення матчу.
-`status` — Статус матчу, наприклад запланований, у процесі проведення або завершений.
+match_id - (IDENTITY) - Ідентифікатор матчу (PK)
+tournament_id — Ідентифікатор турніру, у рамках якого проводиться матч, позичений з таблиці Tournament (FK)
+date — Дата та час проведення матчу.
+status — Статус матчу, наприклад запланований, у процесі проведення або завершений.
 
-#### match - match_participant (1:N)
-
+match - match_participant (1:N)
 В одному матчі беруть участь кілька команд учасників
 У матча хтось повинен приймати участь
 
-## match_participant:
-
+match_participant:
 Таблиця у якій збереженні дані про команду у матчі та факт їх участі
 
-`match_participant_id` - (IDENTITY) - Ідентифікатор участі команди в матчі **(PK)**
-`match_id` — Ідентифікатор матчу, позичений з таблиці Match **(FK)**
-`game_team_id` — Ідентифікатор команди в конкретній грі, позичений з таблиці Game Team **(FK)**
-`is_winner` - Булеве значення яке позначає чи перемогла команда у матчі
+match_participant_id - (IDENTITY) - Ідентифікатор участі команди в матчі (PK)
+match_id — Ідентифікатор матчу, позичений з таблиці Match (FK)
+game_team_id — Ідентифікатор команди в конкретній грі, позичений з таблиці Game Team (FK)
+is_winner - Булеве значення яке позначає чи перемогла команда у матчі
 
-## team:
-
+team:
 Таблиця з інформацією про команду
 
-`team_id` - (IDENTITY) - Ідентифікатор команди **(PK)**
-`team_name` - (INT) - Назва кіберспортивної команди. **UNIQUE**
-`country` - (ENUM) - Країна, яку представляє команда.
+team_id - (IDENTITY) - Ідентифікатор команди (PK)
+team_name - (INT) - Назва кіберспортивної команди. UNIQUE
+country - (ENUM) - Країна, яку представляє команда.
 
-#### team - game_team (1:N/0)
-
+team - game_team (1:N/0)
 Одна команда може бути розділена між іграми
 У загальних команд є склад який представляєїї в певній грі
 
-# Створення таблиці(SQL команди)
-
-## Створення
-
-```SQL
+Створення таблиці(SQL команди)
+Створення
 START TRANSACTION;
 --Enums
 CREATE TYPE country_enum AS ENUM (
@@ -247,6 +223,7 @@ CREATE TABLE team_player(
   	leave_date DATE,
   	team_role role_enum NOT NULL,
 
+    CONSTRAINT chk_leave_time_after_join CHECK (leave_date>=join_date)
 	--Player connection
 	CONSTRAINT fk_player_id
 		FOREIGN KEY (player_id)
@@ -329,11 +306,7 @@ CREATE TABLE match_participant (
 	CONSTRAINT uq_match_game_team UNIQUE (game_match_id, game_team_id)
 );
 COMMIT;
-```
-
-## Наповнення
-
-```SQL
+Наповнення
 INSERT INTO game (game_name, genre) VALUES
   ('CS2', 'FPS'),
   ('DOTA 2', 'MOBA'),
@@ -371,10 +344,10 @@ VALUES (1,1),
 (4,4);
 
 INSERT INTO team (team_name, country) VALUES
-  ('Natus Vincere', 'Ukraine'),
-  ('OG', 'Sweden'),
-  ('Team Secret', 'Other'),
-  ('Seoul Dynasty', 'China');
+  ('Natus Vincere', 'Ukraine'),
+  ('OG', 'Sweden'),
+  ('Team Secret', 'Other'),
+  ('Seoul Dynasty', 'China');
 
 
 INSERT INTO game_match (tournament_id, status, match_date) VALUES
@@ -390,4 +363,3 @@ INSERT INTO match_participant (game_match_id, game_team_id, is_winner) VALUES
   (2, 3, FALSE),
   (3, 3, NULL),
   (3, 4, NULL);
-```
