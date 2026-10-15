@@ -1,0 +1,73 @@
+erDiagram
+    SUPPLIER ||--o{ SUPPLY_ORDER : "supplies"
+    SUPPLY_ORDER ||--o{ SUPPLY_ITEM : "contains"
+    PRODUCT ||--o{ SUPPLY_ITEM : "included_in"
+    WAREHOUSE_LOCATION ||--o{ SUPPLY_ITEM : "receiving_location"
+    PRODUCT ||--o{ INVENTORY_STOCK : "has_stock_in"
+    WAREHOUSE_LOCATION ||--o{ INVENTORY_STOCK : "holds_stock"
+    PRODUCT ||--o{ INVENTORY_MOVEMENT : "moves"
+    WAREHOUSE_LOCATION ||--o{ INVENTORY_MOVEMENT : "from_location"
+    WAREHOUSE_LOCATION |o--o{ INVENTORY_MOVEMENT : "to_location (порожня при списанні)"
+
+    SUPPLIER {
+        INT supplier_id PK "IDENTITY"
+        VARCHAR_100 company_name "NOT NULL"
+        VARCHAR_100 contact_person "NOT NULL"
+        VARCHAR_20 phone "NOT NULL, CHECK починається з +"
+        VARCHAR_100 email "NOT NULL, UNIQUE"
+        VARCHAR_255 address "NOT NULL"
+    }
+
+    PRODUCT {
+        INT product_id PK "IDENTITY"
+        VARCHAR_50 sku_code UK "NOT NULL"
+        VARCHAR_100 name "NOT NULL"
+        TEXT description
+        ENUM unit "unit_type, DEFAULT piece"
+        INT min_stock_level "NOT NULL, DEFAULT 0, CHECK >= 0"
+    }
+
+    WAREHOUSE_LOCATION {
+        INT location_id PK "IDENTITY"
+        VARCHAR_50 location_code UK "NOT NULL"
+        VARCHAR_50 zone "NOT NULL, UK (zone, shelf_number)"
+        VARCHAR_50 shelf_number "NOT NULL, UK (zone, shelf_number)"
+        INT max_capacity "NOT NULL, CHECK > 0"
+    }
+
+    SUPPLY_ORDER {
+        INT order_id PK "IDENTITY"
+        VARCHAR_50 order_number UK "NOT NULL"
+        INT supplier_id FK "NOT NULL"
+        TIMESTAMP supply_date "NOT NULL, DEFAULT now()"
+        NUMERIC_10_2 total_cost "NOT NULL, DEFAULT 0, CHECK >= 0"
+        ENUM status "order_status, DEFAULT draft"
+    }
+
+    SUPPLY_ITEM {
+        INT order_id PK "FK"
+        INT product_id PK "FK"
+        INT location_id FK "NOT NULL"
+        INT quantity "NOT NULL, CHECK > 0"
+        NUMERIC_10_2 unit_price "NOT NULL, CHECK >= 0"
+        VARCHAR_50 batch_number "NOT NULL"
+        DATE expiry_date "NULL допустимо"
+    }
+
+    INVENTORY_STOCK {
+        INT product_id PK "FK"
+        INT location_id PK "FK"
+        INT quantity "NOT NULL, CHECK >= 0"
+    }
+
+    INVENTORY_MOVEMENT {
+        INT movement_id PK "IDENTITY"
+        ENUM movement_type "movement_kind: transfer/write_off, NOT NULL"
+        INT product_id FK "NOT NULL"
+        INT from_location_id FK "NOT NULL"
+        INT to_location_id FK "NULL тільки для write_off"
+        INT quantity "NOT NULL, CHECK > 0"
+        VARCHAR_255 reason "NULL допустимо"
+        TIMESTAMP movement_date "NOT NULL, DEFAULT now()"
+        VARCHAR_100 created_by "NOT NULL"
+    }
