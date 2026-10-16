@@ -1,40 +1,177 @@
+---
+config:
+  layout: elk
+---
 erDiagram
-    USER ||--o{ VENUE : "owns"
+    USER |o--o{ VENUE : "suggests"
+    CITY ||--o{ VENUE : "contains"
+    VENUE }o--o{ VENUE_TYPE : "classified as"
+    VENUE }o--o{ FEATURE : "has"
+    USER }o--o{ VENUE : "favorites"
+    VENUE ||--o{ WORKING_HOURS : "open during"
+    VENUE ||--o{ MENU_ITEM : "offers"
+    VENUE ||--o{ MODERATION_ACTION : "reviewed via"
+    USER ||--o{ MODERATION_ACTION : "performs"
     USER |o--o{ REVIEW : "writes"
     VENUE ||--o{ REVIEW : "receives"
-    USER ||--o{ USER_DELETION_REQUEST : "submits"
+    REVIEW ||--o{ REVIEW_COMMENT : "has"
+    USER |o--o{ REVIEW_COMMENT : "writes"
+    REVIEW_COMMENT |o--o{ REVIEW_COMMENT : "replies to"
+    REVIEW |o--o{ PHOTO : "illustrated by"
+    VENUE |o--o{ PHOTO : "shown in"
+    USER |o--o{ PHOTO : "uploads"
+    USER |o--o{ REPORT : "files"
+    REVIEW |o--o{ REPORT : "target"
+    REVIEW_COMMENT |o--o{ REPORT : "target"
+    VENUE |o--o{ REPORT : "target"
+    USER ||--o{ VENUE_CLAIM : "submits"
+    USER |o--o{ VENUE_CLAIM : "verifies"
+    VENUE ||--o{ VENUE_CLAIM : "claimed in"
+    VENUE ||--o{ VENUE_STAFF : "managed by"
+    USER ||--o{ VENUE_STAFF : "works at"
+    VENUE ||--o{ PROMOTION : "advertised by"
+    USER |o--o{ PROMOTION : "creates"
+    USER |o--o{ PROMOTION : "reviews"
+    PROMOTION ||--o{ PROMOTION_STAT : "measured by"
 
     USER {
         int id PK
-        string email
+        string email UK
         string pass_hash
-        string username
+        string display_name
+        URI avatar_url
+        enum role "user, moderator, admin"
+        enum status "active, deleted"
+        datetime created_at
+        datetime deleted_at "nullable"
+    }
+    CITY {
+        int id PK
         string name
-        URI pfp
+        string region
     }
     VENUE {
         int id PK
-        int user_id FK
-        enum review_status
+        int city_id FK
+        int created_by FK "nullable"
+        enum status "pending, approved, rejected"
+        string name
+        string description
+        string address
         double latitude
         double longitude
-        string address
-        string name
-        URI photo
         string phone_number
-        string extra_info
+        string website
+        datetime created_at
+    }
+    VENUE_TYPE {
+        int id PK
+        string name UK
+    }
+    FEATURE {
+        int id PK
+        string name UK
+    }
+    WORKING_HOURS {
+        int id PK
+        int venue_id FK
+        smallint weekday "1-7"
+        time opens_at
+        time closes_at
+    }
+    MENU_ITEM {
+        int id PK
+        int venue_id FK
+        string name
+        string description
+        decimal price
+        boolean is_available
+    }
+    MODERATION_ACTION {
+        int id PK
+        int venue_id FK
+        int moderator_id FK
+        enum action "approve, reject, request_changes"
+        string note
+        datetime created_at
     }
     REVIEW {
         int id PK
         int venue_id FK
-        int user_id FK "nullable, anonymized on user deletion"
-        int rating
+        int user_id FK "nullable, anonymized on deletion"
+        smallint rating "1-10"
         string text
-        URI photo
+        date visited_on
+        enum status "visible, hidden"
+        datetime created_at
+        datetime updated_at
     }
-    USER_DELETION_REQUEST {
+    REVIEW_COMMENT {
         int id PK
-        int user_id FK
-        datetime time
-        enum status
+        int review_id FK
+        int user_id FK "nullable"
+        int parent_comment_id FK "nullable"
+        string text
+        boolean is_official "true: on behalf of the venue"
+        datetime created_at
+    }
+    PHOTO {
+        int id PK
+        int venue_id FK "nullable"
+        int review_id FK "nullable, exactly one of two"
+        int uploaded_by FK "nullable"
+        URI url
+        datetime created_at
+    }
+    REPORT {
+        int id PK
+        int reporter_id FK "nullable"
+        int review_id FK "nullable"
+        int comment_id FK "nullable"
+        int venue_id FK "nullable, exactly one of three"
+        string reason
+        enum status "open, resolved, dismissed"
+        int handled_by FK "nullable"
+        datetime created_at
+    }
+    VENUE_CLAIM {
+        int id PK
+        int venue_id FK
+        int claimant_id FK
+        string contact_info
+        string evidence
+        enum status "pending, approved, rejected"
+        int reviewed_by FK "nullable, admin"
+        datetime reviewed_at "nullable"
+        string review_note
+        datetime created_at
+    }
+    VENUE_STAFF {
+        int venue_id PK, FK
+        int user_id PK, FK
+        enum role "owner, manager"
+        int added_by FK "nullable"
+        datetime added_at
+    }
+    PROMOTION {
+        int id PK
+        int venue_id FK
+        int created_by FK "nullable, venue staff"
+        enum type "featured, offer"
+        string title
+        string description
+        URI image_url
+        datetime starts_at
+        datetime ends_at
+        enum status "draft, pending, active, ended, rejected"
+        int reviewed_by FK "nullable, moderator"
+        datetime reviewed_at "nullable"
+        string review_note
+    }
+    PROMOTION_STAT {
+        int id PK
+        int promotion_id FK
+        date stat_date
+        int impressions
+        int clicks
     }
