@@ -45,8 +45,3 @@ SELECT COUNT(*) AS test_students FROM student
 WHERE full_name = 'Тестовий Студент Іванович';                                 -- очікується 0
 SELECT COUNT(*) AS test_incidents FROM incident
 WHERE description LIKE 'Тестовий інцидент (лаб. 3)%';                          -- очікується 0
-
--- 4.3 (Необов'язково) Демонстрація захисту зовнішнім ключем.
--- Розкоментуйте, щоб побачити помилку: студент 1 має візити, тому видалення неможливе.
--- DELETE FROM student WHERE student_id = 1;
--- Очікується: ERROR: update or delete on table "student" violates foreign key constraint
