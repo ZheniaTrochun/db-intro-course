@@ -11,28 +11,47 @@ erDiagram
     STUDENT ||--o{ VISIT : "здійснює"
     VISIT ||--o{ INCIDENT : "пов'язаний з"
     VISIT ||--o{ INCIDENT_PARTICIPANT : "бере участь"
-    INCIDENT ||--|{ INCIDENT_PARTICIPANT : "має учасників"
+    INCIDENT ||--o{ INCIDENT_PARTICIPANT : "має учасників"
     SECURITY_EMPLOYEE ||--o{ INCIDENT : "фіксує"
     INCIDENT_TYPE ||--o{ INCIDENT : "визначає тип"
+    INCIDENT_STATUS ||--o{ INCIDENT : "визначає статус"
+    PARTICIPANT_ROLE ||--o{ INCIDENT_PARTICIPANT : "визначає роль"
 
     STUDENT {
         int student_id PK
-        int group_id 
-        int faculty_id 
+        int group_id
+        int faculty_id
         string full_name
+    }
+
+    SECURITY_EMPLOYEE {
+        int employee_id PK
+        string full_name
+        string position
+        string phone UK
+    }
+
+    INCIDENT_TYPE {
+        int type_id PK
+        string name UK
+    }
+
+    INCIDENT_STATUS {
+        int status_id PK
+        string name UK "Новий / У процесі / Опрацьовано"
+    }
+
+    PARTICIPANT_ROLE {
+        int role_id PK
+        string name UK "Порушник / Постраждалий / Свідок"
     }
 
     VISIT {
         int visit_id PK
         int student_id FK
-        string category
-        datetime started_at
+        string category "default Відпочинок"
+        datetime started_at "default now"
         datetime ended_at "nullable, >= started_at"
-    }
-
-    INCIDENT_TYPE {
-        int type_id PK
-        string name
     }
 
     INCIDENT {
@@ -40,22 +59,14 @@ erDiagram
         int visit_id FK
         int type_id FK
         int employee_id FK
-        int status_id 
+        int status_id FK "default 1"
         string description "nullable"
         datetime occurred_at
         string severity "Низький / Середній / Високий"
-        string status "Новий / У процесі / Опрацьовано / Закрито"
     }
 
     INCIDENT_PARTICIPANT {
         int incident_id PK, FK
         int visit_id PK, FK
         int role_id FK
-    }
-
-    SECURITY_EMPLOYEE {
-        int employee_id PK
-        string full_name
-        string position
-        string phone 
     }
