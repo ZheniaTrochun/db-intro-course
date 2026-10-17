@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS public.users(
     bio TEXT NOT NULL DEFAULT '',
     password_hash TEXT,
     avatar_url TEXT,
-    social_networks TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
     max_streak INT NOT NULL DEFAULT 0 CHECK(max_streak >= 0),
     timezone TEXT NOT NULL DEFAULT 'UTC',
     streak_start_date DATE,
