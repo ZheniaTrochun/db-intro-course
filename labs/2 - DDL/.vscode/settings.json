@@ -6,10 +6,10 @@
             "server": "127.0.0.1",
             "port": 5432,
             "driver": "PostgreSQL",
-            "name": "MyLocalDB",
-            "database": "postgres",
+            "password": "postgrespassword",
             "username": "postgres",
-            "password": "postgrespassword"
+            "name": "MyLocalDB",
+            "database": "postgres"
         }
     ]
 }
