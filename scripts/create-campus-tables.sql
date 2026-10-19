@@ -68,7 +68,7 @@ create type student_group_assignment_status as enum ('active', 'inactive', 'grad
 END IF;
 END$$;
 
-create table if not exists if not exists person
+create table if not exists person
 (
     person_id         int generated always as identity primary key,
     first_name        varchar(100)  not null,
@@ -108,7 +108,7 @@ create table if not exists course_teacher
 (
     course_id     int           not null references course (course_id),
     professor_id  int           not null references professor (professor_id),
-    profesor_role profesor_role not null,
+    professor_role professor_role not null,
     primary key (course_id, professor_id)
 );
 
