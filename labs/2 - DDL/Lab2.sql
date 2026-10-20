@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS workspace_members (
 CREATE TABLE IF NOT EXISTS habits_categories (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     -- cascade deletion since habits categories are not related to collaborative work in workspaces --
-    user_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     name VARCHAR(256) NOT NULL,
     color VARCHAR(8) NOT NULL DEFAULT '#fff9e2', -- hexadecimal notation --
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS habits (
 
 CREATE TABLE IF NOT EXISTS habit_completions (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    habit_id BIGINT REFERENCES habits (id) ON DELETE CASCADE,
+    habit_id BIGINT NOT NULL REFERENCES habits (id) ON DELETE CASCADE,
     local_timestamp TIMESTAMPTZ NOT NULL, -- the timezone can be accessed via habits table --
     completed_at TIMESTAMPTZ DEFAULT now(),
     actual_value SMALLINT NULL,

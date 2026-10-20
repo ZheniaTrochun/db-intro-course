@@ -8,10 +8,10 @@ erDiagram
   USERS ||--o{ WORKSPACE_MEMBERS : "participates_as"
 
   WORKSPACES ||--|{ WORKSPACE_MEMBERS : "has"
-  WORKSPACES ||--o{ TASKS : "contains"
-  WORKSPACES ||--o{ TASK_CATEGORIES : "contains"
+  WORKSPACES |o--o{ TASKS : "contains"
+  WORKSPACES |o--o{ TASK_CATEGORIES : "contains"
 
-  HABITS ||--o{ HABIT_COMPLETIONS : "tracks"
+  HABITS ||--|{ HABIT_COMPLETIONS : "tracks"
   TASK_CATEGORIES |o--o{ TASKS : "classifies"
   HABITS_CATEGORIES |o--o{ HABITS : "classifies"
 
