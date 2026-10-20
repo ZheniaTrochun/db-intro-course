@@ -48,4 +48,4 @@ CREATE TABLE IF NOT EXISTS public.genres(
   PRIMARY KEY(anime_id, genre_type)
 );
 
-CREATE INDEX IF NOT EXISTS idx_genre_type ON public.genres(genre_type);
+CREATE INDEX IF NOT EXISTS idx_genres_type ON public.genres(genre_type);

@@ -24,4 +24,4 @@ CREATE TABLE IF NOT EXISTS public.animes(
   available BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE INDEX IF NOT EXISTS idx_anime_available ON public.animes(available);
+CREATE INDEX IF NOT EXISTS idx_animes_available ON public.animes(available);
