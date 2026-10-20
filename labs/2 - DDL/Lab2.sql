@@ -9,14 +9,15 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS workspaces(
-	id BIGSERIAL PRIMARY KEY,
-	owner_id BIGINT NOT NULL,
-	name VARCHAR(100) NOT NULL,
-	description TEXT,
-	status VARCHAR(50) CHECK (status IN ('ACTIVE', 'ARCHIVED', 'SUSPENDED')),
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY (owner_id) REFERENCES users(id)
+CREATE TABLE IF NOT EXISTS workspaces (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    owner_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'ARCHIVED', 'SUSPENDED')),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (owner_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS tasks (
@@ -42,19 +43,8 @@ CREATE TABLE IF NOT EXISTS task_categories (
     name VARCHAR(100), 
     color VARCHAR(8) NOT NULL DEFAULT '#f8f8f8',
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at TIMESTAMP, 
+    deleted_at TIMESTAMPTZ, 
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS workspaces (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    owner_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'ARCHIVED', 'SUSPENDED')),
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (owner_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS workspace_members (
@@ -86,7 +76,7 @@ CREATE TABLE IF NOT EXISTS habits (
     description TEXT NULL,
     creator_id BIGINT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     category_id BIGINT NULL REFERENCES habits_categories (id) ON DELETE SET NULL,
-    timezone VARCHAR(32) NOT NULL DEFAULT 'Europe/Kyiv', -- IANA tz format --
+    timezone VARCHAR(32) NOT NULL DEFAULT 'Etc/UTC', -- IANA tz format --
     -- array_length(frequency_days, 1), where 1 stands for array dimension which length the function computes --
     frequency_days SMALLINT[] NOT NULL DEFAULT ARRAY[1, 2, 3, 4, 5, 6, 7] CHECK (
         array_ndims(frequency_days) = 1 AND
