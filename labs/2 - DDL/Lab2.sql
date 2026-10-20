@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS users (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(100),
     nickname VARCHAR(50) NOT NULL UNIQUE,
-    phone_number VARCHAR(15) UNIQUE, 
+    phone_number VARCHAR(20) UNIQUE, 
     password VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     timezone VARCHAR(32) NOT NULL DEFAULT 'Etc/UTC',
@@ -20,6 +20,17 @@ CREATE TABLE IF NOT EXISTS workspaces (
     FOREIGN KEY (owner_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS task_categories (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    workspace_id BIGINT REFERENCES workspaces(id) ON DELETE CASCADE, 
+    name VARCHAR(100) NOT NULL, 
+    color VARCHAR(8) NOT NULL DEFAULT '#f8f8f8',
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMPTZ, 
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS tasks (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -27,24 +38,15 @@ CREATE TABLE IF NOT EXISTS tasks (
     status VARCHAR(30) NOT NULL DEFAULT 'open'
         CHECK (status IN ('open', 'in_progress', 'done', 'closed', 'cancelled')),
     priority INTEGER CHECK (priority > 0), 
-    creator_id BIGINT NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    creator_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     assignee_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
     workspace_id BIGINT REFERENCES workspaces(id) ON DELETE CASCADE,
+    category_id BIGINT REFERENCES task_categories(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deadline TIMESTAMPTZ,
     deleted_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT chk_task_deadline CHECK (deadline IS NULL OR deadline >= created_at)
-);
-
-CREATE TABLE IF NOT EXISTS task_categories (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    workspace_id BIGINT REFERENCES workspaces(id) ON DELETE CASCADE, 
-    name VARCHAR(100), 
-    color VARCHAR(8) NOT NULL DEFAULT '#f8f8f8',
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at TIMESTAMPTZ, 
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS workspace_members (
@@ -82,7 +84,7 @@ CREATE TABLE IF NOT EXISTS habits (
         array_ndims(frequency_days) = 1 AND
         cardinality(frequency_days) BETWEEN  1 AND 7
     ),
-    status VARCHAR(16) NOT NULL DEFAULT 'ACTIVE',
+    status VARCHAR(16) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'PAUSED', 'ARCHIVED', 'DRAFT', 'DROPPED', 'FAILED')),
     start_day DATE NULL,
     end_day DATE NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -97,5 +99,5 @@ CREATE TABLE IF NOT EXISTS habit_completions (
     completed_at TIMESTAMPTZ DEFAULT now(),
     actual_value SMALLINT NULL,
     note TEXT NULL,
-    status VARCHAR(256) NOT NULL
+    status VARCHAR(256) NOT NULL DEFAULT 'COMPLETED' CHECK (status IN ('COMPLETED ', 'SKIPPED', 'MISSED', 'PARTIALLY_COMPLETED'))
 );
