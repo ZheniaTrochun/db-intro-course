@@ -82,17 +82,17 @@ Prisma — Object-Relational Mapping (ORM) інструмент для Node.js/T
 }
 ```
 
-Підключення до PostgreSQL через `.env`:
+Підключення до PostgreSQL через `.env` (пароль — плейсхолдер; реальний `.env` не комітиться):
 
 ```
-DATABASE_URL="postgresql://postgres:5643@localhost:5432/videohub?schema=public"
+DATABASE_URL="postgresql://postgres:password@localhost:5432/videohub?schema=public"
 ```
 
 ---
 
-## schema.prisma — початкова схема
+## schema.prisma — схема VideoHub
 
-Описуємо моделі VideoHub (User, Video, Comment, Like, Subscription):
+Описуємо моделі VideoHub — **ту саму фінальну схему, що в Lab 2**: композитні первинні ключі Like/Subscription, TIMESTAMPTZ для часових міток, генерація UUID через `uuid_generate_v4()`:
 
 ```prisma
 generator client {
@@ -105,33 +105,33 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid()) @db.Uuid
-  email        String   @unique
-  username     String   @unique
-  password     String?
-  googleId     String?  @unique
-  description  String?
-  avatar       String?
-  banner       String?
-  createdAt    DateTime @default(now()) @map("created_at")
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email       String   @unique @db.VarChar(255)
+  username    String   @unique @db.VarChar(100)
+  password    String?  @db.VarChar(255)
+  googleId    String?  @unique @map("google_id") @db.VarChar(255)
+  description String?
+  avatar      String?  @db.VarChar(500)
+  banner      String?  @db.VarChar(500)
+  createdAt   DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
 
-  videos       Video[]
-  comments     Comment[]
-  likes        Like[]
-  subscribers  Subscription[] @relation("SubscriberRelation")
-  subscriptions Subscription[] @relation("SubscribedToRelation")
+  videos        Video[]
+  comments      Comment[]
+  likes         Like[]
+  subscribers   Subscription[] @relation("SubscriberRelation")
+  subscriptions Subscription[] @relation("ChannelRelation")
 
   @@map("User")
 }
 
 model Video {
-  id          String   @id @default(uuid()) @db.Uuid
-  title       String
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title       String   @db.VarChar(255)
   description String?
-  url         String
-  thumbnail   String?
+  url         String   @db.VarChar(500)
+  thumbnail   String?  @db.VarChar(500)
   views       Int      @default(0)
-  createdAt   DateTime @default(now()) @map("created_at")
+  createdAt   DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
   authorId    String   @map("author_id") @db.Uuid
 
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -142,9 +142,9 @@ model Video {
 }
 
 model Comment {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   text      String
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
   userId    String   @map("user_id") @db.Uuid
   videoId   String   @map("video_id") @db.Uuid
 
@@ -155,29 +155,27 @@ model Comment {
 }
 
 model Like {
-  id        String   @id @default(uuid()) @db.Uuid
-  createdAt DateTime @default(now()) @map("created_at")
   userId    String   @map("user_id") @db.Uuid
   videoId   String   @map("video_id") @db.Uuid
+  createdAt DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, videoId])
+  @@id([userId, videoId])
 
   @@map("Like")
 }
 
 model Subscription {
-  id              String   @id @default(uuid()) @db.Uuid
-  createdAt       DateTime @default(now()) @map("created_at")
-  subscriberId    String   @map("subscriber_id") @db.Uuid
-  subscribedToId  String   @map("subscribed_to_id") @db.Uuid
+  subscriberId String   @map("subscriber_id") @db.Uuid
+  channelId    String   @map("channel_id") @db.Uuid
+  createdAt    DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
 
-  subscriber      User     @relation("SubscriberRelation", fields: [subscriberId], references: [id], onDelete: Cascade)
-  subscribedTo    User     @relation("SubscribedToRelation", fields: [subscribedToId], references: [id], onDelete: Cascade)
+  subscriber User @relation("SubscriberRelation", fields: [subscriberId], references: [id], onDelete: Cascade)
+  channel    User @relation("ChannelRelation", fields: [channelId], references: [id], onDelete: Cascade)
 
-  @@unique([subscriberId, subscribedToId])
+  @@id([subscriberId, channelId])
 
   @@map("Subscription")
 }
@@ -185,13 +183,14 @@ model Subscription {
 
 **Особливості schema.prisma:**
 
-- `@id @default(uuid())` — первинний ключ, авто-генерація UUID
-- `@db.Uuid` — тип колонки в PostgreSQL (UUID)
+- `@id @default(dbgenerated("uuid_generate_v4()"))` — первинний ключ; генерація UUID на рівні БД тим самим механізмом, що в Lab 2 (розширення `uuid-ossp`)
+- `@db.Uuid` — нативний тип колонки UUID (16 байт), не TEXT
+- `@db.VarChar(n)` — точний тип колонки як в Lab 2 (VARCHAR(255) тощо); без нього Prisma створила б TEXT
+- `@db.Timestamptz` — час з часовою зоною (UTC всередині), як у фінальній схемі Lab 2
+- `@@id([userId, videoId])` — **композитний первинний ключ**: пара і є ідентичність лайка — окремий сурогатний `id` не потрібен (те саме рішення, що в Lab 2)
 - `@unique` — унікальне обмеження
-- `@map("column_name")` — мапінг імені поля (camelCase в коді → snake_case в БД)
-- `@@map("table_name")` — мапінг імені таблиці
-- `@@unique([field1, field2])` — складене унікальне обмеження
-- `@relation(fields: [fk], references: [pk], onDelete: Cascade)` — зв'язок FK
+- `@map("column_name")` / `@@map("table_name")` — мапінг імен (camelCase в коді → snake_case в БД)
+- `@relation(fields: [fk], references: [pk], onDelete: Cascade)` — зв'язок FK з каскадним видаленням
 - `String?` — nullable поле (знак питання)
 
 ---
@@ -204,11 +203,14 @@ model Subscription {
 npx prisma migrate dev --name init
 ```
 
-Prisma генерує SQL-файл `migration.sql`:
+SQL-файл `migration.sql` (згенерований зі схеми; CHECK-обмеження додані вручну — Prisma їх не виражає):
 
 ```sql
+-- CreateTable
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE "User" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "email" VARCHAR(255) NOT NULL,
     "username" VARCHAR(100) NOT NULL,
     "password" VARCHAR(255),
@@ -216,33 +218,65 @@ CREATE TABLE "User" (
     "description" TEXT,
     "avatar" VARCHAR(500),
     "banner" VARCHAR(500),
-    "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT "check_auth_method" CHECK (password IS NOT NULL OR google_id IS NOT NULL),
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 
 CREATE TABLE "Video" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "title" VARCHAR(255) NOT NULL,
     "description" TEXT,
     "url" VARCHAR(500) NOT NULL,
     "thumbnail" VARCHAR(500),
     "views" INTEGER NOT NULL DEFAULT 0,
-    "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
     "author_id" UUID NOT NULL,
+
     CONSTRAINT "Video_pkey" PRIMARY KEY ("id")
 );
 
--- ... Comment, Like, Subscription аналогічно
+CREATE TABLE "Like" (
+    "user_id" UUID NOT NULL,
+    "video_id" UUID NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT "Like_pkey" PRIMARY KEY ("user_id", "video_id")
+);
+
+CREATE TABLE "Subscription" (
+    "subscriber_id" UUID NOT NULL,
+    "channel_id" UUID NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT "check_no_self_subscribe" CHECK (subscriber_id <> channel_id),
+    CONSTRAINT "Subscription_pkey" PRIMARY KEY ("subscriber_id", "channel_id")
+);
 
 -- Унікальні індекси
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
-CREATE UNIQUE INDEX "Like_user_id_video_id_key" ON "Like"("user_id", "video_id");
+CREATE UNIQUE INDEX "User_google_id_key" ON "User"("google_id");
 
--- Зовнішні ключі
+-- Зовнішні ключі (ON DELETE CASCADE — як у Lab 2)
 ALTER TABLE "Video" ADD CONSTRAINT "Video_author_id_fkey"
-    FOREIGN KEY ("author_id") REFERENCES "User"("id") ON DELETE CASCADE;
+    FOREIGN KEY ("author_id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE "Like" ADD CONSTRAINT "Like_user_id_fkey"
+    FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE "Like" ADD CONSTRAINT "Like_video_id_fkey"
+    FOREIGN KEY ("video_id") REFERENCES "Video"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_subscriber_id_fkey"
+    FOREIGN KEY ("subscriber_id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_channel_id_fkey"
+    FOREIGN KEY ("channel_id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ```
+
+Міграція відтворює фінальну схему Lab 2 один в один: композитні PK, TIMESTAMPTZ, CHECK-и, каскадні FK. Таблиці Comment — за тим самим зразком (id, text, created_at, два FK з CASCADE).
 
 ---
 
@@ -278,7 +312,7 @@ ALTER TABLE "Video" ADD COLUMN "duration" INTEGER;
 ```prisma
 model Category {
   id    Int    @id @default(autoincrement())
-  name  String @unique
+  name  String @unique @db.VarChar(100)
 
   videos Video[]
 
@@ -417,7 +451,7 @@ Prisma Studio відкривається в браузері на порту 555
 - **Lab 3** — OLTP: CRUD-операції (SELECT, INSERT, UPDATE, DELETE) на тестових даних
 - **Lab 4** — OLAP: агрегація, GROUP BY, HAVING, JOIN на тестових даних
 - **Lab 5** — нормалізація: перевірка схеми на 1NF, 2NF, 3NF, виправлення через ALTER TABLE
-- **Lab 6** — Prisma ORM: опис схеми в `schema.prisma`, міграції, Prisma Studio
+- **Lab 6** — Prisma ORM: опис фінальної схеми в `schema.prisma`, міграції, Prisma Studio
 
 **Тестові дані:**
 
@@ -428,8 +462,8 @@ Prisma Studio відкривається в браузері на порту 555
 | User | 5 | denys_dev, maria_gaming, oleg_cook, anna_travel, max_music |
 | Video | 5 | PostgreSQL Tutorial, Elden Ring, Pasta Carbonara, Tokyo, Wonderwall |
 | Comment | 5 | коментарі до відео різних авторів |
-| Like | 5 | лайки між користувачами |
-| Subscription | 5 | підписки між користувачами |
+| Like | 5 | лайки між користувачами (композитний PK — пара) |
+| Subscription | 5 | підписки між користувачами (композитний PK — пара) |
 
 **Чому БД з проєкту, а не з нуля:**
 
@@ -437,13 +471,15 @@ Prisma Studio відкривається в браузері на порту 555
 - Схема відповідає реальним вимогам і вже нормалізована
 - Тестові дані реалістичні (користувачі, відео, коментарі)
 - Лабораторні роботи логічно пов'язані — кожна наступна будується на попередній
-- Prisma-схема з проєкту використовується як основа для Lab 6
+- Prisma-схема описує той самий фінальний стан, що Lab 2 — обидва підходи (SQL і ORM) дають ідентичну структуру
 
 ---
 
 ## Будь які припущення чи обмеження
 
-- `DATABASE_URL` містить облікові дані PostgreSQL. В реальному проєкті `.env` не комітиться в Git (в `.gitignore`). Для лабораторної створено `.env.example` з прикладом.
+- `DATABASE_URL` містить облікові дані PostgreSQL. В реальному проєкті `.env` не комітиться в Git (в `.gitignore`). Для лабораторної створено `.env.example` з плейсхолдером замість пароля.
+
+- CHECK-обмеження (`check_auth_method`, `views >= 0`, `check_no_self_subscribe`) не виражаються в schema.prisma — вони додані вручну в SQL міграції. Це стандартна практика: Prisma описує структуру, спеціальні перевірки — на рівні БД.
 
 - `@map` та `@@map` використовуються для мапінгу camelCase (Prisma/TypeScript) → snake_case (PostgreSQL). Наприклад, `authorId` в коді → `author_id` в БД.
 
@@ -452,6 +488,8 @@ Prisma Studio відкривається в браузері на порту 555
 - `ON DELETE SET NULL` на Video→Category — при видаленні категорії відео не видаляється, `category_id` стає NULL. Це безпечніше за CASCADE для категорій.
 
 - `@default(autoincrement())` для Category.id — SERIAL в PostgreSQL, автоінкремент. На відміну від UUID, числовий id зручніший для категорій (невеликий справочник).
+
+- `dbgenerated("uuid_generate_v4()")` — генерація UUID на рівні БД через розширення `uuid-ossp` (той самий механізм, що в Lab 2). Альтернатива Prisma — `@default(uuid())` генерує `gen_random_uuid()` (вбудований в PostgreSQL 13+); обидва дають UUID v4.
 
 - Prisma migrate dev автоматично: 1) порівнює schema.prisma з БД, 2) генерує SQL-міграцію, 3) застосовує до БД, 4) генерує клієнт. В продакшені використовується `prisma migrate deploy` (без генерації).
 
