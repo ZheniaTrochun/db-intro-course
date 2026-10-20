@@ -43,10 +43,10 @@ CREATE TABLE IF NOT EXISTS tasks (
     workspace_id BIGINT REFERENCES workspaces(id) ON DELETE CASCADE,
     category_id BIGINT REFERENCES task_categories(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deadline TIMESTAMPTZ,
+    deadline TIMESTAMPTZ CHECK (deadline IS NULL OR deadline >= created_at),
     deleted_at TIMESTAMPTZ,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT chk_task_deadline CHECK (deadline IS NULL OR deadline >= created_at)
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    -- CONSTRAINT chk_task_deadline CHECK (deadline IS NULL OR deadline >= created_at)
 );
 
 CREATE TABLE IF NOT EXISTS workspace_members (
@@ -99,5 +99,5 @@ CREATE TABLE IF NOT EXISTS habit_completions (
     completed_at TIMESTAMPTZ DEFAULT now(),
     actual_value SMALLINT NULL,
     note TEXT NULL,
-    status VARCHAR(256) NOT NULL DEFAULT 'COMPLETED' CHECK (status IN ('COMPLETED ', 'SKIPPED', 'MISSED', 'PARTIALLY_COMPLETED'))
+    status VARCHAR(256) NOT NULL DEFAULT 'COMPLETED' CHECK (status IN ('COMPLETED', 'SKIPPED', 'MISSED', 'PARTIALLY_COMPLETED'))
 );
