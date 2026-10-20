@@ -430,11 +430,27 @@ Prisma Studio відкривається в браузері на порту 555
 
 </div>
 
-### Prisma Studio — таблиця Like з даними
+### Prisma Studio — таблиця Like з даними (композитний PK: без колонки id)
 
 <div style="text-align: center;">
 
-<img src="screenshots/prisma_studio_likes.png" alt="Prisma Studio — таблиця Like" style="width: 100%; max-width: 800px;">
+<img src="screenshots/prisma_studio_likes.png" alt="Prisma Studio — таблиця Like без id" style="width: 100%; max-width: 800px;">
+
+</div>
+
+### Prisma Studio — таблиця Comment з даними
+
+<div style="text-align: center;">
+
+<img src="screenshots/prisma_studio_comment.png" alt="Prisma Studio — таблиця Comment" style="width: 100%; max-width: 800px;">
+
+</div>
+
+### Prisma Studio — таблиця Subscription (subscriberId + channelId)
+
+<div style="text-align: center;">
+
+<img src="screenshots/prisma_studio_subscription.png" alt="Prisma Studio — таблиця Subscription" style="width: 100%; max-width: 800px;">
 
 </div>
 

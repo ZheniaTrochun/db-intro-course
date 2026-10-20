@@ -45,10 +45,13 @@ model Video {
   url         String   @db.VarChar(500)
   thumbnail   String?  @db.VarChar(500)
   views       Int      @default(0)
+  duration    Int?
   createdAt   DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
   authorId    String   @map("author_id") @db.Uuid
+  categoryId  Int?     @map("category_id")
 
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category    Category? @relation(fields: [categoryId], references: [id])
   comments    Comment[]
   likes       Like[]
 
