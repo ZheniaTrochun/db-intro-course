@@ -14,53 +14,51 @@ datasource db {
 }
 
 // ============================================
-// МОДЕЛІ (відповідають таблицям з Lab 2)
+// МОДЕЛІ (відповідають фінальній схемі з Lab 2:
+// композитні PK, TIMESTAMPTZ, uuid_generate_v4)
 // ============================================
 
 model User {
-  id           String   @id @default(uuid()) @db.Uuid
-  email        String   @unique
-  username     String   @unique
-  password     String?
-  googleId     String?  @unique @map("google_id")
-  description  String?
-  avatar       String?
-  banner       String?
-  createdAt    DateTime @default(now()) @map("created_at")
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email       String   @unique
+  username    String   @unique
+  password    String?
+  googleId    String?  @unique @map("google_id") @db.Uuid
+  description String?
+  avatar      String?
+  banner      String?
+  createdAt   DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
 
-  videos       Video[]
-  comments     Comment[]
-  likes        Like[]
-  subscribers  Subscription[] @relation("SubscriberRelation")
+  videos        Video[]
+  comments      Comment[]
+  likes         Like[]
+  subscribers   Subscription[] @relation("SubscriberRelation")
   subscriptions Subscription[] @relation("SubscribedToRelation")
 
   @@map("User")
 }
 
 model Video {
-  id          String   @id @default(uuid()) @db.Uuid
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   title       String
   description String?
   url         String
   thumbnail   String?
   views       Int      @default(0)
-  duration    Int?     @map("duration")
-  createdAt   DateTime @default(now()) @map("created_at")
+  createdAt   DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
   authorId    String   @map("author_id") @db.Uuid
 
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments    Comment[]
   likes       Like[]
-  category    Category? @relation(fields: [categoryId], references: [id])
-  categoryId  Int?      @map("category_id")
 
   @@map("Video")
 }
 
 model Comment {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   text      String
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
   userId    String   @map("user_id") @db.Uuid
   videoId   String   @map("video_id") @db.Uuid
 
@@ -71,42 +69,27 @@ model Comment {
 }
 
 model Like {
-  id        String   @id @default(uuid()) @db.Uuid
-  createdAt DateTime @default(now()) @map("created_at")
   userId    String   @map("user_id") @db.Uuid
   videoId   String   @map("video_id") @db.Uuid
+  createdAt DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, videoId])
+  @@id([userId, videoId])
 
   @@map("Like")
 }
 
 model Subscription {
-  id              String   @id @default(uuid()) @db.Uuid
-  createdAt       DateTime @default(now()) @map("created_at")
-  subscriberId    String   @map("subscriber_id") @db.Uuid
-  subscribedToId  String   @map("subscribed_to_id") @db.Uuid
+  subscriberId   String   @map("subscriber_id") @db.Uuid
+  subscribedToId String   @map("subscribed_to_id") @db.Uuid
+  createdAt      DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
 
-  subscriber      User     @relation("SubscriberRelation", fields: [subscriberId], references: [id], onDelete: Cascade)
-  subscribedTo    User     @relation("SubscribedToRelation", fields: [subscribedToId], references: [id], onDelete: Cascade)
+  subscriber   User @relation("SubscriberRelation", fields: [subscriberId], references: [id], onDelete: Cascade)
+  subscribedTo User @relation("SubscribedToRelation", fields: [subscribedToId], references: [id], onDelete: Cascade)
 
-  @@unique([subscriberId, subscribedToId])
+  @@id([subscriberId, subscribedToId])
 
   @@map("Subscription")
-}
-
-// ============================================
-// МОДЕЛІ ДОДАНІ ЧЕРЕЗ МІГРАЦІЇ
-// ============================================
-
-model Category {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-
-  videos Video[]
-
-  @@map("Category")
 }
