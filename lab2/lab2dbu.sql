@@ -120,7 +120,8 @@ INSERT INTO users (first_name, last_name, email, date_of_birth, status, dorm_id)
     ('Ольга',  'Ткаченко',  'olha.tkachenko@example.com',    '1990-06-22', 'active', 1),
     ('Павло',  'Кравець',   'pavlo.kravets@example.com',     '1988-09-30', 'active', 3),
     ('Дмитро', 'Шевченко',  'dmytro.shevchenko@example.com', '2004-02-11', 'active', NULL),
-    ('Степан', 'Бендера',   'stpbdn@gmail.com',              '2001-09-11', 'active', 2);
+    ('Степан', 'Бендера',   'stpbdn@gmail.com',              '2001-09-11', 'active', 2),
+	('Бен', 'Мохамед',   'ben@gmail.com',              '2001-09-11', 'active', 2);
 
 INSERT INTO departments (department_name) VALUES
     ('Комп''ютерні науки'),
@@ -186,7 +187,7 @@ INSERT INTO applications (student_id, vacancy_id, application_date, status) VALU
     (3, 3, '2024-02-20', 'rejected');
 
 
-SELECT * FROM users;
+SELECT * FROM users WHERE user_id >= 5;
 SELECT * FROM departments;
 SELECT * FROM dorms;
 SELECT * FROM rooms;
@@ -197,3 +198,10 @@ SELECT * FROM courses;
 SELECT * FROM enrollments;
 SELECT * FROM vacancies;
 SELECT * FROM applications;
+
+UPDATE users
+SET email = 'test@gmail.com'
+WHERE user_id = 1;
+
+DELETE FROM users
+WHERE user_id = 10
