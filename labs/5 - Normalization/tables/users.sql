@@ -1,4 +1,3 @@
-
 CREATE TYPE public.user_status_enum AS ENUM('active', 'banned', 'deactivated');
 CREATE TYPE public.user_role_enum AS ENUM('user', 'admin');
 
@@ -22,7 +21,7 @@ CREATE TABLE IF NOT EXISTS public.users(
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-    CONSTRAINT check_user_auth_method CHECK(password_hash IS NOT NULL OR google_id IS NOT NULL),
+    CONSTRAINT check_user_auth_method CHECK(password_hash IS NOT NULL OR google_id IS NOT NULL)
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_status ON public.users(user_status);
