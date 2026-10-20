@@ -57,3 +57,56 @@ model Video {
   @@map("Video")
 }
 
+model Comment {
+  id        String   @id @default(uuid()) @db.Uuid
+  text      String
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    String   @map("user_id") @db.Uuid
+  videoId   String   @map("video_id") @db.Uuid
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@map("Comment")
+}
+
+model Like {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    String   @map("user_id") @db.Uuid
+  videoId   String   @map("video_id") @db.Uuid
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+
+  @@map("Like")
+}
+
+model Subscription {
+  id              String   @id @default(uuid()) @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at")
+  subscriberId    String   @map("subscriber_id") @db.Uuid
+  subscribedToId  String   @map("subscribed_to_id") @db.Uuid
+
+  subscriber      User     @relation("SubscriberRelation", fields: [subscriberId], references: [id], onDelete: Cascade)
+  subscribedTo    User     @relation("SubscribedToRelation", fields: [subscribedToId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, subscribedToId])
+
+  @@map("Subscription")
+}
+
+// ============================================
+// МОДЕЛІ ДОДАНІ ЧЕРЕЗ МІГРАЦІЇ
+// ============================================
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+
+  videos Video[]
+
+  @@map("Category")
+}
