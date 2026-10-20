@@ -1,0 +1,59 @@
+// ============================================
+// Lab 6: Prisma ORM — schema.prisma
+// Проєкт: VideoHub (відеохостинг-платформа)
+// Степаненко Денис, ІМ-051
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// МОДЕЛІ (відповідають таблицям з Lab 2)
+// ============================================
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  username     String   @unique
+  password     String?
+  googleId     String?  @unique @map("google_id")
+  description  String?
+  avatar       String?
+  banner       String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  videos       Video[]
+  comments     Comment[]
+  likes        Like[]
+  subscribers  Subscription[] @relation("SubscriberRelation")
+  subscriptions Subscription[] @relation("SubscribedToRelation")
+
+  @@map("User")
+}
+
+model Video {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  url         String
+  thumbnail   String?
+  views       Int      @default(0)
+  duration    Int?     @map("duration")
+  createdAt   DateTime @default(now()) @map("created_at")
+  authorId    String   @map("author_id") @db.Uuid
+
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  likes       Like[]
+  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId  Int?      @map("category_id")
+
+  @@map("Video")
+}
+
