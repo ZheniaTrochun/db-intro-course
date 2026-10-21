@@ -254,6 +254,32 @@ CREATE INDEX IF NOT EXISTS idx_upcoming_episode_date ON public.upcoming_episodes
 - Таблиця `upcoming_episodes` отримало нове поле `upcoming_episode_id`, яке і стало новим ключем.
 - `user_agent` більше немає у таблиці `sessions`.
 
+```sql
+BEGIN;
+ALTER TABLE public.users DROP COLUMN social_networks;
+ALTER TABLE public.sessions DROP COLUMN user_agent;
+ALTER TABLE public.upcoming_episodes DROP CONSTRAINT upcoming_episodes_pkey;
+ALTER TABLE public.upcoming_episodes ADD COLUMN upcoming_episode_id UUID NOT NULL DEFAULT uuidv7();
+ALTER TABLE public.upcoming_episodes ADD PRIMARY KEY (upcoming_episode_id);
+
+CREATE TYPE public.provider_enum AS ENUM(
+    'github', 'facebook', 'instagram', 'telegram',
+    'linkedin', 'email', 'youtube', 'reddit', 'twitter'
+);
+
+CREATE TABLE IF NOT EXISTS public.user_links(
+    user_link_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES public.users(user_id) ON DELETE CASCADE,
+    user_link_url TEXT NOT NULL,
+    provider provider_enum NOT NULL,
+
+    UNIQUE(user_id, user_link_url)
+);
+
+COMMIT;
+```
+*P.S.: Проігноровано інші паралельні зміни зроблені поза межами лабораторної роботи*
+
 ### Після
 
 <details>
@@ -337,6 +363,19 @@ CREATE TABLE IF NOT EXISTS public.anime_list_units(
 
   PRIMARY KEY(user_id, anime_id)
 );
+
+-- comments
+
+CREATE TABLE IF NOT EXISTS public.comments(
+    comment_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    author_id UUID NOT NULL REFERENCES public.users(user_id) ON DELETE CASCADE,
+    anime_id UUID NOT NULL REFERENCES public.animes(anime_id) ON DELETE CASCADE,
+    content TEXT NOT NULL CHECK(length(trim(content)) > 0),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    is_edited BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE INDEX IF NOT EXISTS idx_comments_anime_created ON public.comments(anime_id, comment_id DESC);
 
 -- episodes
 
@@ -507,6 +546,10 @@ CREATE TABLE IF NOT EXISTS public.user_links(
 
 - `provider` більше немає у таблиці `user_links`.
 
+```sql
+ALTER TABLE public.user_links DROP COLUMN provider;
+```
+
 ### Після
 
 <details>
@@ -590,6 +633,19 @@ CREATE TABLE IF NOT EXISTS public.anime_list_units(
 
   PRIMARY KEY(user_id, anime_id)
 );
+
+-- comments
+
+CREATE TABLE IF NOT EXISTS public.comments(
+    comment_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    author_id UUID NOT NULL REFERENCES public.users(user_id) ON DELETE CASCADE,
+    anime_id UUID NOT NULL REFERENCES public.animes(anime_id) ON DELETE CASCADE,
+    content TEXT NOT NULL CHECK(length(trim(content)) > 0),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    is_edited BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE INDEX IF NOT EXISTS idx_comments_anime_created ON public.comments(anime_id, comment_id DESC);
 
 -- episodes
 
