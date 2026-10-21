@@ -64,6 +64,18 @@ create table world_entity(
     level int not null
 );
 
+insert into world_entity (zone_id, position_x, position_y, position_z, max_hp, level) values
+    (1, 138.3, 2903.556, 248.4872, 50, 3),  --taken
+    (1, 389.4, 18937.7831, 738.3781, 100,5), --taken
+    (2, 310.10, 381.39, 39.531, 200, 8),  --taken
+    (3, 3920.42, 492.42, 8942.8924, 500, 20), --taken
+    (3, 39318.42, 32.47, 89.24, 1000, 30),
+    (4, 389.8329, 3829.3892, 38.92, 250, 16), --taken
+    (5, 290.42,19.38, 3.392, 1, 1),
+    (6, 8941.41, 49.47, 4.4920, 1000, 40),
+    (7, 3967.67, 381.8913, 8931.781, 2000, 50); --taken
+
+
 create table users(
 	id int generated always as identity primary key,
 	username varchar(100) not null,
@@ -72,6 +84,13 @@ create table users(
 	ban_until timestamp with time zone null default null,
 	ban_reason varchar(420) null default null
 );
+
+insert into users (username, email, password_hash) values
+		('RodrickTheGreatest', 'verynormalemail@gmil.com', 'hashedpassword1'),
+		('xXx_DragonSlayer_xXx', 'dragonslayer@example.com', 'hashedpassword2'),
+		('overlord123', 'overlord123@example.com', 'hashedpassword3'),
+		('ShadowAssassin', 'shadowassassin@example.com', 'hashedpassword4'),
+		('PropagandaIsUseless', 'sombraforever@gmail.com', 'hashedpassword5');
 
 create table character(
 	id int generated always as identity primary key,
@@ -92,16 +111,11 @@ create table character(
 	class class not null
 );
 
-insert into world_entity (zone_id, position_x, position_y, position_z, max_hp, level) values
-    (1, 138.3, 2903.556, 248.4872, 50, 3),  --taken
-    (1, 389.4, 18937.7831, 738.3781, 100,5), --taken
-    (2, 310.10, 381.39, 39.531, 200, 8),  --taken
-    (3, 3920.42, 492.42, 8942.8924, 500, 20), --taken
-    (3, 39318.42, 32.47, 89.24, 1000, 30),
-    (4, 389.8329, 3829.3892, 38.92, 250, 16), --taken
-    (5, 290.42,19.38, 3.392, 1, 1),
-    (6, 8941.41, 49.47, 4.4920, 1000, 40),
-    (7, 3967.67, 381.8913, 8931.781, 2000, 50); --taken
+insert into character (worldentity_id, user_id, stats_id, name, experience, current_hp, current_mana, max_mana, skin_color_hex, sex, race, class) values
+		(1, 1, 1, 'Arthas', 0, 50, 30, 30, '#F5CBA7', 'male', 'human', 'fighter'),
+		(2, 2, 3, 'Sylvanas', 0, 100, 50, 50, '#A569BD', 'female', 'elf', 'rogue'),
+		(3, 3, 4, 'Thrall', 0, 200, 100, 100, '#229954', 'male', 'orc', 'cleric'),
+		(4, 4, 5, 'Jaina', 0, 150, 200, 200, '#5DADE2', 'female', 'human', 'wizard');
 
 create table monster_entity(
     id int generated always as identity primary key,
