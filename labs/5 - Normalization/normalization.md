@@ -4,6 +4,9 @@
 
 ### До
 
+<details>
+<summary>Поглянути код</summary>
+
 ```sql
 -- users
 
@@ -195,6 +198,8 @@ CREATE TABLE IF NOT EXISTS public.upcoming_episodes(
 CREATE INDEX IF NOT EXISTS idx_upcoming_episode_date ON public.upcoming_episodes(episode_date ASC);
 ```
 
+</details>
+
 ### Залежності
 
 **anime_list_units:**
@@ -231,7 +236,7 @@ CREATE INDEX IF NOT EXISTS idx_upcoming_episode_date ON public.upcoming_episodes
 
 1. **1NF проблема:** єдиною проблемою є тип поля `social_networks` таблиці `users`, оскільки він має тип даних масиву.
 2. **2NF проблема:** тут є лише три таблиці з складеними ключем.
-    Двоє з них асоціативні, тож використання складених ключів виправдана, а от `upcoming_episodes` не є асоціативним.
+    Двоє з них - асоціативна та проміжна, тож використання складених ключів виправдана, а от `upcoming_episodes` не є асоціативним.
     Саме по собі наявність складеного PK не порушує 2NF, але ускладнює подальшу діагностику. Тому, краще вжити заходів,
     щоб уникнути 2NF проблем у майбутньому.
 3. **3NF проблема:** у `sessions` є поле (`browser`), яке залежить від `user_agent`.
@@ -250,6 +255,9 @@ CREATE INDEX IF NOT EXISTS idx_upcoming_episode_date ON public.upcoming_episodes
 - `user_agent` більше немає у таблиці `sessions`.
 
 ### Після
+
+<details>
+<summary>Поглянути код</summary>
 
 ```sql
 -- users
@@ -450,6 +458,9 @@ CREATE TABLE IF NOT EXISTS public.user_links(
     UNIQUE(user_id, user_link_url)
 );
 ```
+
+</details>
+
 *P.S: Паралельно велися інші оптимізації іншою частиною команди, тому тут є інші зміни окрім вище описаних*
 
 ## Після оновлення
@@ -497,6 +508,9 @@ CREATE TABLE IF NOT EXISTS public.user_links(
 - `provider` більше немає у таблиці `user_links`.
 
 ### Після
+
+<details>
+<summary>Поглянути код</summary>
 
 ```sql
 -- users
@@ -684,6 +698,8 @@ CREATE TABLE IF NOT EXISTS public.user_links(
     UNIQUE(user_id, user_link_url)
 );
 ```
+
+</details>
 
 ## Після оновлення, №2
 

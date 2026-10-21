@@ -33,7 +33,7 @@ USER_STATUSES = ["active", "banned", "deactivated"]
 GENRES = [
     "action", "adventure", "avant_garde", "award_winning", "boys_love", "comedy",
     "drama", "fantasy", "girls_love", "gourmet", "horror", "mystery", "romance",
-    "sci-fi", "slice_of_life", "sports", "supernatural", "suspense", "ecchi",
+    "sci_fi", "slice_of_life", "sports", "supernatural", "suspense", "ecchi",
     "erotica", "hentai", "adult_cast", "anthropomorphic", "cgdct", "childcare",
     "combat_sports", "crossdressing", "delinquents", "detective", "educational",
     "gag_humor", "gore", "harem", "high_stakes_game", "historical", "idols_female",
