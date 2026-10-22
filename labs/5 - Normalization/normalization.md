@@ -8,37 +8,6 @@
 <summary>Поглянути код</summary>
 
 ```sql
--- users
-
-CREATE TYPE public.user_status_enum AS ENUM('active', 'banned', 'deactivated');
-CREATE TYPE public.user_role_enum AS ENUM('user', 'admin');
-
-CREATE TABLE IF NOT EXISTS public.users(
-    user_id UUID PRIMARY KEY DEFAULT uuidv7(),
-    nickname VARCHAR(30) NOT NULL UNIQUE,
-    full_name VARCHAR(100) NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    google_id TEXT UNIQUE,
-    bio TEXT NOT NULL DEFAULT '',
-    password_hash TEXT,
-    avatar_url TEXT,
-    social_networks TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
-    max_streak INT NOT NULL DEFAULT 0 CHECK(max_streak >= 0),
-    timezone TEXT NOT NULL DEFAULT 'UTC',
-    streak_start_date DATE,
-    last_watch_date DATE,
-    profile_frame_url TEXT,
-    profile_background_url TEXT,
-    user_role user_role_enum NOT NULL DEFAULT 'user',
-    user_status user_status_enum NOT NULL DEFAULT 'active',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-
-    CONSTRAINT check_user_auth_method CHECK(password_hash IS NOT NULL OR google_id IS NOT NULL)
-);
-
-CREATE INDEX IF NOT EXISTS idx_user_status ON public.users(user_status);
-
 -- animes
 
 CREATE TYPE public.anime_format_enum AS ENUM('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
@@ -54,10 +23,10 @@ CREATE TABLE IF NOT EXISTS public.animes(
   anime_description TEXT NOT NULL DEFAULT '',
   cover_url TEXT NOT NULL DEFAULT '',
   production_studio TEXT NOT NULL DEFAULT '',
-  mal_id BIGINT,
-  anilist_id BIGINT,
-  hikka_id TEXT,
-  imdb_id TEXT,
+  mal_id BIGINT UNIQUE,
+  anilist_id BIGINT UNIQUE,
+  hikka_id TEXT UNIQUE,
+  imdb_id TEXT UNIQUE,
   year_released SMALLINT CHECK(year_released >= 1900),
   avg_episode_duration SMALLINT NOT NULL DEFAULT 0 CHECK(avg_episode_duration >= 0),
   episodes_count SMALLINT NOT NULL DEFAULT 0 CHECK(episodes_count >= 0),
@@ -67,7 +36,40 @@ CREATE TABLE IF NOT EXISTS public.animes(
   available BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE INDEX IF NOT EXISTS idx_anime_available ON public.animes(available);
+CREATE INDEX IF NOT EXISTS idx_animes_available ON public.animes(available);
+
+-- users
+
+CREATE TYPE public.user_status_enum AS ENUM('active', 'banned', 'deactivated');
+CREATE TYPE public.user_role_enum AS ENUM('user', 'admin');
+
+CREATE TABLE IF NOT EXISTS public.users(
+    user_id UUID PRIMARY KEY DEFAULT uuidv7(),
+    nickname VARCHAR(30) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    email TEXT NOT NULL,
+    google_id TEXT UNIQUE,
+    bio TEXT NOT NULL DEFAULT '',
+    social_networks TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+    password_hash TEXT,
+    avatar_url TEXT NOT NULL DEFAULT '',
+    max_streak INT NOT NULL DEFAULT 0 CHECK(max_streak >= 0),
+    timezone TEXT NOT NULL DEFAULT 'Europe/Kyiv',
+    streak_start_date DATE,
+    last_watch_date DATE,
+    profile_frame_url TEXT,
+    profile_background_url TEXT,
+    user_role user_role_enum NOT NULL DEFAULT 'user',
+    user_status user_status_enum NOT NULL DEFAULT 'active',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT check_user_auth_method CHECK(password_hash IS NOT NULL OR google_id IS NOT NULL)
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_status ON public.users(user_status);
+CREATE UNIQUE INDEX idx_users_unique_lower_nickname ON public.users(lower(nickname));
+CREATE UNIQUE INDEX idx_users_unique_lower_email ON public.users(lower(email));
 
 -- anime_list_units
 
@@ -105,7 +107,7 @@ CREATE TYPE public.episode_localization_type_enum AS ENUM('sub', 'dub');
 CREATE TABLE IF NOT EXISTS public.episodes(
   episode_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   anime_id UUID NOT NULL REFERENCES public.animes(anime_id) ON DELETE CASCADE,
-  source_url TEXT NOT NULL,
+  source_url TEXT NOT NULL UNIQUE,
   episode_name TEXT NOT NULL CHECK(length(trim(episode_name)) > 0),
   localization_studio TEXT NOT NULL DEFAULT '',
   localization_type episode_localization_type_enum
@@ -122,7 +124,7 @@ CREATE TYPE public.genre_type_enum AS ENUM(
     'drama','fantasy',
     'girls_love','gourmet',
     'horror','mystery',
-    'romance','sci-fi',
+    'romance','sci_fi',
     'slice_of_life',
     'sports','supernatural',
     'suspense','ecchi',
@@ -165,7 +167,7 @@ CREATE TABLE IF NOT EXISTS public.genres(
   PRIMARY KEY(anime_id, genre_type)
 );
 
-CREATE INDEX IF NOT EXISTS idx_genre_type ON public.genres(genre_type);
+CREATE INDEX IF NOT EXISTS idx_genres_type ON public.genres(genre_type);
 
 -- sessions
 
@@ -173,22 +175,23 @@ CREATE TABLE IF NOT EXISTS public.sessions(
     session_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES public.users(user_id) ON DELETE CASCADE,
     refresh_token BYTEA NOT NULL UNIQUE CHECK(length(refresh_token) = 96),
-    expire_time TIMESTAMPTZ NOT NULL DEFAULT now() + INTERVAL '1 year',
+    expire_time TIMESTAMPTZ NOT NULL DEFAULT now() + INTERVAL '180 days',
     device_type TEXT,
     device_name TEXT,
     os TEXT,
     browser TEXT,
-    user_agent TEXT,
     user_location TEXT,
-    ip_address INET
+    ip_address INET,
+    user_agent TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON public.sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_expire_time ON public.sessions(expire_time ASC);
 
 -- upcoming_episodes
 
-CREATE TABLE IF NOT EXISTS public.upcoming_episodes(
-  anime_id UUID NOT NULL REFERENCES public.animes(anime_id) ON DELETE CASCADE,
+CREATE TABLE upcoming_episodes(
+  anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
   episode_name TEXT NOT NULL CHECK(length(trim(episode_name)) > 0),
   episode_date TIMESTAMPTZ NOT NULL DEFAULT now(),
 
@@ -256,7 +259,6 @@ CREATE INDEX IF NOT EXISTS idx_upcoming_episode_date ON public.upcoming_episodes
 
 ```sql
 BEGIN;
-ALTER TABLE public.users DROP COLUMN social_networks;
 ALTER TABLE public.sessions DROP COLUMN user_agent;
 ALTER TABLE public.upcoming_episodes DROP CONSTRAINT upcoming_episodes_pkey;
 ALTER TABLE public.upcoming_episodes ADD COLUMN upcoming_episode_id UUID NOT NULL DEFAULT uuidv7();
@@ -271,14 +273,15 @@ CREATE TABLE IF NOT EXISTS public.user_links(
     user_link_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES public.users(user_id) ON DELETE CASCADE,
     user_link_url TEXT NOT NULL,
-    provider provider_enum NOT NULL,
+    provider public.provider_enum NOT NULL,
 
     UNIQUE(user_id, user_link_url)
 );
 
+ALTER TABLE public.users DROP COLUMN social_networks;
+
 COMMIT;
 ```
-*P.S.: Проігноровано інші паралельні зміни зроблені поза межами лабораторної роботи*
 
 ### Після
 
@@ -286,6 +289,36 @@ COMMIT;
 <summary>Поглянути код</summary>
 
 ```sql
+-- animes
+
+CREATE TYPE public.anime_format_enum AS ENUM('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
+CREATE TYPE public.anime_status_enum AS ENUM('upcoming', 'ongoing', 'cancelled', 'finished');
+CREATE TYPE public.mpaa_rating_enum AS ENUM('g', 'pg', 'pg13', 'r', 'nc17');
+
+CREATE TABLE IF NOT EXISTS public.animes(
+  anime_id UUID PRIMARY KEY DEFAULT uuidv7(),
+  slug TEXT NOT NULL UNIQUE,
+  title_ua TEXT NOT NULL DEFAULT '',
+  title_en TEXT NOT NULL DEFAULT '',
+  title_original TEXT NOT NULL DEFAULT '',
+  anime_description TEXT NOT NULL DEFAULT '',
+  cover_url TEXT NOT NULL DEFAULT '',
+  production_studio TEXT NOT NULL DEFAULT '',
+  mal_id BIGINT UNIQUE,
+  anilist_id BIGINT UNIQUE,
+  hikka_id TEXT UNIQUE,
+  imdb_id TEXT UNIQUE,
+  year_released SMALLINT CHECK(year_released >= 1900),
+  avg_episode_duration SMALLINT NOT NULL DEFAULT 0 CHECK(avg_episode_duration >= 0),
+  episodes_count SMALLINT NOT NULL DEFAULT 0 CHECK(episodes_count >= 0),
+  age_restriction mpaa_rating_enum,
+  anime_status anime_status_enum,
+  anime_format anime_format_enum NOT NULL DEFAULT 'tv',
+  available BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE INDEX IF NOT EXISTS idx_animes_available ON public.animes(available);
+
 -- users
 
 CREATE TYPE public.user_status_enum AS ENUM('active', 'banned', 'deactivated');
@@ -317,36 +350,6 @@ CREATE TABLE IF NOT EXISTS public.users(
 CREATE INDEX IF NOT EXISTS idx_users_status ON public.users(user_status);
 CREATE UNIQUE INDEX idx_users_unique_lower_nickname ON public.users(lower(nickname));
 CREATE UNIQUE INDEX idx_users_unique_lower_email ON public.users(lower(email));
-
--- animes
-
-CREATE TYPE public.anime_format_enum AS ENUM('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
-CREATE TYPE public.anime_status_enum AS ENUM('upcoming', 'ongoing', 'cancelled', 'finished');
-CREATE TYPE public.mpaa_rating_enum AS ENUM('g', 'pg', 'pg13', 'r', 'nc17');
-
-CREATE TABLE IF NOT EXISTS public.animes(
-  anime_id UUID PRIMARY KEY DEFAULT uuidv7(),
-  slug TEXT NOT NULL UNIQUE,
-  title_ua TEXT NOT NULL DEFAULT '',
-  title_en TEXT NOT NULL DEFAULT '',
-  title_original TEXT NOT NULL DEFAULT '',
-  anime_description TEXT NOT NULL DEFAULT '',
-  cover_url TEXT NOT NULL DEFAULT '',
-  production_studio TEXT NOT NULL DEFAULT '',
-  mal_id BIGINT UNIQUE,
-  anilist_id BIGINT UNIQUE,
-  hikka_id TEXT UNIQUE,
-  imdb_id TEXT UNIQUE,
-  year_released SMALLINT CHECK(year_released >= 1900),
-  avg_episode_duration SMALLINT NOT NULL DEFAULT 0 CHECK(avg_episode_duration >= 0),
-  episodes_count SMALLINT NOT NULL DEFAULT 0 CHECK(episodes_count >= 0),
-  age_restriction mpaa_rating_enum,
-  anime_status anime_status_enum,
-  anime_format anime_format_enum NOT NULL DEFAULT 'tv',
-  available BOOLEAN NOT NULL DEFAULT TRUE
-);
-
-CREATE INDEX IF NOT EXISTS idx_animes_available ON public.animes(available);
 
 -- anime_list_units
 
@@ -468,39 +471,33 @@ CREATE INDEX IF NOT EXISTS idx_sessions_expire_time ON public.sessions(expire_ti
 
 CREATE TABLE upcoming_episodes(
   upcoming_episode_id UUID PRIMARY KEY DEFAULT uuidv7(),
-  anime_id UUID REFERENCES animes(anime_id) ON DELETE CASCADE,
-  episode_name TEXT NOT NULL DEFAULT '',
+  anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
+  episode_name TEXT NOT NULL CHECK(length(trim(episode_name)) > 0),
   episode_date TIMESTAMPTZ NOT NULL DEFAULT now(),
 
   UNIQUE(anime_id, episode_name)
 );
 
+CREATE INDEX IF NOT EXISTS idx_upcoming_episode_date ON public.upcoming_episodes(episode_date ASC);
+
 -- user_links
+
 CREATE TYPE public.provider_enum AS ENUM(
-    'github', 
-    'facebook', 
-    'instagram', 
-    'telegram', 
-    'linkedin', 
-    'email', 
-    'youtube', 
-    'reddit', 
-    'twitter'
+    'github', 'facebook', 'instagram', 'telegram',
+    'linkedin', 'email', 'youtube', 'reddit', 'twitter'
 );
 
 CREATE TABLE IF NOT EXISTS public.user_links(
     user_link_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES public.users(user_id) ON DELETE CASCADE,
     user_link_url TEXT NOT NULL,
-    provider provider_enum NOT NULL,
+    provider public.provider_enum NOT NULL,
 
     UNIQUE(user_id, user_link_url)
 );
 ```
 
 </details>
-
-*P.S: Паралельно велися інші оптимізації іншою частиною команди, тому тут є інші зміни окрім вище описаних*
 
 ## Після оновлення
 
@@ -556,6 +553,36 @@ ALTER TABLE public.user_links DROP COLUMN provider;
 <summary>Поглянути код</summary>
 
 ```sql
+-- animes
+
+CREATE TYPE public.anime_format_enum AS ENUM('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
+CREATE TYPE public.anime_status_enum AS ENUM('upcoming', 'ongoing', 'cancelled', 'finished');
+CREATE TYPE public.mpaa_rating_enum AS ENUM('g', 'pg', 'pg13', 'r', 'nc17');
+
+CREATE TABLE IF NOT EXISTS public.animes(
+  anime_id UUID PRIMARY KEY DEFAULT uuidv7(),
+  slug TEXT NOT NULL UNIQUE,
+  title_ua TEXT NOT NULL DEFAULT '',
+  title_en TEXT NOT NULL DEFAULT '',
+  title_original TEXT NOT NULL DEFAULT '',
+  anime_description TEXT NOT NULL DEFAULT '',
+  cover_url TEXT NOT NULL DEFAULT '',
+  production_studio TEXT NOT NULL DEFAULT '',
+  mal_id BIGINT UNIQUE,
+  anilist_id BIGINT UNIQUE,
+  hikka_id TEXT UNIQUE,
+  imdb_id TEXT UNIQUE,
+  year_released SMALLINT CHECK(year_released >= 1900),
+  avg_episode_duration SMALLINT NOT NULL DEFAULT 0 CHECK(avg_episode_duration >= 0),
+  episodes_count SMALLINT NOT NULL DEFAULT 0 CHECK(episodes_count >= 0),
+  age_restriction mpaa_rating_enum,
+  anime_status anime_status_enum,
+  anime_format anime_format_enum NOT NULL DEFAULT 'tv',
+  available BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE INDEX IF NOT EXISTS idx_animes_available ON public.animes(available);
+
 -- users
 
 CREATE TYPE public.user_status_enum AS ENUM('active', 'banned', 'deactivated');
@@ -587,36 +614,6 @@ CREATE TABLE IF NOT EXISTS public.users(
 CREATE INDEX IF NOT EXISTS idx_users_status ON public.users(user_status);
 CREATE UNIQUE INDEX idx_users_unique_lower_nickname ON public.users(lower(nickname));
 CREATE UNIQUE INDEX idx_users_unique_lower_email ON public.users(lower(email));
-
--- animes
-
-CREATE TYPE public.anime_format_enum AS ENUM('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
-CREATE TYPE public.anime_status_enum AS ENUM('upcoming', 'ongoing', 'cancelled', 'finished');
-CREATE TYPE public.mpaa_rating_enum AS ENUM('g', 'pg', 'pg13', 'r', 'nc17');
-
-CREATE TABLE IF NOT EXISTS public.animes(
-  anime_id UUID PRIMARY KEY DEFAULT uuidv7(),
-  slug TEXT NOT NULL UNIQUE,
-  title_ua TEXT NOT NULL DEFAULT '',
-  title_en TEXT NOT NULL DEFAULT '',
-  title_original TEXT NOT NULL DEFAULT '',
-  anime_description TEXT NOT NULL DEFAULT '',
-  cover_url TEXT NOT NULL DEFAULT '',
-  production_studio TEXT NOT NULL DEFAULT '',
-  mal_id BIGINT UNIQUE,
-  anilist_id BIGINT UNIQUE,
-  hikka_id TEXT UNIQUE,
-  imdb_id TEXT UNIQUE,
-  year_released SMALLINT CHECK(year_released >= 1900),
-  avg_episode_duration SMALLINT NOT NULL DEFAULT 0 CHECK(avg_episode_duration >= 0),
-  episodes_count SMALLINT NOT NULL DEFAULT 0 CHECK(episodes_count >= 0),
-  age_restriction mpaa_rating_enum,
-  anime_status anime_status_enum,
-  anime_format anime_format_enum NOT NULL DEFAULT 'tv',
-  available BOOLEAN NOT NULL DEFAULT TRUE
-);
-
-CREATE INDEX IF NOT EXISTS idx_animes_available ON public.animes(available);
 
 -- anime_list_units
 
@@ -738,14 +735,17 @@ CREATE INDEX IF NOT EXISTS idx_sessions_expire_time ON public.sessions(expire_ti
 
 CREATE TABLE upcoming_episodes(
   upcoming_episode_id UUID PRIMARY KEY DEFAULT uuidv7(),
-  anime_id UUID REFERENCES animes(anime_id) ON DELETE CASCADE,
-  episode_name TEXT NOT NULL DEFAULT '',
+  anime_id UUID NOT NULL REFERENCES animes(anime_id) ON DELETE CASCADE,
+  episode_name TEXT NOT NULL CHECK(length(trim(episode_name)) > 0),
   episode_date TIMESTAMPTZ NOT NULL DEFAULT now(),
 
   UNIQUE(anime_id, episode_name)
 );
 
+CREATE INDEX IF NOT EXISTS idx_upcoming_episode_date ON public.upcoming_episodes(episode_date ASC);
+
 -- user_links
+
 CREATE TABLE IF NOT EXISTS public.user_links(
     user_link_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES public.users(user_id) ON DELETE CASCADE,

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+for i in ./tables/*; do
+  BASENAME=$(basename $i | cut -d. -F1)
+  echo
+  echo
+  echo "-- $BASENAME"
+  echo
+  sed -z 's/^\n//; s/\n$//' "$i"
+done
