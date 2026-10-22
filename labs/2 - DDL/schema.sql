@@ -1,19 +1,8 @@
--- ============================================
--- Lab 2: Wishlist Service
--- Database schema
--- ============================================
-
--- Remove existing tables so the script can be
--- executed again during development.
 DROP TABLE IF EXISTS reservations;
 DROP TABLE IF EXISTS wishlist_items;
 DROP TABLE IF EXISTS wishlists;
 DROP TABLE IF EXISTS users;
 
-
--- ============================================
--- Users
--- ============================================
 
 CREATE TABLE users (
     user_id UUID PRIMARY KEY,
@@ -22,10 +11,6 @@ CREATE TABLE users (
     password_hash TEXT NOT NULL
 );
 
-
--- ============================================
--- Wishlists
--- ============================================
 
 CREATE TABLE wishlists (
     wishlist_id UUID PRIMARY KEY,
@@ -38,10 +23,6 @@ CREATE TABLE wishlists (
         REFERENCES users(user_id)
 );
 
-
--- ============================================
--- Wishlist Items
--- ============================================
 
 CREATE TABLE wishlist_items (
     item_id UUID PRIMARY KEY,
@@ -57,10 +38,6 @@ CREATE TABLE wishlist_items (
         REFERENCES wishlists(wishlist_id)
 );
 
-
--- ============================================
--- Reservations
--- ============================================
 
 CREATE TABLE reservations (
     reservation_id UUID PRIMARY KEY,
