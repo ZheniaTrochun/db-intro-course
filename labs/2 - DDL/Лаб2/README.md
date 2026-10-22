@@ -21,20 +21,20 @@
 Таблиця яка зберігає інформацію про гравця як учсника команди
 
 `team_player_id` - (IDENTITY) - Ідентифікатор учасника команди **(PK)**
-`player_id` - Ідентифікатор гравця, позичений з таблиці Players **(FK)**
-`game_team_id` - Ідентифікатор команди по грі, позичений з таблиці Game Team **(FK)**
-`join_date` - Дата приєднання до команди
-`leave_date` - Дата виходу з команди (якщо був)
-`role` - Роль у команді
+`player_id` - (INT) - Ідентифікатор гравця, позичений з таблиці Players **(FK)**
+`game_team_id` - (INT) - Ідентифікатор команди по грі, позичений з таблиці Game Team **(FK)**
+`join_date` - (DATE) - Дата приєднання до команди
+`leave_date` - (DATE) - Дата виходу з команди (якщо був)
+`role` - (role_enum) - Роль у команді
 
 ## game_team:
 
 У цій таблиці зберігаються команди які представляють загальну команду (на приклад NAVI) у конкретній грі (на приклад команда NAVI в CS2)
 
 `game_team_id` - (IDENTITY) - Ідентифікатор команди по грі **(PK)**
-`game_id` - Ідентифікатор гри, позичений з таблиці Game **(FK)**
-`team_id` - Ідентифікатор команди, позичений з таблиці Team **(FK)**
-`coach_name` — Ім'я та прізвище тренера команди.
+`game_id` - (INT) - Ідентифікатор гри, позичений з таблиці Game **(FK)**
+`team_id` - (INT) - Ідентифікатор команди, позичений з таблиці Team **(FK)**
+`coach_name` — (TEXT) - Ім'я та прізвище тренера команди.
 
 #### game_team - team_player (1:N)
 
@@ -82,7 +82,7 @@
 `start_date` - (TIMESTAMPTZ) - Дата початку турніру
 `status` - (tournament_status) - Статус турніру, наприклад запланований, у процесі проведення або завершений.
 
-#### tournament - match (1:N/0)
+#### tournament - game_match (1:N/0)
 
 В одному турнірі проводятся декілька матчів. Проте матчі можуть бути ще не запланованими, а отже не існувати.
 Матч повинен бути частиною турніру
@@ -99,16 +99,16 @@
 У турнірів є організатори, але не всі організатори при реєстрації одразу проводити турнір.
 У турніра завжди є організатор
 
-## match:
+## game_match:
 
 У цій таблиці зберігається інформація про матчі турніру
 
 `match_id` - (IDENTITY) - Ідентифікатор матчу **(PK)**
-`tournament_id` — Ідентифікатор турніру, у рамках якого проводиться матч, позичений з таблиці Tournament **(FK)**
-`date` — Дата та час проведення матчу.
-`status` — Статус матчу, наприклад запланований, у процесі проведення або завершений.
+`tournament_id` - (INT) - Ідентифікатор турніру, у рамках якого проводиться матч, позичений з таблиці Tournament **(FK)**
+`status` - (match_status) - Статус матчу, наприклад запланований, у процесі проведення або завершений.
+`date` - (TIMESTAMPTZ) - Дата та час проведення матчу.
 
-#### match - match_participant (1:N)
+#### game_match - match_participant (1:N)
 
 В одному матчі беруть участь кілька команд учасників
 У матча хтось повинен приймати участь
@@ -117,10 +117,9 @@
 
 Таблиця у якій збереженні дані про команду у матчі та факт їх участі
 
-`match_participant_id` - (IDENTITY) - Ідентифікатор участі команди в матчі **(PK)**
-`match_id` — Ідентифікатор матчу, позичений з таблиці Match **(FK)**
-`game_team_id` — Ідентифікатор команди в конкретній грі, позичений з таблиці Game Team **(FK)**
-`is_winner` - Булеве значення яке позначає чи перемогла команда у матчі
+`match_id` - (INT) - Ідентифікатор матчу, позичений з таблиці Match **(PK)** **(FK)**
+`game_team_id` - (INT) - Ідентифікатор команди в конкретній грі, позичений з таблиці Game Team **(PK)** **(FK)**
+`is_winner` - (BOOL) - Булеве значення яке позначає чи перемогла команда у матчі
 
 ## team:
 
@@ -128,7 +127,7 @@
 
 `team_id` - (IDENTITY) - Ідентифікатор команди **(PK)**
 `team_name` - (INT) - Назва кіберспортивної команди. **UNIQUE**
-`country` - (ENUM) - Країна, яку представляє команда.
+`country` - (country_enum) - Країна, яку представляє команда.
 
 #### team - game_team (1:N/0)
 
@@ -247,7 +246,8 @@ CREATE TABLE team_player(
   	leave_date DATE,
   	team_role role_enum NOT NULL,
 
-    CONSTRAINT chk_leave_time_after_join CHECK (leave_date>=join_date)
+    CONSTRAINT chk_leave_time_after_join CHECK (leave_date>=join_date),
+	CONSTRAINT uq_no_double_participation UNIQUE NULLS NOT DISTINCT (player_id, game_team_id, leave_date),
 	--Player connection
 	CONSTRAINT fk_player_id
 		FOREIGN KEY (player_id)
@@ -307,11 +307,13 @@ CREATE TABLE game_match (
 );
 
 CREATE TABLE match_participant (
-	match_participant_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	game_match_id INT NOT NULL,
 	game_team_id INT NOT NULL,
 	is_winner BOOLEAN DEFAULT NULL,
 
+	--Primary key
+	CONSTRAINT pk_game_match_game_team
+		PRIMARY KEY (game_match_id, game_team_id),
 	--Game match connection
 	CONSTRAINT fk_game_match
 		FOREIGN KEY (game_match_id)
@@ -346,23 +348,17 @@ INSERT INTO orginizer (orginizer_name) VALUES
   ('Zaino'),
   ('Blizzard');
 
-INSERT INTO tournament (game_id,orginizer_id,prize,tournament_name,start_date,status) VALUES
-  (1, 1, '300$', 'CS2 International', '2026-09-10 13:37:00+03', 'done'),
-  (3,2, 'Eveything in this world', 'Major League Balatro', '2026-09-18 13:37:00+03', 'happeninng'),
-  (2,1, 'idk', 'Dota 2 International', '2026-10-18 13:37:00+03', 'planned');
-UPDATE tournament SET winner_id = 1 WHERE tournament_id = 1;
+INSERT INTO team (team_name, country) VALUES
+	('Natus Vincere', 'Ukraine'),
+	('OG', 'Sweden'),
+	('Team Secret', 'Other'),
+	('Seoul Dynasty', 'China');
 
 INSERT INTO player (nickname,first_name,last_name,country,date_of_birth)
 VALUES ('s1mple','Oleksandr','Kostyliev','Ukraine'::country_enum,'1997-10-02'),
  ('Notail','Johan','Sundstein','Sweden'::country_enum,'1993-10-08'),
  ('Dendi','Danil','Ishutin','Ukraine'::country_enum,'1989-12-30'),
  ('Profit','Park','Jun-young','China'::country_enum,'1999-01-06');
-
-INSERT INTO team_player (player_id,game_team_id,join_date,team_role)
-VALUES (1,1,'2016-01-01','Player'::role_enum),
-(2,2,'2012-01-01','Captain'::role_enum),
-(3,2,'2011-01-01','Captain'::role_enum),
-(4,3,'2017-01-01','Player'::role_enum);
 
 INSERT INTO game_team (game_id,team_id)
 VALUES (1,1),
@@ -371,24 +367,30 @@ VALUES (1,1),
 (4,3),
 (4,4);
 
-INSERT INTO team (team_name, country) VALUES
-  ('Natus Vincere', 'Ukraine'),
-  ('OG', 'Sweden'),
-  ('Team Secret', 'Other'),
-  ('Seoul Dynasty', 'China');
+INSERT INTO team_player (player_id,game_team_id,join_date,team_role)
+VALUES (1,1,'2016-01-01','Player'::role_enum),
+(2,2,'2012-01-01','Captain'::role_enum),
+(3,2,'2011-01-01','Captain'::role_enum),
+(4,3,'2017-01-01','Player'::role_enum);
 
+INSERT INTO tournament (game_id,orginizer_id,prize,tournament_name,start_date,status) VALUES
+  (1, 1, '300$', 'CS2 International', '2026-09-10 13:37:00+03', 'done'),
+  (3,2, 'Eveything in this world', 'Major League Balatro', '2026-09-18 13:37:00+03', 'happeninng'),
+  (2,1, 'idk', 'Dota 2 International', '2026-10-18 13:37:00+03', 'planned');
+
+UPDATE tournament SET winner_id = 1 WHERE tournament_id = 1;
 
 INSERT INTO game_match (tournament_id, status, match_date) VALUES
-  (1, 'finished', '2026-09-10 14:00:00+03'),
-  (1, 'finished', '2026-09-10 17:30:00+03'),
-  (2, 'in progress', '2026-09-18 15:00:00+03'),
-  (3, 'planned', '2026-10-18 18:00:00+03');
+	(1, 'finished', '2026-09-10 14:00:00+03'),
+	(1, 'finished', '2026-09-10 17:30:00+03'),
+	(2, 'in progress', '2026-09-18 15:00:00+03'),
+	(3, 'planned', '2026-10-18 18:00:00+03');
 
 INSERT INTO match_participant (game_match_id, game_team_id, is_winner) VALUES
-  (1, 1, TRUE),
-  (1, 2, FALSE),
-  (2, 2, TRUE),
-  (2, 3, FALSE),
-  (3, 3, NULL),
-  (3, 4, NULL);
+	(1, 1, TRUE),
+	(1, 2, FALSE),
+	(2, 2, TRUE),
+	(2, 3, FALSE),
+	(3, 3, NULL),
+	(3, 4, NULL);
 ```
