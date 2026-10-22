@@ -1,4 +1,3 @@
-
 create type monster_state as enum('wander','attack');
 
 create type race as enum('human','orc','elf','dwarf','khajiit');
@@ -146,6 +145,18 @@ insert into npc (entity_id, name) values
 
 ----REGION ITEMS/TOOLS ----
 
+create table inventory(
+	id int generated always as identity primary key,
+	character_id int not null references character(id),
+	gold int not null default 0,
+	capacity int not null default 20
+);
+
+insert into inventory (character_id, gold, capacity) values
+	(1, 49, 20),
+	(2, 47, 23),
+	(3, 34, 545);
+
 create type item_type as enum('weapon', 'food', 'armor', 'tool');
 
 create table item_template(
@@ -166,13 +177,17 @@ values
 create table item(
     id int generated always as identity primary key,
     item_tmpl_id int not null references item_template(id),
-    -- inv_id int not null references inventory(id),
+    inv_id int not null references inventory(id),
     inventory_slot smallint not null,
     quantity smallint not null default 1,
-    price smallint not null default 0,
     attributes jsonb,
     enchantments jsonb
 );
+
+insert into item (item_tmpl_id, inv_id, inventory_slot, quantity) values
+	(1, 1, 1, 1),
+	(2, 2, 2, 2),
+	(3, 3, 3, 34);
 
 create table npc_item_relation(
     npc_id int not null references npc(id),
@@ -216,12 +231,4 @@ create table character_spell(
 		quantity int not null default 1,
 		primary key (character_id,spell_id)
 );
-
-create table inventory(
-	id int generated always as identity primary key,
-	character_id int not null references character(id),
-	gold int not null default 0,
-	capacity int not null default 20
-);
 ----ENDREGION ITEMS/TOOLS ----
-
