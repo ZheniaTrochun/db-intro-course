@@ -111,10 +111,9 @@ create table character(
 );
 
 insert into character (worldentity_id, user_id, stats_id, name, experience, current_hp, current_mana, max_mana, skin_color_hex, sex, race, class) values
-		(1, 1, 1, 'Arthas', 0, 50, 30, 30, '#F5CBA7', 'male', 'human', 'fighter'),
-		(2, 2, 3, 'Sylvanas', 0, 100, 50, 50, '#A569BD', 'female', 'elf', 'rogue'),
-		(3, 3, 4, 'Thrall', 0, 200, 100, 100, '#229954', 'male', 'orc', 'cleric'),
-		(4, 4, 5, 'Jaina', 0, 150, 200, 200, '#5DADE2', 'female', 'human', 'wizard');
+		(3, 1, 1, 'Arthas', 0, 50, 30, 30, '#F5CBA7', 'male', 'human', 'fighter'),
+		(5, 2, 5, 'Sylvanas', 0, 100, 50, 50, '#A569BD', 'female', 'elf', 'rogue'),
+		(6, 3, 6, 'Thrall', 0, 200, 100, 100, '#229954', 'male', 'orc', 'cleric'),
 
 create table monster_entity(
     id int generated always as identity primary key,
@@ -225,10 +224,23 @@ create table spell(
 		mana_cost int not null default 0
 );
 
+insert into spell (name, description, mana_cost) values
+	(1, 'Fireball', 'A ball of fire that explodes upon impact, dealing damage to all enemies in the area.', 20),
+	(2, 'Ice Spike', 'A sharp spike of ice that pierces through enemies, slowing them down.', 15),
+	(3, 'Healing Word', 'A warm light that heals allies over time.', 25);
+
 create table character_spell(
 		character_id int not null references character(id),
 		spell_id int not null references spell(id),
 		quantity int not null default 1,
 		primary key (character_id,spell_id)
 );
+
+insert into character_spell (character_id, spell_id, quantity) values
+	(1, 1, 3),
+	(1, 2, 2),
+	(2, 3, 5),
+	(3, 1, 1),
+	(3, 2, 4);
+
 ----ENDREGION ITEMS/TOOLS ----
