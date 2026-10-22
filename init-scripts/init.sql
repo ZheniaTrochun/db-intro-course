@@ -225,9 +225,9 @@ create table spell(
 );
 
 insert into spell (name, description, mana_cost) values
-	(1, 'Fireball', 'A ball of fire that explodes upon impact, dealing damage to all enemies in the area.', 20),
-	(2, 'Ice Spike', 'A sharp spike of ice that pierces through enemies, slowing them down.', 15),
-	(3, 'Healing Word', 'A warm light that heals allies over time.', 25);
+	('Fireball', 'A ball of fire that explodes upon impact, dealing damage to all enemies in the area.', 20),
+	('Ice Spike', 'A sharp spike of ice that pierces through enemies, slowing them down.', 15),
+	('Healing Word', 'A warm light that heals allies over time.', 25);
 
 create table character_spell(
 		character_id int not null references character(id),
