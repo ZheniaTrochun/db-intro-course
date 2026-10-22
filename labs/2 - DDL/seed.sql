@@ -1,13 +1,3 @@
--- ============================================
--- Lab 2: Wishlist Service
--- Seed data
--- ============================================
-
-
--- ============================================
--- Users
--- ============================================
-
 INSERT INTO users (user_id, name, email, password_hash)
 VALUES
     ('11111111-1111-1111-1111-111111111111',
@@ -30,10 +20,6 @@ VALUES
      'sofia@example.com',
      'hash_sofia');
 
-
--- ============================================
--- Wishlists
--- ============================================
 
 INSERT INTO wishlists
     (wishlist_id, user_id, name, description, is_public)
@@ -62,10 +48,6 @@ VALUES
      'Personal items',
      FALSE);
 
-
--- ============================================
--- Wishlist Items
--- ============================================
 
 INSERT INTO wishlist_items
     (item_id, wishlist_id, name, description, price,
@@ -116,10 +98,6 @@ VALUES
      NULL,
      FALSE);
 
-
--- ============================================
--- Reservations
--- ============================================
 
 INSERT INTO reservations
     (reservation_id, item_id, user_id)
