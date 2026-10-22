@@ -7,4 +7,4 @@ CREATE TABLE upcoming_episodes(
   UNIQUE(anime_id, episode_name)
 );
 
-CREATE INDEX IF NOT EXISTS idx_upcoming_episode_date ON public.upcoming_episodes(episode_date ASC);
+CREATE INDEX IF NOT EXISTS idx_upcoming_episodes_date ON public.upcoming_episodes(episode_date ASC);
