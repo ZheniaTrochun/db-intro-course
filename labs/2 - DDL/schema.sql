@@ -120,3 +120,61 @@ CREATE TABLE order_item (
         FOREIGN KEY (product_id)
         REFERENCES product (product_id)
 );
+
+-- Платежі за замовленнями.
+CREATE TABLE payment (
+    payment_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    order_id INTEGER NOT NULL,
+
+    amount NUMERIC(10, 2) NOT NULL
+        CHECK (amount > 0),
+
+    method VARCHAR(20) NOT NULL
+        CHECK (method IN ('card', 'bank_transfer', 'cash')),
+
+    paid_at TIMESTAMP,
+
+    status VARCHAR(20) NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'successful', 'failed')),
+
+    CONSTRAINT fk_payment_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders (order_id),
+
+    -- Час успішної оплати вказується лише для успішного платежу.
+    CONSTRAINT chk_payment_paid_at
+        CHECK (
+            (status = 'successful' AND paid_at IS NOT NULL)
+            OR
+            (status IN ('pending', 'failed') AND paid_at IS NULL)
+        )
+);
+
+-- Відгуки клієнтів про товари.
+CREATE TABLE review (
+    review_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    customer_id INTEGER NOT NULL,
+
+    product_id INTEGER NOT NULL,
+
+    rating INTEGER NOT NULL
+        CHECK (rating BETWEEN 1 AND 5),
+
+    comment TEXT,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_review_customer
+        FOREIGN KEY (customer_id)
+        REFERENCES customer (customer_id),
+
+    CONSTRAINT fk_review_product
+        FOREIGN KEY (product_id)
+        REFERENCES product (product_id),
+
+    -- Один клієнт може залишити лише один відгук на один товар.
+    CONSTRAINT uq_review_customer_product
+        UNIQUE (customer_id, product_id)
+);
