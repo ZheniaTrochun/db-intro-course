@@ -1,0 +1,77 @@
+# Лабораторна робота №2
+## Перетворення ER-діаграми на схему PostgreSQL
+
+**Тема:** Інтернет-магазин.
+
+**Виконали, група ІМ-51:**
+- Брижниченко Злата Володимирівна;
+- Дмитрієнко Вікторія Андріївна;
+- Бескровна Олександра Вікторівна.
+
+## 1. Мета роботи
+
+Перетворити ER-модель інтернет-магазину з лабораторної роботи №1
+на реляційну схему PostgreSQL: створити таблиці, визначити типи
+даних, ключі та обмеження, додати тестові дані й перевірити
+коректність роботи бази.
+
+## 2. Файли роботи
+
+- [schema.sql](./schema.sql) — створення восьми таблиць,
+  первинних і зовнішніх ключів та обмежень.
+- [seed.sql](./seed.sql) — заповнення таблиць тестовими даними.
+- [checks.sql](./checks.sql) — перевірка даних, зв’язків
+  та відхилення некоректних значень.
+
+## 3. Структура бази даних
+
+| Таблиця | Стовпці | Ключі |
+|---|---|---|
+| customer | customer_id, first_name, last_name, email, phone, registered_at | PK: customer_id; UNIQUE: email |
+| address | address_id, customer_id, city, street, building, postal_code | PK: address_id; FK: customer_id → customer; UNIQUE: (address_id, customer_id) |
+| category | category_id, name, description | PK: category_id; UNIQUE: name |
+| product | product_id, category_id, name, description, price, stock_qty | PK: product_id; FK: category_id → category |
+| orders | order_id, customer_id, address_id, order_date, status | PK: order_id; FK: customer_id → customer; складений FK: (address_id, customer_id) → address |
+| order_item | order_id, product_id, quantity, unit_price | PK: (order_id, product_id); FK: order_id → orders; FK: product_id → product |
+| payment | payment_id, order_id, amount, method, paid_at, status | PK: payment_id; FK: order_id → orders |
+| review | review_id, customer_id, product_id, rating, comment, created_at | PK: review_id; FK: customer_id → customer; FK: product_id → product; UNIQUE: (customer_id, product_id) |
+
+Для ідентифікаторів використано INTEGER GENERATED ALWAYS AS IDENTITY.
+Виняток — order_item, де первинний ключ складається з двох
+зовнішніх ключів.
+
+Короткі текстові значення мають тип VARCHAR, описи та коментарі —
+TEXT. Дати й час зберігаються як TIMESTAMP, кількості й оцінки —
+INTEGER, грошові значення — NUMERIC(10, 2).
+
+Телефон, номер будинку та поштовий індекс зберігаються як текст.
+Це дозволяє зберігати початкові нулі й нечислові символи.
+
+## 4. Зв’язки та обмеження
+
+Клієнт може мати кілька адрес і замовлень. Кожен товар належить
+одній категорії. Замовлення пов’язане з товарами через order_item,
+де зберігаються кількість і ціна на момент оформлення.
+Одне замовлення може мати кілька платежів.
+
+Основні обмеження:
+- email клієнта та назва категорії унікальні;
+- обов’язкові поля мають NOT NULL, обов’язкові текстові поля
+  також перевіряються на порожній рядок після видалення
+  крайніх звичайних пробілів;
+- ціни та суми платежів більші за нуль;
+- залишок товару невід’ємний, кількість у позиції не менша за 1;
+- оцінка відгуку — ціле число від 1 до 5;
+- один товар не повторюється в одному замовленні;
+- один клієнт може залишити лише один відгук на один товар;
+- статуси замовлень, платежів і способи оплати обмежені списками;
+- успішний платіж має paid_at, для pending та failed це поле NULL.
+
+Складений зовнішній ключ (address_id, customer_id) у таблиці orders
+гарантує, що адреса доставки належить клієнту замовлення.
+Для такого посилання в address визначено UNIQUE
+(address_id, customer_id).
+
+Для зовнішніх ключів залишено стандартну поведінку NO ACTION:
+видалення батьківського запису не допускається, якщо після операції
+на нього залишаються посилання.
