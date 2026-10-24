@@ -21,6 +21,7 @@ CREATE TABLE wishlists (
 
     FOREIGN KEY (user_id)
         REFERENCES users(user_id)
+        ON DELETE CASCADE
 );
 
 
@@ -36,6 +37,7 @@ CREATE TABLE wishlist_items (
 
     FOREIGN KEY (wishlist_id)
         REFERENCES wishlists(wishlist_id)
+        ON DELETE CASCADE
 );
 
 
@@ -46,8 +48,10 @@ CREATE TABLE reservations (
     reserved_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (item_id)
-        REFERENCES wishlist_items(item_id),
+        REFERENCES wishlist_items(item_id)
+        ON DELETE CASCADE,
 
     FOREIGN KEY (user_id)
         REFERENCES users(user_id)
+        ON DELETE CASCADE
 );
