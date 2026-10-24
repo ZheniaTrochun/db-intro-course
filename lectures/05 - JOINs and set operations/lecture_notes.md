@@ -2,299 +2,422 @@
 
 ## Теми лекції
 
-- Операції JOIN між таблицями
-- Операції над множинами (SET operations): `UNION`, `INTERSECT`, `EXCEPT`
+- Навіщо і як зʼєднувати таблиці: `INNER JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `FULL OUTER JOIN`, `CROSS JOIN`
+- Операції над множинами: `UNION`, `INTERSECT`, `EXCEPT`
+- Як JOIN виконується насправді: Nested Loop, Hash Join, Merge Join
 
 ---
 
-## 2. Що таке JOIN та навіщо це
+## 1. Навіщо JOIN
 
-JOIN - це інструмент для поєднання рядків із двох або більше таблиць на основі логічного зв'язку між ними (зазвичай на основі foreign keys).
+У нормалізованій базі один факт зберігається в одному місці. Студент - це рядок у `student`, його імʼя -
+у `person`, його група - у `student_group`, а звʼязок "студент належить групі" - у
+`student_group_assignment`. Щоб відповісти на просте питання "як звати студентів групи ІМ-21", потрібно
+зібрати дані з чотирьох таблиць.
 
-У нормалізованих базах даних інформація розподілена по різних таблицях.  
-Наприклад:
-- Таблиця `student`: `id`, `name`, `surname`, `group_id`
-- Таблиця `contact_data`: контактні дані студентів
-- Таблиця `student_group`: інформація про академічні групи
+JOIN - інструмент, який робить дві речі:
 
-Іноді потрібно отримати дані одразу з кількох таблиць - саме тоді застосовують JOIN.
+1. збирає повʼязані рядки різних таблиць в один рядок результату
+2. фільтрує рядки однієї таблиці залежно від того, що є (або чого немає) в іншій
+
+Звʼязки, по яких зʼєднують, - це майже завжди зовнішні ключі (`student.person_id -> person.person_id`),
+але JOIN не вимагає, щоб FK існував: зʼєднати можна по будь-якій умові.
+
+---
+
+## 2. Як читати JOIN
+
+```sql
+SELECT ...
+FROM student s                -- ліва таблиця
+JOIN person p                 -- права таблиця
+ON p.person_id = s.person_id  -- умова
+```
+
+- Результат JOIN - це пари рядків (один з лівої, один з правої), для яких умова `ON` істинна.
+- `s`, `p` - псевдоніми. Вони не обовʼязкові, але без них запити значно менш читабельні.
+- Логічний порядок обробки запиту: `FROM`/`JOIN` -> `WHERE` -> `GROUP BY` -> `HAVING` -> `SELECT` -> `ORDER BY` -> `LIMIT`. 
+  Звідси два наслідки: псевдонім колонки з `SELECT` не можна використати в `ON` чи `WHERE`, а `WHERE` застосовується до **вже зʼєднаного** результату.
+- Кілька JOIN поспіль читаються згори вниз: кожен наступний `JOIN` приєднується до всього накопиченого результату, а не до попередньої таблиці.
+
+> Примітка: Таблиця - не "множина", яку можна намалювати колом: один лівий рядок може утворити 0, 1 або багато пар.
 
 ---
 
 ## 3. Види JOIN
 
-| Вид JOIN | Опис                                                                                           | Приклад використання                           |
-|-----------|------------------------------------------------------------------------------------------------|------------------------------------------------|
-| INNER JOIN | Повертає тільки ті рядки, які мають збіги в обох таблицях                                      | Студенти, які мають контактну інформацію       |
-| LEFT JOIN (LEFT OUTER JOIN) | Повертає всі рядки з першої таблиці та відповідні з другої; якщо збігів немає - ставить `NULL` | Всі викладачі, навіть ті, що не курують групи  |
-| RIGHT JOIN (RIGHT OUTER JOIN) | Дзеркальна версія LEFT JOIN - всі рядки з другої таблиці                                       | Рідко використовується                         |
-| FULL OUTER JOIN | Поєднання LEFT і RIGHT JOIN - усі рядки з обох таблиць                                         | Всі студенти та всі групи                      |
-| CROSS JOIN | Декартовий добуток двох таблиць (усі комбінації рядків)                                        | Специфічні задачі                              |
+| Вид | Що потрапляє в результат | Коли використовувати                              |
+|---|---|---------------------------------------------------|
+| `INNER JOIN` | Тільки пари, для яких умова істинна | Потрібні лише X, у яких є Y                       |
+| `LEFT [OUTER] JOIN` | Усі пари + кожен лівий рядок без пари (праві колонки = `NULL`) | Потрібні всі X, а Y - якщо є                      |
+| `RIGHT [OUTER] JOIN` | Дзеркально до LEFT | Практично не використовується                     |
+| `FULL [OUTER] JOIN` | Усі пари + ліві без пари + праві без пари | Потрібні всі X і всі Y, спарені де можливо        |
+| `CROSS JOIN` | Усі комбінації (декартів добуток) | Згенерувати всі пари, наприклад "група - семестр" |
 
----
-
-## 4. INNER JOIN
+### 3.1. INNER JOIN
 
 ```sql
-SELECT *
+-- студенти з їхніми іменами
+SELECT s.student_id, p.first_name, p.last_name
 FROM student s
-INNER JOIN student_group g
-ON s.group_id = g.group_id;
+INNER JOIN person p ON p.person_id = s.person_id;
 ```
 
-- `ON` визначає умову поєднання.  
-- Результат містить усі колонки обох таблиць, для яких знайдено відповідність.
+Слово `INNER` можна опускати: `JOIN` = `INNER JOIN`.
 
 ![img.png](imgs/img.png)
 
-### Альтернатива з `USING`
+### 3.2. `ON` і `USING`
 
-Якщо колонки мають однакові назви:
-```sql
-SELECT *
-FROM student
-INNER JOIN student_group
-USING (group_id);
-```
-
----
-
-## 5. LEFT JOIN
+Якщо колонки в обох таблицях називаються однаково і означають одне й те саме, можна писати `USING`:
 
 ```sql
-SELECT *
-FROM teacher t
-LEFT JOIN student_group g
-ON t.teacher_id = g.curator_id;
+SELECT * FROM student s JOIN student_group_assignment sga USING (student_id);
 ```
 
-- Всі викладачі з'являться у результаті, навіть ті, що не курують групи.  
-- Для викладачів без груп - у колонках груп буде `NULL`.
+Різниця не лише косметична: з `ON` у `SELECT *` колонка `student_id` зʼявиться двічі (6 колонок), з
+`USING` - один раз і першою (5 колонок). Тому в довгих ланцюжках з `USING` не потрібно писати
+`s.student_id` - колонка одна.
+
+Правило: `USING` - коли назва і сенс збігаються (`person_id`, `course_id`); `ON` - в усіх інших випадках,
+зокрема коли колонки називаються по-різному (`student_group.curator_id = professor.professor_id`) або коли
+умова не є рівністю.
+
+Існує також і `NATURAL JOIN` - він зʼєднує по всіх однойменних колонках. але його не варто використовувати:
+результат зміниться, щойно в обох таблицях зʼявиться ще одна колонка з однаковою назвою (особливо, якщо ці колонки мають однакову назву, але позначають різні речі).
+
+### 3.3. Умова не обовʼязково рівність
+
+В `ON` можна написати будь-який булевий вираз: `a.x < b.y`, `BETWEEN`, `<>`, `LIKE` і тд. 
+Семантика не змінюється - у результат потрапляють пари рядків, для яких умова істинна,
+а в LEFT JOIN лівий рядок без жодної істинної пари отримує `NULL`-половину.
+
+```sql
+-- оцінка -> літера за діапазоном: таблиця шкали з колонками min_grade, max_grade, letter
+SELECT e.student_id, e.grade, g.letter
+FROM enrolment e
+JOIN grade_scale g ON e.grade BETWEEN g.min_grade AND g.max_grade;
+
+-- усі пари студентів однієї групи, без "сам із собою" і без дублікатів
+SELECT a.student_id, b.student_id
+FROM student_group_assignment a
+JOIN student_group_assignment b ON b.group_id = a.group_id
+                                AND b.student_id > a.student_id;
+```
+
+Нюанс у виконанні: швидкі алгоритми зʼєднання розраховані саме на рівність. Якщо в умові є хоч
+одна рівність, СУБД зʼєднує по ній, а решту умов перевіряє як фільтр над парами. Якщо рівності немає
+взагалі (`a.x < b.y`, діапазони і тд), лишається лише перебір пар, і вартість зростає. 
+Тому в умові зʼєднання варто мати хоча б одну рівність.
+
+### 3.4. LEFT JOIN
+
+```sql
+-- усі групи та їхні старости, у двох груп старости ще немає
+SELECT sg.group_name, p.first_name, p.last_name
+FROM student_group sg
+LEFT JOIN student s ON s.student_id = sg.student_lead
+LEFT JOIN person  p ON p.person_id  = s.person_id
+ORDER BY sg.group_name;
+```
+
+З `INNER JOIN` замість `LEFT` ці дві групи просто зникнуть.
+
+Зверніть увагу на другий `LEFT JOIN person`: якщо після `LEFT JOIN` поставити `INNER JOIN` по колонці з
+"правої" сторони, рядки з `NULL` знову відріжуться. Після першого `LEFT` зазвичай усі наступні зʼєднання по цій гілці теж `LEFT`.
 
 ![img_1.png](imgs/img_1.png)
 
----
+### 3.5. RIGHT JOIN
 
-## 6. RIGHT JOIN
-
-- Повністю аналогічний до LEFT JOIN, але виводить усі рядки з другої таблиці.
-- Зустрічається рідко, оскільки той самий результат можна отримати, просто помінявши таблиці місцями у LEFT JOIN.
-- У переважній більшості випадків потрібно надавати перевагу LEFT JOIN.
+`A RIGHT JOIN B ON ...` === `B LEFT JOIN A ON ...`. Різниця лише в порядку колонок у `SELECT *`. У реальному коді
+RIGHT JOIN майже не зустрічається, бо запит читають зліва направо: "від чого відштовхуємось" має стояти
+першим. Варто завжди надавати перевагу LEFT JOIN.
 
 ![img_2.png](imgs/img_2.png)
 
----
+### 3.6. FULL OUTER JOIN
 
-## 7. FULL OUTER JOIN
+Має сенс лише тоді, коли рядки без пари можуть бути з обох боків. У нашій схемі: викладач може не вести
+жодного курсу, а курс може ще не мати викладача.
 
 ```sql
-SELECT *
-FROM student s
-FULL OUTER JOIN student_group g
-ON s.group_id = g.group_id;
+SELECT pe.last_name AS professor, ct.professor_role, c.course_name
+FROM professor prof
+INNER JOIN person pe USING (person_id)
+LEFT JOIN course_teacher ct ON ct.professor_id = prof.professor_id
+FULL OUTER JOIN course c ON c.course_id    = ct.course_id
+ORDER BY professor NULLS LAST, course_name;
 ```
-
-- Повертає всі рядки з обох таблиць.
-- Якщо відповідності немає - заповнює поля `NULL`.
 
 ![img_3.png](imgs/img_3.png)
 
----
-
-## 8. CROSS JOIN
+### 3.7. CROSS JOIN
 
 ```sql
-SELECT *
-FROM table1 t1, table2 t2;
+SELECT s.student_id, sg.group_name
+FROM student s
+CROSS JOIN student_group sg;
 ```
 
-- Не має предиката `ON`.
-- Кожен рядок з першої таблиці поєднується з усіма рядками другої таблиці.
-- Використовується рідко та у специфічних задачах.
+Те саме старим синтаксисом: `FROM student s, student_group sg`. Кома між таблицями - це неявний CROSS JOIN.
+
+Корисне застосування: згенерувати всі комбінації, а потім anti-join-ом знайти, яких бракує - "які студенти групи не записані на обовʼязковий курс".
 
 ![img_4.png](imgs/img_4.png)
 
 ---
 
-## 9. Антиджойни (ANTI-JOIN)
+## 4. Таблиця рішень: яке питання -> який інструмент використовувати
 
-- Використовуються для вибірки рядків з першої таблиці, які не мають відповідників у другій.
-- Реалізуються через `LEFT JOIN` із додатковою умовою `WHERE second_table.id IS NULL`.
+| Питання до даних                               | Інструмент |
+|------------------------------------------------|---|
+| X разом із повʼязаними Y, X без Y не цікавлять | `INNER JOIN` |
+| Усі X, а Y - якщо є                            | `LEFT JOIN` |
+| X, у яких немає Y                              | anti-join: `LEFT JOIN ... WHERE y.pk IS NULL` |
+| Усі X і всі Y, спарені де можливо              | `FULL OUTER JOIN` |
+| Усі комбінації X - Y                           | `CROSS JOIN` |
+| Два списки однакової форми поєднати в один     | `UNION ALL` (або `UNION`, якщо треба прибрати дублікати) |
+| Що є в обох списках / тільки в першому         | `INTERSECT` / `EXCEPT` |
+
+---
+
+## 5. Умова в `ON` чи у `WHERE` - найпоширеніша помилка з LEFT JOIN
+
+Питання: "усі викладачі, і для кожного - активні групи, які він курує".
+
+```sql
+-- умова у WHERE
+SELECT pe.last_name, sg.group_name
+FROM professor prof
+JOIN person pe USING (person_id)
+LEFT JOIN student_group sg ON sg.curator_id = prof.professor_id
+WHERE sg.group_status = 'active';
+-- 5 рядків. Викладачі без груп зникли
+```
+
+Чому: `WHERE` виконується після JOIN. У викладача без груп `sg.group_status` дорівнює `NULL`,
+`NULL = 'active'` - не істина, рядок відкидається. LEFT JOIN фактично перетворився на INNER.
+
+```sql
+-- умова в ON
+SELECT pe.last_name, sg.group_name
+FROM professor prof
+JOIN person pe USING (person_id)
+LEFT JOIN student_group sg ON sg.curator_id = prof.professor_id
+                          AND sg.group_status = 'active';
+-- 11 рядків: усі викладачі, у 6 - NULL замість групи
+```
+
+Правило: умови, які обмежують праву таблицю, повинні бути в `ON`. Умови, які обмежують результат, - у `WHERE`. 
+Виняток - anti-join, де `WHERE ... IS NULL` на правій таблиці ставиться навмисно.
+
+---
+
+## 6. Ще дві речі, які ламають JOIN
+
+### 6.1. `NULL` ніколи не зʼєднується
+
+`NULL = NULL` - це не `true`, а `NULL`. Тому рядок із `NULL` у колонці зʼєднання ніколи не утворює пари:
+в INNER JOIN він зникає, у LEFT JOIN отримує `NULL`-половину.
+Якщо `NULL` треба вважати рівними - `ON a.x IS NOT DISTINCT FROM b.x`.
+
+### 6.2. Розмноження рядків (fan-out)
+
+LEFT JOIN повертає не "стільки рядків, скільки в лівій таблиці", а щонайменше по одному рядку на кожен рядок в лівій таблиці.
+Якщо в лівого рядка кілька відповідників - він повториться стільки ж разів.
+
+---
+
+## 7. Self-join (Одна таблиця двічі)
+
+Коли таблиця посилається сама на себе або потрібна в двох ролях, її беруть двічі з різними псевдонімами:
+
+```sql
+-- курси та їхні пререквізити
+SELECT c.course_name, pre.course_name AS prerequisite
+FROM course c
+LEFT JOIN course_prerequisite cp ON cp.course_id = c.course_id
+LEFT JOIN course pre             ON pre.course_id = cp.prerequisite_course_id
+ORDER BY c.course_name, prerequisite;
+```
+
+---
+
+## 8. Anti-join і semi-join
+
+Anti-join - "X, у яких немає Y". Еквівалентні способи вираження anti-join:
+
+```sql
+-- студенти, які не є старостами
+
+-- 1 - LEFT JOIN + IS NULL
+SELECT s.student_id FROM student s
+LEFT JOIN student_group g ON g.student_lead = s.student_id
+WHERE g.group_id IS NULL;                                               -- 36
+
+-- 2 - NOT EXISTS (найчитабельніший)
+SELECT s.student_id FROM student s
+WHERE NOT EXISTS (SELECT 1 FROM student_group g WHERE g.student_lead = s.student_id);   -- 36
+```
+
+У способі 1 колонка в `IS NULL` має бути такою, що не буває NULL у реальному рядку правої таблиці
+(її первинний ключ або сама колонка зʼєднання). Інакше в результат потраплять і "справжні" рядки з NULL.
 
 ![img_7.png](imgs/img_7.png)
 
 ---
 
-## 10. Підтримка JOIN у різних СУБД
+## 9. Підтримка в різних СУБД
 
-- Не всі системи керування базами даних (СУБД) підтримують усі типи JOIN однаково.
-- Деякі можуть не мати `FULL OUTER JOIN` або мати свій синтаксис.
-- У курсі розглядається PostgreSQL та його синтаксис.
-
----
-
-## 11. Операції над множинами (SET OPERATIONS)
-
-Операції над множинами - це операції над наборами рядків, а не над атрибутами.
-
-| Операція | Опис |
-|-----------|-------|
-| UNION | Об'єднання результатів двох запитів |
-| INTERSECT | Перетин результатів |
-| EXCEPT | Різниця між результатами |
-
-> ⚠️ Всі операції над множинами вимагають, щоб кількість і типи колонок у запитах збігалися.
-
----
-
-### 11.1. UNION
+PostgreSQL підтримує все перелічене.   
+MySQL і MariaDB не мають `FULL OUTER JOIN`.  
+Емуляція - через операції над множинами з наступного розділу:
 
 ```sql
-SELECT name FROM student
+SELECT ... FROM a LEFT  JOIN b ON ...
 UNION
-SELECT name FROM teacher;
+SELECT ... FROM a RIGHT JOIN b ON ...;      -- = FULL OUTER JOIN
 ```
 
-- Об'єднує результати обох запитів.
-- Дублікатні рядки автоматично видаляються.
-- Для збереження дублікатів - `UNION ALL`.
+---
+
+## 10. Як JOIN виконується насправді
+
+### 10.1. Логічний опис != фізичний план
+
+Вираз `FROM a JOIN b JOIN c` описує результат, а не порядок дій. Для `INNER JOIN` порядок таблиць у запиті на
+результат не впливає - планувальник СУБД сам обирає, що з чим і як зʼєднувати, за статистикою таблиць. 
+Для `LEFT/RIGHT/FULL OUTER JOIN` порядок має значення семантично.
+
+### 10.2. Три алгоритми
+
+Будь-який JOIN PostgreSQL виконує одним із трьох способів. Який саме - вирішує планувальник для кожного
+запиту окремо.
+
+Nested Loop - найпростіший: для кожного рядка однієї сторони перебираємо рядки другої й перевіряємо
+умову. Вартість зростає як добуток розмірів, тому підходить, коли одна зі сторін дуже мала або пошук
+відповідників у другій дешевий.
+
+Hash Join - для рівності (`a.x = b.y`): з меншої сторони будується хеш-таблиця в памʼяті за ключем
+зʼєднання, більша сторона пробігається один раз, і для кожного рядка пара шукається в хеші. Основний
+алгоритм для зʼєднання двох великих таблиць.
+
+Merge Join - обидві сторони відсортовані по ключу зʼєднання й пробігаються паралельно, як злиття двох
+відсортованих списків. Вигідний, коли дані вже впорядковані або їх усе одно треба сортувати.
+
+Що робить кожен із них дешевим чи дорогим на реальних даних, як подивитись обраний план і як на нього
+вплинути - теми лекцій 11–12.
+
+### 10.3. Скільки JOIN можна робити в одному запиті
+
+Синтаксично - скільки завгодно. Але вичерпний перебір порядків зʼєднання планувальник робить лише до
+`join_collapse_limit` = 8 таблиць, а від `geqo_threshold` = 12 переходить на евристичний (генетичний)
+алгоритм. Запит на 20 таблиць працюватиме, але план може бути далеким від оптимального - це одна з причин,
+чому великі запити зачасту розбивають на CTE або view.
+
+---
+
+## 11. Операції над множинами
+
+JOIN робить результат ширшим - додає колонки з іншої таблиці до кожного рядка. Операції над множинами
+роблять його довшим - складають рядки однакової форми з двох запитів.
+
+| Операція          | Результат                           |
+|-------------------|-------------------------------------|
+| `UNION [ALL]`     | рядки першого та другого запиту     |
+| `INTERSECT [ALL]` | рядки, що є в обох                  |
+| `EXCEPT [ALL]`    | рядки першого, яких немає в другому |
+
+### 11.1. Правила
+
+- Кількість колонок має збігатись, типи - бути сумісними (PostgreSQL шукає спільний тип, наприклад `text` і `varchar` сумісні, `enum` і `varchar` - ні).
+- Імена колонок результату беруться з першого `SELECT`.
+- `UNION` без `ALL` - це дедуплікація всього результату. Якщо дублікатів бути не може або вони ролі не грають - варто використовувати `UNION ALL`, це дешевше.
+- `ORDER BY` і `LIMIT` в кінці застосовуються до всього результату.
+- `INTERSECT` має вищий пріоритет за `UNION`: `SELECT 1 UNION SELECT 2 INTERSECT SELECT 2` -> `{1, 2}`,
+  а `(SELECT 1 UNION SELECT 2) INTERSECT SELECT 2` -> `{2}`.
+- На відміну від JOIN, операції над множинами вважають `NULL` рівними між собою.
+
+### 11.2. Приклади
+
+```sql
+-- викладачі, які і ведуть курси, і курують групи
+SELECT professor_id FROM course_teacher
+INTERSECT
+SELECT curator_id   FROM student_group;
+
+-- викладачі, які ведуть курси, але нічого не курують
+SELECT professor_id FROM course_teacher
+EXCEPT
+SELECT curator_id   FROM student_group;
+
+-- студенти, записані і на "Машинне навчання", і на "Операційні системи"
+SELECT student_id FROM enrolment WHERE course_id = 8
+INTERSECT
+SELECT student_id FROM enrolment WHERE course_id = 6;
+```
 
 ![img_3.png](imgs/img_3.png)
 
 ---
 
-### 11.2. INTERSECT
+## 12. JOIN проти операцій над множинами
 
-```sql
-SELECT name FROM student
-INTERSECT
-SELECT name FROM teacher;
-```
+| | JOIN | UNION / INTERSECT / EXCEPT |
+|---|---|---|
+| Результат | ширший: колонки з кількох таблиць в одному рядку | довший: рядки однакової форми з кількох запитів |
+| Звʼязок між частинами | явна умова `ON` | позиційний: 1-ша колонка з 1-ю, 2-га з 2-ю... |
+| `NULL` у ключі | ніколи не зʼєднується | вважається рівним `NULL` |
+| Дублікати | зберігаються (і множаться) | `UNION`/`INTERSECT`/`EXCEPT` прибирають, `... ALL` зберігають |
 
-- Повертає лише ті рядки, які є в обох множинах.
-- Для включення дублікатів - `INTERSECT ALL`.
-
-![img.png](imgs/img.png)
+Це різні інструменти, а не два способи зробити одне й те саме.
 
 ---
 
-### 11.3. EXCEPT
-
-```sql
-SELECT name FROM student
-EXCEPT
-SELECT name FROM teacher;
-```
-
-- Повертає рядки, які є у першому наборі, але відсутні у другому.
-
-![img_7.png](imgs/img_7.png)
-
----
-
-## 12. Порівняння JOIN та SET-операцій
-
-| Критерій | JOIN                                                                              | Операції над множинами                 |
-|-----------|-----------------------------------------------------------------------------------|----------------------------------------|
-| Працює над | Колонками                                                                         | Рядками                                |
-| Результат | Об'єднання атрибутів                                                              | Додавання рядків                       |
-| Основна ідея | Поєднання пов'язаних даних                                                        | Комбінація наборів результатів         |
-| Взаємозамінність | SET операції можна виразити через JOIN або кілька окремих запитів, але не навпаки | JOIN не виражається через SET операції |
-
----
-
-## 13. Практичне застосування
-- Можна комбінувати багато JOIN в одному запиті (20+ - не проблема).
-- JOIN та SET-операції часто застосовуються у звітах, аналітичних вибірках, побудові складних представлень.
-- У продакшн-системах найчастіше використовуються INNER JOIN, LEFT JOIN, та UNION.
-
----
-
-## 14. Висновки
-- JOIN - основний інструмент для об'єднання таблиць.
-- INNER JOIN - найпоширеніший тип JOIN-ів, LEFT JOIN - на другому місці, RIGHT JOIN рідкісний та його слід уникати.
-- FULL OUTER JOIN - комбінує LEFT JOIN + RIGHT JOIN.
-- Операції над множинами дозволяють поєднувати результати запитів як набори рядків.
-- Розуміння JOIN є критичним для написання складних практичних SQL-запитів.
-
-## 15. Практична частина лекції
+## 13. Практична частина лекції
 
 Для демонстрації запитів під час лекції, попередньо було підготовано синтетичні дані, запити знаходяться у [файлі](../../scripts/insert-data.sql).
 
 Під час лекції було розроблено наступні запити:
 
 ```sql
--- INNER JOIN
--- вивести список усіх студентів разом з інформацією про їхню групу
-select p.first_name || ' ' || p.last_name as "full_name", sg.name
-from student s
-         inner join student_group sg using(group_id)
-         inner join person p using(person_id)
-order by sg.name, p.last_name, p.first_name;
+-- скласти список груп ІМ-21 та ІМ-22
+select sg.group_name, p.first_name || ' ' || p.last_name as student_name
+from student_group sg 
+inner join student_group_assignment ga using (group_id)
+inner join student using (student_id)
+inner join person p using (person_id)
+where ga.assignment_status = 'active' 
+		and sg.group_name IN ('ІМ-21', 'ІМ-22')
+order by p.last_name; 
 
-
--- сформувати список студентів, записаних на курс "бази даних"
--- додати імʼя групи
-select p.first_name || ' ' || p.last_name as "student_name", sg.name as "group", c.name as "course"
-from course c
-         inner join enrolment e using(course_id)
-         inner join student s using(student_id)
-         inner join student_group sg using(group_id)
-         inner join person p using(person_id)
-where lower(c.name) = 'бази даних'
-order by sg.name, p.last_name, p.first_name;
-
-
--- вивести інформацію про кожну групу разом з іменем старости та іменем куратора
-select
-    sg.name as "group",
-    l_p.first_name || ' ' || l_p.last_name as "student_lead",
-    curr_p.first_name || ' ' || curr_p.last_name as "student_curator"
+-- для кожної групи знайти старосту та куратора
+select 
+	sg.group_name, 
+	lp.first_name || ' ' || lp.last_name as student_lead, 
+	profp.first_name || ' ' || profp.last_name as curator
 from student_group sg
-         left join student_lead sl
-                   using (group_id)
-         left join student_curator sc
-                   using (group_id)
-         left join student curr
-                   on sc.student_id = curr.student_id
-         left join student l
-                   on sl.student_id = l.student_id
-         left join person curr_p
-                   on curr.person_id = curr_p.person_id
-         left join person l_p
-                   on l.person_id = l_p.person_id
-where curr.student_id is null
-order by sg.name;
+left join student s on sg.student_lead = s.student_id
+left join professor prof on sg.curator_id = prof.professor_id
+left join person lp on s.person_id = lp.person_id
+left join person profp on prof.person_id = profp.person_id;
 
--- FULL OUTER JOIN
--- сформувати список кураторів, викладачів без кураторства та груп без куратора
-
-update student_group set curator_id = null where group_id = 1;
-
-select *
-from professor prof
-         full outer join student_group sg on prof.professor_id = sg.curator_id;
-
--- UNION + JOIN
--- сформувати список контактів, що містить як професорів, так і студентів
--- для професорів вивести їхню посаду, для студентів — назву групи.
 
 select
-    p.first_name || ' ' || p.last_name as "full_name",
-    p.phone_number,
-    p.email,
-    prof.job :: text as "details"
-from professor prof
-         inner join person p using (person_id)
-union
+  sg.group_name,
+  profp.first_name || ' ' || profp.last_name as curator
+from student_group sg
+       left join professor prof on sg.curator_id = prof.professor_id
+       left join person profp on prof.person_id = profp.person_id
+where sg.group_status = 'active';
+
 select
-    p.first_name || ' ' || p.last_name as "full_name",
-    p.phone_number,
-    p.email,
-    sg.name as "details"
-from student s
-         inner join person p using (person_id)
-         inner join student_group sg using (group_id);
+  sg.group_name,
+  profp.first_name || ' ' || profp.last_name as curator
+from student_group sg
+       left join professor prof on sg.curator_id = prof.professor_id and sg.group_status = 'active'
+       left join person profp on prof.person_id = profp.person_id
 ```
 
 Всі запити також можна знайти у [файлі](../../scripts/joins.sql).
@@ -302,10 +425,25 @@ from student s
 У [директорії](../../exercises) знаходяться вправи, які можна виконати для отримання додаткових балів.
 Виконані вправи потрібно оформити у вигляді `pull request` до даного репозиторію.
 
+## 14. Висновки
+
+- JOIN зʼєднує пари рядків за умовою.
+- `INNER` - лише пари, `LEFT` - усі ліві, `FULL` - усі з обох боків, `RIGHT` не варто використовувати, `CROSS` - усі комбінації.
+- Умова на праву таблицю у `WHERE` перетворює LEFT JOIN на INNER. Таку умаво потрібно використовувати в `ON`.
+- `NULL` не зʼєднується ні з чим, `NOT IN` із `NULL` у підзапиті повертає порожній результат - викоррстовуйте `NOT EXISTS`.
+- Перед агрегацією перевіряйте, чи JOIN не розмножив рядки.
+- Операції над множинами складають рядки, JOIN - колонки, це не взаємозамінні інструменти.
+- Планувальник сам обирає порядок і алгоритм зʼєднання (Nested Loop / Hash / Merge). Текст запиту описує результат, а не спосіб його отримання.
+
 ## Додаткові матеріали
 
-![Хороша візуалізація JOIN-ів та операцій над множинами](https://i.imgur.com/xLTcOGi.png)
+![Візуалізація JOIN-ів та операцій над множинами](https://i.imgur.com/xLTcOGi.png)
 
-1. [Хороша візуалізація JOIN-ів та операцій над множинами](https://imgur.com/sql-joins-set-operators-xLTcOGi)
-2. [Що таке ORM](https://www.freecodecamp.org/news/what-is-an-orm-the-meaning-of-object-relational-mapping-database-tools/)
-3. [SQL builder libs vs ORMs](https://www.prisma.io/dataguide/types/relational/comparing-sql-query-builders-and-orms)
+Діаграми Венна показують, які ключі потрапляють у результат, але кількість рядків (розмноження рядків) вони не показують.
+
+1. [Візуалізація JOIN-ів та операцій над множинами](https://imgur.com/sql-joins-set-operators-xLTcOGi)
+2. [PostgreSQL: Table Expressions - офіційна документація по JOIN](https://www.postgresql.org/docs/current/queries-table-expressions.html)
+3. [PostgreSQL: Combining Queries - UNION, INTERSECT, EXCEPT](https://www.postgresql.org/docs/current/queries-union.html)
+4. ORM генерують JOIN-и за вас - тому важливо вміти прочитати, що саме вони згенерували (і чому іноді це
+   20 запитів замість одного): [Що таке ORM](https://www.freecodecamp.org/news/what-is-an-orm-the-meaning-of-object-relational-mapping-database-tools/),
+   [SQL builder libs vs ORMs](https://www.prisma.io/dataguide/types/relational/comparing-sql-query-builders-and-orms)
