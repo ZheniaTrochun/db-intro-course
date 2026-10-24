@@ -72,3 +72,51 @@ CREATE TABLE product (
         FOREIGN KEY (category_id)
         REFERENCES category (category_id)
 );
+
+-- Замовлення клієнтів.
+CREATE TABLE orders (
+    order_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    customer_id INTEGER NOT NULL,
+
+    address_id INTEGER NOT NULL,
+
+    order_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    status VARCHAR(20) NOT NULL DEFAULT 'new'
+        CHECK (status IN (
+            'new', 'paid', 'shipped', 'delivered', 'cancelled'
+        )),
+
+    CONSTRAINT fk_orders_customer
+        FOREIGN KEY (customer_id)
+        REFERENCES customer (customer_id),
+
+    -- Адреса доставки має належати клієнту замовлення.
+    CONSTRAINT fk_orders_address_customer
+        FOREIGN KEY (address_id, customer_id)
+        REFERENCES address (address_id, customer_id)
+);
+
+-- Товари, що входять до замовлення.
+CREATE TABLE order_item (
+    order_id INTEGER NOT NULL,
+
+    product_id INTEGER NOT NULL,
+
+    quantity INTEGER NOT NULL
+        CHECK (quantity >= 1),
+
+    unit_price NUMERIC(10, 2) NOT NULL
+        CHECK (unit_price > 0),
+
+    PRIMARY KEY (order_id, product_id),
+
+    CONSTRAINT fk_order_item_order
+        FOREIGN KEY (order_id)
+        REFERENCES orders (order_id),
+
+    CONSTRAINT fk_order_item_product
+        FOREIGN KEY (product_id)
+        REFERENCES product (product_id)
+);
