@@ -41,3 +41,34 @@ CREATE TABLE address (
     CONSTRAINT uq_address_customer
         UNIQUE (address_id, customer_id)
 );
+-- Категорії товарів.
+CREATE TABLE category (
+    category_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    name VARCHAR(100) NOT NULL UNIQUE
+        CHECK (btrim(name) <> ''),
+
+    description TEXT
+);
+
+-- Товари магазину.
+CREATE TABLE product (
+    product_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    category_id INTEGER NOT NULL,
+
+    name VARCHAR(150) NOT NULL
+        CHECK (btrim(name) <> ''),
+
+    description TEXT,
+
+    price NUMERIC(10, 2) NOT NULL
+        CHECK (price > 0),
+
+    stock_qty INTEGER NOT NULL DEFAULT 0
+        CHECK (stock_qty >= 0),
+
+    CONSTRAINT fk_product_category
+        FOREIGN KEY (category_id)
+        REFERENCES category (category_id)
+);
