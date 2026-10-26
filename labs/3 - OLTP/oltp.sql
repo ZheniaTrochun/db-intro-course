@@ -11,13 +11,18 @@ INSERT INTO users (
 SELECT * FROM users; -- Inspect the changes --
 
 	-- workspaces --
+INSERT INTO workspaces (owner_id,name)
+VALUES (1 , 'STUDY');
+
+INSERT INTO workspaces (owner_id,name,description,status)
+VALUES (2, 'Ivan','Text','ACTIVE');
 
 	-- task_categories --
 INSERT INTO task_categories (
     user_id, workspace_id, name, color
 ) VALUES 
 	(2, 1, 'New_task_category', DEFAULT),
-	(6, 2, 'User3_category', '#ffe4e1'),
+	(3, 2, 'User3_category', '#ffe4e1'),
 	(3, Null, 'Work_category', DEFAULT);
 
 SELECT * FROM task_categories; -- Inspect the changes --
@@ -32,7 +37,10 @@ INSERT INTO tasks (
 	('New_workspace_3', NULL, DEFAULT, NULL, 2, 3, 1, 1, NULL);
 
 SELECT * FROM tasks; -- Inspect the changes --
+
 	-- workspace_members --
+INSERT INTO workspace_members (user_id, workspace_id, role, status)
+    VALUES (2, 1, 'ADMIN', 'ACTIVE');
 
 	-- habits_categories --
 INSERT INTO habits_categories (user_id, name, color)
@@ -76,11 +84,11 @@ INSERT INTO habit_completions (
 )
 VALUES
     (
-        6, CURRENT_DATE + TIME '07:30:00',
+        3, CURRENT_DATE + TIME '07:30:00',
         CURRENT_TIMESTAMP, 35, 'Ran 5 kilometers', 'COMPLETED'
     ),
     (
-        6, CURRENT_DATE + TIME '21:00:00',
+        2, CURRENT_DATE + TIME '21:00:00',
         CURRENT_TIMESTAMP, 25, 'Read 25 pages', 'COMPLETED'
     ),
     (
@@ -96,24 +104,27 @@ SELECT * FROM habit_completions ;
 	-- users --
 UPDATE users
 	SET name = 'User_name_updated'
-	WHERE id = 4 AND name IS NULL;
+	WHERE id = 1 AND name IS NULL;
 
 UPDATE users
 	SET timezone = 'Europe/Kyiv'
-	WHERE id = 5;
+	WHERE id = 2;
 
 UPDATE users
 	SET phone_number = '029876234'
-	WHERE id = 5 AND phone_number IS NULL;
+	WHERE id = 2 AND phone_number IS NULL;
 
 SELECT * FROM users; -- Inspect the changes --
 
-	-- workspaces --
+	-- workspaces -- 
+-- UPDATE workspaces
+--     SET name = 'KIRILL'
+--     WHERE id = 2;
 
 	-- task_categories --
 UPDATE task_categories
 	SET workspace_id = Null
-	WHERE id = 4;
+	WHERE id = 1;
 
 UPDATE task_categories 
 	SET color = '#a3b899'
@@ -121,18 +132,25 @@ UPDATE task_categories
 
 UPDATE task_categories
 	SET name = 'Sport' 
-	WHERE id = 6;
+	WHERE id = 3;
 	
 SELECT * FROM task_categories;
 
 	-- tasks --
 UPDATE tasks
 	SET name = 'Homework'
-	WHERE id = 5;
+	WHERE id = 1;
 
 SELECT * FROM tasks;
 
 	-- workspace_members --
+-- UPDATE workspace_members
+--     SET role = 'GUEST'
+--     WHERE id = 1;
+
+UPDATE workspace_members 
+    SET role = 'OWNER' 
+    WHERE user_id = 2 AND workspace_id = 1;
 
 	-- habits_categories --
 UPDATE habits_categories
@@ -160,13 +178,12 @@ UPDATE habit_completions
     WHERE habit_id = 3 AND local_timestamp = CURRENT_DATE + TIME '07:30:00'
     RETURNING *;
 
-UPDATE habit_completions
-    SET status = 'SKIPPED', actual_value = NULL, note = 'Skipped today'
-    WHERE habit_id = 6 AND local_timestamp = CURRENT_DATE + TIME '07:30:00'
-    RETURNING *;
+-- UPDATE habit_completions
+--     SET status = 'SKIPPED', actual_value = NULL, note = 'Skipped today'
+--     WHERE habit_id = 6 AND local_timestamp = CURRENT_DATE + TIME '07:30:00'
+--     RETURNING *;
 
 SELECT * FROM habit_completions; -- Inspect the changes --
-
 
 --- DELETE --- 
 
@@ -177,6 +194,8 @@ DELETE FROM users
 SELECT * FROM users;
 
 	-- workspaces --
+-- DELETE FROM workspaces
+--     WHERE id = 1;
 
 	-- task_categories --
 DELETE FROM task_categories
@@ -191,6 +210,8 @@ DELETE FROM tasks
 SELECT * FROM tasks;
 
 	-- workspace_members --
+DELETE FROM workspace_members 
+    WHERE user_id = 1 AND workspace_id = 3;
 
 	-- habits_categories --
 DELETE FROM habits_categories
@@ -213,7 +234,7 @@ SELECT habit_id, local_timestamp, completed_at, actual_value, note, status
 
 SELECT * FROM habit_completions
     WHERE habit_id = 1 AND status = 'COMPLETED';
-    
+
 --- SELECT --- 
 
 	-- users --
@@ -229,6 +250,9 @@ SELECT name, nickname
 	WHERE id = 2;
 	
 	-- workspaces --
+SELECT * FROM workspaces;
+
+SELECT * FROM workspace_members WHERE user_id = 3; 
 
 	-- task_categories --
 SELECT * FROM task_categories;
@@ -249,6 +273,12 @@ SELECT name, status, assignee_id
 	WHERE creator_id = 1;
 
 	-- workspace_members --
+SELECT * FROM workspace_members;
+
+SELECT user_id, workspace_id, role, status, joined_at 
+    FROM workspace_members;
+
+SELECT user_id, role, status FROM workspace_members; 
 
 	-- habits_categories --
 SELECT * FROM habits_categories;
