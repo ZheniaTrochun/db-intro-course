@@ -9,13 +9,9 @@ VALUES (6, 'Зимовий вечір', 'Опис зимового вечора.
 
 INSERT INTO poem (owner_id, title, content_poem, poem_status) 
 VALUES 
-    (6, 'Київські каштани', 'Текст про осінній Київ...', 'notes'),
-    (6, 'Дніпровські хвилі', 'Текст про річку...', 'notes')
+    (7, 'Київські каштани', 'Текст про осінній Київ...', 'notes'),
+    (7, 'Дніпровські хвилі', 'Текст про річку...', 'notes')
 RETURNING poem_id, title, poem_status;
-
-INSERT INTO review (user_id, poem_id, rating, "comment") 
-VALUES 
-    (6, 1, 5, 'Неймовірно сильний твір! ' || chr(10) || 'Особливо вражає ритміка.');
 
 SELECT username, email 
 FROM person;
@@ -50,12 +46,8 @@ SET title = 'Зимовий вечір (оновлено)'
 WHERE title = 'Зимовий вечір';
 
 UPDATE review 
-SET rating = 4 
-WHERE user_id = 6 AND poem_id = 1;
-
-UPDATE review 
-SET "comment" = "comment" || ' (Оновлено автором: виправив одруківки)' 
-WHERE user_id = 6 AND poem_id = 1;
+SET rating = 3 
+WHERE user_id = 1 AND poem_id = 2;
 
 UPDATE poem 
 SET poem_status = CASE 
@@ -67,10 +59,10 @@ published_at = CASE
     WHEN title = 'Київські каштани' THEN now() 
     ELSE published_at 
 END
-WHERE owner_id = 6;
+WHERE owner_id = 7;
 
 DELETE FROM review 
-WHERE user_id = 6 AND poem_id = 1;
+WHERE user_id = 7 AND poem_id = 1;
 
 DELETE FROM poem 
 WHERE title = 'Зимовий вечір (оновлено)';
@@ -84,7 +76,7 @@ WHERE (rating BETWEEN 1 AND 2)
    OR (length(trim("comment")) = 0);
 
 DELETE FROM poem 
-WHERE owner_id = 6 
+WHERE owner_id = 7
   AND content_poem ILIKE '%річку%';
 
 
