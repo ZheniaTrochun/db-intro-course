@@ -1,17 +1,17 @@
 erDiagram
-    CLIENT ||--o{ BOOKING : places
-    COURT ||--o{ BOOKING : reserved_for
-    COACH ||--o{ BOOKING : trains
+    CLIENT ||..o{ BOOKING : places
+    COURT ||..o{ BOOKING : reserved_for
+    COACH |o..o{ BOOKING : trains
     BOOKING ||--o{ BOOKING_EQUIPMENT : includes
     EQUIPMENT ||--o{ BOOKING_EQUIPMENT : assigned_to
-    BOOKING ||--o{ PAYMENT : settles
+    BOOKING ||..o{ PAYMENT : settles
 
     CLIENT {
         int client_id PK
         string first_name
         string last_name
         string phone UK
-        string email
+        string email UK
     }
 
     COURT {
@@ -41,7 +41,7 @@ erDiagram
         int booking_id PK
         int client_id FK
         int court_id FK
-        int coach_id FK
+        int coach_id FK "NULL, якщо тренера не обрано"
         date booking_date
         time start_time
         time end_time
