@@ -56,11 +56,13 @@ insert into monster_type (name, description) values
 create table world_entity(
     id int generated always as identity primary key,
     zone_id int not null references zone,
+
     position_x decimal not null,
     position_y decimal not null,
     position_z decimal not null,
-    max_hp int not null,
-    level int not null
+
+    max_hp int not null CHECK (max_hp > 0),
+    level int not null CHECK (level >= 0)
 );
 
 insert into world_entity (zone_id, position_x, position_y, position_z, max_hp, level) values
@@ -77,9 +79,11 @@ insert into world_entity (zone_id, position_x, position_y, position_z, max_hp, l
 
 create table users(
 	id int generated always as identity primary key,
+
 	username varchar(100) not null,
-	email varchar(255) not null unique,
-	password_hash varchar(128) not null,
+	email varchar(255) not null unique CHECK (email LIKE '_%@_%._%'),
+	password_hash varchar(128) not null CHECK (trim(password_hash) <> ''),
+
 	ban_until timestamp with time zone null default null,
 	ban_reason varchar(420) null default null
 );
@@ -97,14 +101,14 @@ create table character(
 	user_id int not null references users(id),
 	stats_id int not null references stats(id),
 
-	name varchar(100) not null,
+	name varchar(100) not null CHECK (trim(name) <> ''),
 
-	experience int not null default 0,		
-	current_hp int not null,
-	current_mana int not null,
-	max_mana int not null,
+	experience int not null default 0 CHECK (experience >= 0),		
+	current_hp int not null CHECK (current_hp > max_hp),
+	current_mana int not null CHECK (current_mana > max_mana),
+	max_mana int not null CHECK (max_mana >= 0),
 
-	skin_color_hex char(7) not null,
+	skin_color_hex char(7) not null CHECK (skin_color_hex LIKE '#[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]'),
 	sex sex not null,
 	race race not null,
 	class class not null
@@ -219,9 +223,9 @@ insert into monster_drop (monster_id,item_id) values
 
 create table spell(
 		id int generated always as identity primary key,
-		name varchar(128) not null,
-		description varchar(512) not null,
-		mana_cost int not null default 0
+		name varchar(128) not null UNIQUE CHECK (trim(name) <> ''),
+		description varchar(512) not null CHECK (trim(description) <> ''),
+		mana_cost int not null default 0 CHECK (mana_cost >= 0)
 );
 
 insert into spell (name, description, mana_cost) values
@@ -232,7 +236,7 @@ insert into spell (name, description, mana_cost) values
 create table character_spell(
 		character_id int not null references character(id),
 		spell_id int not null references spell(id),
-		quantity int not null default 1,
+		quantity int not null default 0 CHECK (quantity >= 0),
 		primary key (character_id,spell_id)
 );
 
