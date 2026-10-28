@@ -6,7 +6,7 @@ INSERT INTO "user" (email, hashed_password, nickname, name)
 VALUES 
 ('kolya@gmail.com', 'abc1', 'pro228', 'kolya'),
 ('illya@gmail.com', 'abc2', 'hacker228', 'illya'),
-('barunь@gmail.com', 'abc3', 'barabashik-25', 'barik');
+('yehor@gmail.com', 'abc3', 'barabashik-25', 'barik');
 
 INSERT INTO game (game_name)
 VALUES
