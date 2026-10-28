@@ -1,8 +1,12 @@
 # Laba 3
 
-## Мета: Додати новий чарунок та змінити ціну мани всіх чаруноків з 15 на 10. Видалити чарунок із назвою 'Ice Spike'
+## Мета
 
-## Очікуваний результат: В таблиці з'явився новий чарунок 'Vicious Mockery'. Всі чаруноки з ціною 15 стали 10. Зник чарунок 'Ice Spike'
+Додати новий чарунок та змінити вартість мани для касту всіх чаруноків з 15 на 10. Видалити чарунок із назвою 'Ice Spike'
+
+## Очікуваний результат
+
+В таблиці з'явився новий чарунок 'Vicious Mockery'. Всі чаруноки із вартістю 15 стали 10. Зник чарунок 'Ice Spike'
 
 ### Додати чарунок 'Vicious Mockery' з ціною 15
 
@@ -25,25 +29,25 @@ where (mana_cost = 15);
 select * from spell;
 ```
 
-![alt text](proof/spell/spells_cost_10_not_15.png)
+![spells_cost_10_not_15](proof/spell/spells_cost_10_not_15.png)
 
 ### Видалення чарунку 'Ice Spike'
 
 ```sql
-delete from spell where (name = 'Ice Spike'); -- failes becouse some character has 'Ice Spike' spell prepared 
+delete from spell where (name = 'Ice Spike'); -- fails because some character has 'Ice Spike' prepared
 
 select * from spell;
 ```
 
-![alt text](proof\spell\delete_fails.png) 
+![delete_fails](proof\spell\delete_fails.png)
 
 ```sql
 delete from character_spell 
-where spell_id = (select id from spell where name = 'Ice Spike'); -- delete all 'Ice Spike' spell id referenced from character_spell table before deleting the spell itself
+where spell_id = (select id from spell where name = 'Ice Spike'); -- delete all 'Ice Spike' spell ids referenced from the character_spell table before deleting the spell itself
 
 delete from spell where (name = 'Ice Spike'); -- works fine now
 
 select * from spell;
 ```
 
-![alt text](proof\spell\delete_succ.png)
+![delete_succ](proof\spell\delete_succ.png)
