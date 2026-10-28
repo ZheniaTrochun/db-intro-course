@@ -41,17 +41,9 @@ CREATE TABLE rooms (
 CREATE TABLE students (
     student_id      SERIAL PRIMARY KEY,
     enrollment_year INTEGER,
-    dorm_id         INTEGER,
-    room_id         INTEGER,
+    room_id         INTEGER REFERENCES rooms(room_id) ON DELETE RESTRICT,
     status          student_status NOT NULL DEFAULT 'enrolled',
-    user_id         INTEGER NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE RESTRICT,
-    CHECK (room_id IS NULL OR dorm_id IS NOT NULL),
-    CONSTRAINT fk_students_user_dorm
-        FOREIGN KEY (user_id, dorm_id) REFERENCES users(user_id, dorm_id)
-        ON DELETE RESTRICT,
-    CONSTRAINT fk_students_room_same_dorm
-        FOREIGN KEY (room_id, dorm_id) REFERENCES rooms(room_id, dorm_id)
-        ON DELETE RESTRICT
+    user_id         INTEGER NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE RESTRICT
 );
 
 CREATE TABLE dorm_admins (
@@ -136,12 +128,12 @@ INSERT INTO rooms (dorm_id, room_number, floor) VALUES
     (3, '301', 3),
     (3, '228', 2);
 
-INSERT INTO students (enrollment_year, dorm_id, room_id, status, user_id) VALUES
-    (2022, 1,    1,    'enrolled',  1),
-    (2023, 1,    1,    'enrolled',  2),
-    (2021, 2,    3,    'graduated', 3),
-    (2022, 2,    4,    'on_leave',  4),
-    (2024, NULL, NULL, 'enrolled',  8);
+INSERT INTO students (enrollment_year, room_id, status, user_id) VALUES
+    (2022, 1,    'enrolled',  1),
+    (2023, 1,    'enrolled',  2),
+    (2021, 3,    'graduated', 3),
+    (2022, 4,    'on_leave',  4),
+    (2024, NULL, 'enrolled',  8);
 
 INSERT INTO dorm_admins (user_id, dorm_id) VALUES
     (5, 1),
@@ -187,21 +179,132 @@ INSERT INTO applications (student_id, vacancy_id, application_date, status) VALU
     (3, 3, '2024-02-20', 'rejected');
 
 
-SELECT * FROM users WHERE user_id >= 5;
-SELECT * FROM departments;
-SELECT * FROM dorms;
-SELECT * FROM rooms;
-SELECT * FROM students;
-SELECT * FROM dorm_admins;
-SELECT * FROM parking_slots;
-SELECT * FROM courses;
-SELECT * FROM enrollments;
-SELECT * FROM vacancies;
-SELECT * FROM applications;
+-- 1 Вибірка даних
 
+-- активні користувачі та їхні гуртожитки
+SELECT u.user_id, u.first_name, u.last_name, u.email, d.dorm_number
+FROM users u
+LEFT JOIN dorms d ON d.dorm_id = u.dorm_id
+WHERE u.status = 'active'
+ORDER BY u.user_id;
+
+-- студенти які проживають у кімнатах
+SELECT s.student_id, u.first_name, u.last_name, d.dorm_number, r.room_number, s.status
+FROM students s
+JOIN users u ON u.user_id = s.user_id
+JOIN dorms d ON d.dorm_id = u.dorm_id
+JOIN rooms r ON r.room_id = s.room_id
+ORDER BY d.dorm_number, r.room_number;
+
+-- вільні паркомісця
+SELECT d.dorm_number, p.slot_number
+FROM parking_slots p
+JOIN dorms d ON d.dorm_id = p.dorm_id
+WHERE p.user_id IS NULL
+ORDER BY d.dorm_number, p.slot_number;
+
+-- 2 Додавання даних
+
+-- нова вакансія 
+INSERT INTO vacancies (company_name, job_name)
+VALUES ('SoftServe', 'Trainee Database Developer');
+
+-- заява студента на вакансію
+INSERT INTO applications (student_id, vacancy_id, application_date, status)
+VALUES (
+    (SELECT student_id FROM students WHERE user_id = 8),
+    (SELECT vacancy_id FROM vacancies
+     WHERE company_name = 'SoftServe' AND job_name = 'Trainee Database Developer'),
+    CURRENT_DATE,
+    'submitted'
+);
+
+-- перевірка
+SELECT u.first_name, u.last_name, v.company_name, v.job_name, a.status
+FROM applications a
+JOIN students s ON s.student_id = a.student_id
+JOIN users u ON u.user_id = s.user_id
+JOIN vacancies v ON v.vacancy_id = a.vacancy_id
+WHERE v.company_name = 'SoftServe';
+
+-- запис нового користувача
+INSERT INTO users (first_name, last_name, email, date_of_birth, status, dorm_id)
+VALUES ('Ірина', 'Левченко', 'iryna.levchenko@example.com', '2003-04-12', 'active', 4);
+
+-- перевірка
+SELECT user_id, first_name, last_name, email
+FROM users
+WHERE email = 'iryna.levchenko@example.com';
+
+-- 3 Зміна даних
+
+-- статус до зміни
+SELECT a.application_id, v.company_name, v.job_name, a.status
+FROM applications a
+JOIN students s ON s.student_id = a.student_id
+JOIN users u ON u.user_id = s.user_id
+JOIN vacancies v ON v.vacancy_id = a.vacancy_id
+WHERE u.email = 'ivan.petrenko@example.com'
+  AND v.company_name = 'EPAM';
+
+-- переведення заяви у статус accepted
+UPDATE applications
+SET status = 'accepted'
+WHERE student_id = (SELECT student_id FROM students WHERE user_id = 1)
+  AND vacancy_id = (SELECT vacancy_id FROM vacancies WHERE company_name = 'EPAM');
+
+-- перевірка
+SELECT a.application_id, v.company_name, v.job_name, a.status
+FROM applications a
+JOIN vacancies v ON v.vacancy_id = a.vacancy_id
+WHERE a.student_id = (SELECT student_id FROM students WHERE user_id = 1)
+  AND v.company_name = 'EPAM';
+
+-- призначення гуртожитку студенту
 UPDATE users
-SET email = 'test@gmail.com'
-WHERE user_id = 1;
+SET dorm_id = 3
+WHERE user_id = 8;
 
+-- призначення кімнати студенту
+UPDATE students
+SET room_id = 5
+WHERE user_id = 8;
+
+
+-- перевірка
+SELECT u.first_name, u.last_name, d.dorm_number, r.room_number
+FROM students s
+JOIN users u ON u.user_id = s.user_id
+JOIN dorms d ON d.dorm_id = u.dorm_id
+JOIN rooms r ON r.room_id = s.room_id
+WHERE s.user_id = 8;
+
+-- 4 Видалення даних
+
+-- видалення вакансій у Rozetka
+DELETE FROM vacancies
+WHERE company_name = 'Rozetka';
+
+-- перевірка
+SELECT vacancy_id, company_name, job_name
+FROM vacancies
+ORDER BY vacancy_id;
+
+-- видалення користувача, який не пов'язаний з іншими записами
 DELETE FROM users
-WHERE user_id = 10
+WHERE email = 'iryna.levchenko@example.com';
+
+-- перевірка
+SELECT user_id, first_name, last_name, email
+FROM users
+WHERE email = 'iryna.levchenko@example.com';
+
+-- видалення вільного паркомісця
+DELETE FROM parking_slots
+WHERE slot_number = 'P-401'
+  AND user_id IS NULL;
+
+-- перевірка
+SELECT parking_slot_id, dorm_id, slot_number, user_id
+FROM parking_slots
+WHERE slot_number = 'P-401';

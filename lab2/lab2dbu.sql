@@ -187,7 +187,7 @@ INSERT INTO applications (student_id, vacancy_id, application_date, status) VALU
     (3, 3, '2024-02-20', 'rejected');
 
 
-SELECT * FROM users WHERE user_id >= 5;
+SELECT * FROM users;
 SELECT * FROM departments;
 SELECT * FROM dorms;
 SELECT * FROM rooms;
@@ -198,10 +198,3 @@ SELECT * FROM courses;
 SELECT * FROM enrollments;
 SELECT * FROM vacancies;
 SELECT * FROM applications;
-
-UPDATE users
-SET email = 'test@gmail.com'
-WHERE user_id = 1;
-
-DELETE FROM users
-WHERE user_id = 10
