@@ -104,7 +104,7 @@ create table character(
 	name varchar(100) not null CHECK (trim(name) <> ''),
 
 	experience int not null default 0 CHECK (experience >= 0),		
-	current_hp int not null CHECK (current_hp > max_hp),
+	current_hp int not null CHECK,
 	current_mana int not null CHECK (current_mana > max_mana),
 	max_mana int not null CHECK (max_mana >= 0),
 
@@ -117,7 +117,7 @@ create table character(
 insert into character (worldentity_id, user_id, stats_id, name, experience, current_hp, current_mana, max_mana, skin_color_hex, sex, race, class) values
 		(3, 1, 1, 'Arthas', 0, 50, 30, 30, '#F5CBA7', 'male', 'human', 'fighter'),
 		(5, 2, 5, 'Sylvanas', 0, 100, 50, 50, '#A569BD', 'female', 'elf', 'rogue'),
-		(6, 3, 6, 'Thrall', 0, 200, 100, 100, '#229954', 'male', 'orc', 'cleric'),
+		(6, 3, 6, 'Thrall', 0, 200, 100, 100, '#229954', 'male', 'orc', 'cleric');
 
 create table monster_entity(
     id int generated always as identity primary key,
