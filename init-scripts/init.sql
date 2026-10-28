@@ -118,7 +118,7 @@ insert into character (worldentity_id, user_id, stats_id, name, experience, curr
 		(3, 1, 1, 'Arthas', 0, 50, 30, 30, '#F5CBA7', 'male', 'human', 'fighter'),
 		(5, 2, 5, 'Sylvanas', 0, 100, 50, 50, '#A569BD', 'female', 'elf', 'rogue'),
 		(6, 3, 6, 'Thrall', 0, 200, 100, 100, '#229954', 'male', 'orc', 'cleric');
-
+		
 create table monster_entity(
     id int generated always as identity primary key,
     entity_id int not null references world_entity(id),
