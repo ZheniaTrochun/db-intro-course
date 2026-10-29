@@ -64,8 +64,8 @@ END $$;
 
 create table if not exists "order" (
     order_id bigint generated always as identity primary key,
-    user_id bigint references "user"(user_id) on delete set null,
-    receiver_id bigint references "user"(user_id) on delete set null,
+    user_id bigint not null,
+    receiver_id bigint not null,
     order_date timestamptz not null default current_timestamp,
     total_amount decimal(10, 2) not null,
     payment_method payment_method not null,

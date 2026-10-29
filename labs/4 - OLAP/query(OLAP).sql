@@ -65,10 +65,10 @@ FROM app
 WHERE price > (SELECT AVG(price) FROM app);
 
 -- Підзапит у SELECT: Вивести назву гри, ціну та різницю від середньої ціни каталогу
-SELECT title, price, 
-       (price - (SELECT AVG(price) FROM app)) AS price_diff_from_avg 
-SELECT title, price, 
-       (price - (SELECT AVG(price) FROM (SELECT price FROM app) AS sub)) AS price_diff_from_avg 
+SELECT 
+    title, 
+    price, 
+    ROUND(price - (SELECT AVG(price) FROM app), 2) AS price_diff_from_avg 
 FROM app;
 
 -- Підзапит у HAVING: Знайти категорії, де кількість ігор перевищує середню кількість по всіх категоріях

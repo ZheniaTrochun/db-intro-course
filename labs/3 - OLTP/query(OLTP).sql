@@ -47,3 +47,26 @@ insert into review (user_id, app_id, is_recommended, playtime_at_review, content
 values
     (1, 5, false, 2, 'Such a let down. It trues does not go worse than that.', '2026-10-06 14:51:00+01');
 select * from review where NOT is_recommended;
+
+-- Вибір продуктів без відгуків
+select * from app where app_id not in (
+    select distinct app_id 
+    from review
+);
+
+-- Поповнення гаманця користувача
+select user_id, username, wallet_balance from "user"
+update "user"
+set wallet_balance = 45.58
+where user_id = 2;
+select user_id, username, wallet_balance from "user"
+
+-- Видалення зв’язку категорії та продукту
+select * from app_category
+delete from app_category
+where category_id=2 and app_id=3
+select * from app_category
+
+-- Фільтрація ігор за діапазоном дат релізу
+select * from app
+where release_date between '2015-01-01' and '2020-12-31';
