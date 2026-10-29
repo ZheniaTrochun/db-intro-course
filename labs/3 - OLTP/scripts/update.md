@@ -16,4 +16,10 @@ UPDATE player_statistic
 SET kills = 10, deaths = 5, assists = 7
 WHERE user_id = '903607eb-cd52-4448-b387-90ee092c7a85' AND match_id = '62a4f286-9d2e-4ec1-8eab-5c743e240a78'
 
+Мета: оновити максимальну кількість команд до 36 для турніру з назвою 'Valorant Cup'
+
+UPDATE tournament
+SET max_teams = 36
+WHERE id = (SELECT id FROM tournament WHERE name = 'Valorant Cup')
+
 Використовувалися команди: UPDATE та SELECT, оператори: WHERE та AND. Для динамічного пошуку значення атрибуту іншої таблиці за значенням іншого атрибуту тієї ж таблиці використовувались вкладені запити.
