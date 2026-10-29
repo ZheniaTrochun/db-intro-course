@@ -59,13 +59,13 @@ SELECT * FROM tournament WHERE tournament_name LIKE 'BLAST Premier%';
 
 Фіксація виходу гравця зі складу (заповнення дати закінчення контракту/участі):
 ```SQL
-SELECT * FROM team_player
-WHERE player_id = 1 AND leave_date IS NULL;
 UPDATE team_player
 SET leave_date = CURRENT_DATE
 WHERE player_id = 1 AND leave_date IS NULL;
+SELECT * FROM team_player
+WHERE player_id = 1;
 ```
-**Очікуваний результат:** перший `SELECT` показує активний запис гравця з `leave_date = NULL`, після `UPDATE` оновлюється рядки, і в `leave_date` з'являється поточна дата.
+**Очікуваний результат:**`UPDATE` оновлює `leave_date` гравця з `player_id` = 1 - з'являється поточна дата, і `SELECT` показує рядки оновленого гравця.
 
 ![UPDATE 1](images/update1.png)
 
