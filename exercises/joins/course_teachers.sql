@@ -19,4 +19,4 @@ join course_teacher ct using (course_id)
 join professor pr using (professor_id)
 join person per using (person_id)
 where c.course_status = 'active'
-order by course_name, role
+order by course_name, role;

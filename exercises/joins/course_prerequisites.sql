@@ -15,4 +15,4 @@ select
 from course c
 left join course_prerequisite cp using (course_id)
 left join course pc on (cp.prerequisite_course_id = pc.course_id)
-order by course_name, prerequisite_name
+order by course_name, prerequisite_name;
