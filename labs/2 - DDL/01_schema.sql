@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS routes (
         route_name VARCHAR(100) NOT NULL,
         base_segment_price INT NOT NULL DEFAULT 50
                 CHECK (base_segment_price > 0), -- price in kopiyka
-        route_number VARCHAR(10) NOT NULL, -- "705K" has a letter, so varchar
+        route_number VARCHAR(10) NOT NULL UNIQUE, -- "705K" has a letter, so varchar
         route_status route_status NOT NULL DEFAULT 'INACTIVE',
         schedule_rule schedule_rule NOT NULL,
         train_type train_type NOT NULL DEFAULT 'INTERCITY',
