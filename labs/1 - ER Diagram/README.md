@@ -33,7 +33,7 @@ WORSHIP:
   - `id` (uuid, PK)
   - `chuch_id` (uuid, FK)
   - `date` (timestamp)
-  - `type_id` (uuid)
+  - `type_id` (uuid, FK)
   - `views` (uinteger, nullable)
   - `subscribers` (uinteger, nullable)
   - `link` (string, nullable)
@@ -58,7 +58,7 @@ SONG:
   - `is_translated` (bool)
   - `content` (string)
   -  `is_ai` (bool)
-  - `language_id` (uuid)
+  - `language_id` (uuid, FK)
 
 NOTE:
   - `id` (uuid, PK)
