@@ -7,8 +7,9 @@
 --          - роком вступу групи (зростання)
 
 -- Рішення:
-SELECT student.student_year, ROUND(AVG(enrolment.grade), 2) AS avg_year_grade
-FROM student
-INNER JOIN enrolment USING (student_id)
-GROUP BY student.student_year
-ORDER BY student.student_year;
+SELECT EXTRACT(YEAR FROM CURRENT_DATE)::int - student_group.start_year + 1 AS student_year, ROUND(AVG(enrolment.grade), 2) AS avg_year_grade
+FROM enrolment
+INNER JOIN student_group_assignment USING (student_id)
+INNER JOIN student_group USING (group_id)
+GROUP BY student_year
+ORDER BY student_year;
