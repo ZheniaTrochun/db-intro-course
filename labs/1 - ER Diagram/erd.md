@@ -7,7 +7,7 @@ erDiagram
         bool has_author
         string translator "nullable"
         bool is_translated
-        text lyrics "song text, source for full-text search"
+        text lyrics
         bool is_ai
         uuid language_id "FK"
     }
