@@ -18,7 +18,6 @@ FROM enrolment
 JOIN student ON student.student_id = enrolment.student_id
 JOIN person student_person ON student_person.person_id = student.person_id
 JOIN student_group_assignment ON student_group_assignment.student_id = student.student_id
-AND student_group_assignment.assignment_status = 'active'
 JOIN student_group ON student_group.group_id = student_group_assignment.group_id
 JOIN course ON course.course_id = enrolment.course_id
 JOIN course_teacher ON course_teacher.course_id = course.course_id
