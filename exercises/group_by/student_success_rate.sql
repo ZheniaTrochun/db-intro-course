@@ -7,3 +7,8 @@
 --          - роком вступу групи (зростання)
 
 -- Рішення:
+SELECT student.student_year, ROUND(AVG(enrolment.grade), 2) AS avg_year_grade
+FROM student
+INNER JOIN enrolment USING (student_id)
+GROUP BY student.student_year
+ORDER BY student.student_year;
