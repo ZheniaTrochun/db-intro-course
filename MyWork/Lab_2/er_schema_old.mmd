@@ -1,0 +1,52 @@
+erDiagram
+    User ||--o{ Video : "uploads"
+    User ||--o{ Comment : "writes"
+    Video ||--o{ Comment : "has"
+    User ||--o{ Like : "gives"
+    Video ||--o{ Like : "receives"
+    User ||--o{ Subscription : "subscriber"
+    User ||--o{ Subscription : "channel"
+
+    User {
+        UUID id PK
+        VARCHAR email UK
+        VARCHAR username UK
+        VARCHAR password "nullable"
+        VARCHAR google_id "unique, nullable"
+        VARCHAR avatar "nullable"
+        VARCHAR banner "nullable"
+        TEXT description "nullable"
+        TIMESTAMP created_at
+    }
+
+    Video {
+        UUID id PK
+        VARCHAR title
+        TEXT description "nullable"
+        VARCHAR url
+        VARCHAR thumbnail "nullable"
+        INTEGER views "default 0"
+        TIMESTAMP created_at
+        UUID author_id FK
+    }
+
+    Comment {
+        UUID id PK
+        TEXT text
+        TIMESTAMP created_at
+        UUID user_id FK
+        UUID video_id FK
+    }
+
+    Like {
+        UUID id PK
+        UUID user_id FK
+        UUID video_id FK
+    }
+
+    Subscription {
+        UUID id PK
+        UUID subscriber_id FK
+        UUID channel_id FK
+        TIMESTAMP created_at
+    }
