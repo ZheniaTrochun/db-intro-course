@@ -1,0 +1,28 @@
+{
+  "name": "6---migrations",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@prisma/client": "^7.10.1",
+    "@types/bun": "latest",
+    "@types/pg": "^8.23.1",
+    "prisma": "^7"
+  },
+  "private": true,
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/config": "^7.10.1",
+    "pg": "^8.23.1"
+  }
+}
