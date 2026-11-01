@@ -9,8 +9,9 @@
 --          - назвою курсу, потім за роллю викладача
 
 -- Рішення:
-SELECT c.course_name,
-        concat(pr.first_name, ' ', pr.last_name) AS professor_name,
+SELECT  
+      c.course_name,
+      concat(pr.first_name, ' ', pr.last_name) AS professor_name,
         ct.professor_role AS role
 FROM course c
 INNER JOIN course_teacher ct ON c.course_id = ct.course_id

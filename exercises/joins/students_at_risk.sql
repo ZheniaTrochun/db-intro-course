@@ -11,11 +11,12 @@
 --      Результат відсортувати за:
 --          - оцінкою (зростання), потім за назвою групи, потім за іменем студента, потім за назвою курсу
 -- Рішення:
-SELECT concat(pst.first_name,' ', pst.last_name) AS student_name,
-       sg.group_name,
-	   c.course_name,
-	   e.grade,
-	   concat(ppr.first_name,' ', ppr.last_name) AS lecturer_name
+SELECT 
+    concat(pst.first_name,' ', pst.last_name) AS student_name,
+    sg.group_name,
+	  c.course_name,
+	  e.grade,
+	  concat(ppr.first_name,' ', ppr.last_name) AS lecturer_name
 FROM enrolment e 
 INNER JOIN student st ON st.student_id = e.student_id
 INNER JOIN course c ON c.course_id = e.course_id
