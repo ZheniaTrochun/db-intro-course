@@ -15,170 +15,168 @@
 даних, ключі та обмеження, додати тестові дані й перевірити
 коректність роботи бази.
 
-## 2. Файли роботи
+## Предметна область
 
-- [schema.sql](./schema.sql) — створення восьми таблиць,
-  первинних і зовнішніх ключів та обмежень.
-- [seed.sql](./seed.sql) — заповнення таблиць тестовими даними.
-- [checks.sql](./checks.sql) — перевірка даних, зв’язків
-  та відхилення некоректних значень.
+Магазин веде каталог товарів, зберігає адреси покупців, склад замовлень, платежі та відгуки.
 
-## 3. Структура бази даних
+## Структура бази даних
 
-| Таблиця | Стовпці | Ключі |
+### `customer`
+
+Клієнти магазину.
+
+| Поле | Тип | Обмеження |
 |---|---|---|
-| customer | customer_id, first_name, last_name, email, phone, registered_at | PK: customer_id; UNIQUE: email |
-| address | address_id, customer_id, city, street, building, postal_code | PK: address_id; FK: customer_id → customer; UNIQUE: (address_id, customer_id) |
-| category | category_id, name, description | PK: category_id; UNIQUE: name |
-| product | product_id, category_id, name, description, price, stock_qty | PK: product_id; FK: category_id → category |
-| orders | order_id, customer_id, address_id, order_date, status | PK: order_id; FK: customer_id → customer; складений FK: (address_id, customer_id) → address |
-| order_item | order_id, product_id, quantity, unit_price | PK: (order_id, product_id); FK: order_id → orders; FK: product_id → product |
-| payment | payment_id, order_id, amount, method, paid_at, status | PK: payment_id; FK: order_id → orders |
-| review | review_id, customer_id, product_id, rating, comment, created_at | PK: review_id; FK: customer_id → customer; FK: product_id → product; UNIQUE: (customer_id, product_id) |
+| `customer_id` | `INTEGER` | `GENERATED ALWAYS AS IDENTITY PRIMARY KEY` |
+| `first_name` | `VARCHAR(100)` | `NOT NULL CHECK (btrim(first_name) <> '')` |
+| `last_name` | `VARCHAR(100)` | `NOT NULL CHECK (btrim(last_name) <> '')` |
+| `email` | `VARCHAR(254)` | `NOT NULL UNIQUE CHECK (btrim(email) <> '')` |
+| `phone` | `VARCHAR(30)` | Необов’язкове поле |
+| `registered_at` | `TIMESTAMP` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` |
 
-Для ідентифікаторів використано INTEGER GENERATED ALWAYS AS IDENTITY.
-Виняток — order_item, де первинний ключ складається з двох
-зовнішніх ключів.
+### `address`
 
-Короткі текстові значення мають тип VARCHAR, описи та коментарі —
-TEXT. Дати й час зберігаються як TIMESTAMP, кількості й оцінки —
-INTEGER, грошові значення — NUMERIC(10, 2).
+Адреси доставки клієнтів.
 
-Телефон, номер будинку та поштовий індекс зберігаються як текст.
-Це дозволяє зберігати початкові нулі й нечислові символи.
+| Поле | Тип | Обмеження |
+|---|---|---|
+| `address_id` | `INTEGER` | `GENERATED ALWAYS AS IDENTITY PRIMARY KEY` |
+| `customer_id` | `INTEGER` | `NOT NULL` |
+| `city` | `VARCHAR(100)` | `NOT NULL CHECK (btrim(city) <> '')` |
+| `street` | `VARCHAR(150)` | `NOT NULL CHECK (btrim(street) <> '')` |
+| `building` | `VARCHAR(20)` | `NOT NULL CHECK (btrim(building) <> '')` |
+| `postal_code` | `VARCHAR(20)` | `NOT NULL CHECK (btrim(postal_code) <> '')` |
 
-## 4. Зв’язки та обмеження
+- `FOREIGN KEY (customer_id) REFERENCES customer (customer_id)`
 
-Клієнт може мати кілька адрес і замовлень. Кожен товар належить
-одній категорії. Замовлення пов’язане з товарами через order_item,
-де зберігаються кількість і ціна на момент оформлення.
-Одне замовлення може мати кілька платежів.
+- `UNIQUE (address_id, customer_id)`
 
-Основні обмеження:
-- email клієнта та назва категорії унікальні;
-- обов’язкові поля мають NOT NULL, обов’язкові текстові поля
-  також перевіряються на порожній рядок після видалення
-  крайніх звичайних пробілів;
-- ціни та суми платежів більші за нуль;
-- залишок товару невід’ємний, кількість у позиції не менша за 1;
-- оцінка відгуку — ціле число від 1 до 5;
-- один товар не повторюється в одному замовленні;
-- один клієнт може залишити лише один відгук на один товар;
-- статуси замовлень, платежів і способи оплати обмежені списками;
-- успішний платіж має paid_at, для pending та failed це поле NULL.
+### `category`
 
-Складений зовнішній ключ (address_id, customer_id) у таблиці orders
-гарантує, що адреса доставки належить клієнту замовлення.
-Для такого посилання в address визначено UNIQUE
-(address_id, customer_id).
+Категорії товарів.
 
-Для зовнішніх ключів залишено стандартну поведінку NO ACTION:
-видалення батьківського запису не допускається, якщо після операції
-на нього залишаються посилання.
+| Поле | Тип | Обмеження |
+|---|---|---|
+| `category_id` | `INTEGER` | `GENERATED ALWAYS AS IDENTITY PRIMARY KEY` |
+| `name` | `VARCHAR(100)` | `NOT NULL UNIQUE CHECK (btrim(name) <> '')` |
+| `description` | `TEXT` | Необов’язкове поле |
 
-## 5 Тестові дані
+### `product`
 
-Дані клієнтів вигадані, адреси електронної пошти — з домену example.com. Усі суми вказано в гривнях.
+Товари магазину.
 
-| Таблиця    | Кількість рядків |
-|------------|-----------------:|
-| customer   | 5 |
-| address    | 6 |
-| category   | 5 |
-| product    | 7 |
-| orders     | 5 |
-| order_item | 8 |
-| payment    | 8 |
-| review     | 5 |
+| Поле | Тип | Обмеження |
+|---|---|---|
+| `product_id` | `INTEGER` | `GENERATED ALWAYS AS IDENTITY PRIMARY KEY` |
+| `category_id` | `INTEGER` | `NOT NULL` |
+| `name` | `VARCHAR(150)` | `NOT NULL CHECK (btrim(name) <> '')` |
+| `description` | `TEXT` | Необов’язкове поле |
+| `price` | `NUMERIC(10, 2)` | `NOT NULL CHECK (price > 0)` |
+| `stock_qty` | `INTEGER` | `NOT NULL DEFAULT 0 CHECK (stock_qty >= 0)` |
 
-Кожна таблиця містить щонайменше п'ять рядків. Дані демонструють:
+- `FOREIGN KEY (category_id) REFERENCES category (category_id)`
 
-- дві адреси одного клієнта;
-- кілька товарів у замовленні;
-- повну оплату двома платежами;
-- часткову оплату, невдалу спробу та платіж в очікуванні;
-- необов'язкові значення `NULL`;
-- товар із нульовим залишком;
-- відгуки з коментарем та без нього.
+### `orders`
 
-## 6. Порядок запуску
+Замовлення клієнтів.
 
-Середовище: PostgreSQL 17, pgAdmin 4.
+| Поле | Тип | Обмеження |
+|---|---|---|
+| `order_id` | `INTEGER` | `GENERATED ALWAYS AS IDENTITY PRIMARY KEY` |
+| `customer_id` | `INTEGER` | `NOT NULL` |
+| `address_id` | `INTEGER` | `NOT NULL` |
+| `order_date` | `TIMESTAMP` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` |
+| `status` | `VARCHAR(20)` | `NOT NULL DEFAULT 'new' CHECK (status IN ( 'new', 'paid', 'shipped', 'delivered', 'cancelled' ))` |
 
-1. Створити порожню базу `online_store`.
-2. Відкрити для неї Query Tool.
-3. Виконати `schema.sql` повністю.
-4. Один раз виконати `seed.sql` повністю.
-5. Послідовно виконати перевірки з `checks.sql`.
+- `FOREIGN KEY (customer_id) REFERENCES customer (customer_id)`
 
-`schema.sql` створює таблиці в новій базі; повторний запуск спричинить помилку «таблиця вже існує». `seed.sql` розрахований на порожні таблиці з початковими значеннями лічильників; повторний запуск може порушити обмеження унікальності.
+- `FOREIGN KEY (address_id, customer_id) REFERENCES address (address_id, customer_id)`
 
-Якщо `seed.sql` завершився помилкою, виконайте `ROLLBACK` і з'ясуйте причину. Лічильники ідентифікаторів після скасування транзакції не повертаються до попередніх значень.
+### `order_item`
 
-Кожна учасниця працює зі своєю локальною базою. Через Git передаються лише SQL-файли, самі бази між комп'ютерами не синхронізуються.
+Товари, що входять до замовлення.
 
-## 7. Результати перевірок
+| Поле | Тип | Обмеження |
+|---|---|---|
+| `order_id` | `INTEGER` | `NOT NULL` |
+| `product_id` | `INTEGER` | `NOT NULL` |
+| `quantity` | `INTEGER` | `NOT NULL CHECK (quantity >= 1)` |
+| `unit_price` | `NUMERIC(10, 2)` | `NOT NULL CHECK (unit_price > 0)` |
 
-Запити з checks.sql перевіряють кількість рядків, зв’язки
-між замовленнями, клієнтами й адресами, а також суми оплат.
+- `PRIMARY KEY (order_id, product_id)`
 
-| Замовлення | Статус | Вартість, грн | Успішно оплачено, грн | Різниця, грн |
-|---|---|---:|---:|---:|
-| 1 | paid | 2800.00 | 2800.00 | 0.00 |
-| 2 | delivered | 2900.00 | 2900.00 | 0.00 |
-| 3 | new | 3000.00 | 500.00 | 2500.00 |
-| 4 | shipped | 1500.00 | 1500.00 | 0.00 |
-| 5 | cancelled | 800.00 | 0.00 | 800.00 |
+- `FOREIGN KEY (order_id) REFERENCES orders (order_id)`
 
-У сплачену суму включаються лише платежі зі статусом successful.
-Для скасованого замовлення різниця не означає обов’язку оплатити його.
+- `FOREIGN KEY (product_id) REFERENCES product (product_id)`
 
-Пошук замовлень без позицій та пошук невідповідності статусу
-сумі оплати повернули по 0 рядків.
+### `payment`
 
-Перевірки некоректних даних підтвердили відхилення:
-1. повторного email;
-2. від’ємної ціни;
-3. нульової кількості в позиції;
-4. адреси іншого клієнта;
-5. повторної позиції замовлення;
-6. оцінки 6;
-7. повторного відгуку клієнта на товар;
-8. успішного платежу без дати оплати.
+Платежі за замовленнями.
 
-Блок перевірки обмежень виводить вісім повідомлень OK.
-Тестові зміни не зберігаються.
+| Поле | Тип | Обмеження |
+|---|---|---|
+| `payment_id` | `INTEGER` | `GENERATED ALWAYS AS IDENTITY PRIMARY KEY` |
+| `order_id` | `INTEGER` | `NOT NULL` |
+| `amount` | `NUMERIC(10, 2)` | `NOT NULL CHECK (amount > 0)` |
+| `method` | `VARCHAR(20)` | `NOT NULL CHECK (method IN ('card', 'bank_transfer', 'cash'))` |
+| `paid_at` | `TIMESTAMP` | Обов’язкове для `successful`; для `pending` і `failed` — `NULL` |
+| `status` | `VARCHAR(20)` | `NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'successful', 'failed'))` |
 
-## 8. Припущення та межі реалізації
+- `FOREIGN KEY (order_id) REFERENCES orders (order_id)`
 
-Загальна вартість замовлення обчислюється за його позиціями
-та не дублюється в таблиці orders.
+- `CHECK ( (status = 'successful' AND paid_at IS NOT NULL) OR (status IN ('pending', 'failed') AND paid_at IS NULL) )`
 
-unit_price зберігається окремо від поточної ціни товару.
-Початкове значення вказується явно: автоматичного копіювання
-ціни з product не реалізовано.
+### `review`
 
-Наявність хоча б однієї позиції замовлення та відповідність
-статусу сумі успішних оплат перевіряються запитами.
-Наведені CHECK і FOREIGN KEY не забезпечують ці правила
-автоматично для довільних майбутніх змін.
+Відгуки клієнтів про товари.
 
-Автоматичний перехід замовлення у paid, збільшення кількості
-при повторному додаванні товару та списання складських залишків
-не реалізовані. Такі операції потребують окремої логіки.
+| Поле | Тип | Обмеження |
+|---|---|---|
+| `review_id` | `INTEGER` | `GENERATED ALWAYS AS IDENTITY PRIMARY KEY` |
+| `customer_id` | `INTEGER` | `NOT NULL` |
+| `product_id` | `INTEGER` | `NOT NULL` |
+| `rating` | `INTEGER` | `NOT NULL CHECK (rating BETWEEN 1 AND 5)` |
+| `comment` | `TEXT` | Необов’язкове поле |
+| `created_at` | `TIMESTAMP` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` |
 
-За прийнятим правилом адреси, використані в замовленнях,
-не перезаписуються: нова адреса додається окремим записом.
-Поточна схема не містить тригера, що забороняє зміну їхніх
-текстових полів.
+- `FOREIGN KEY (customer_id) REFERENCES customer (customer_id)`
 
-Відгук не вимагає підтвердження покупки.
-Знижки, доставка як окрема сутність, повернення коштів
-та кілька валют перебувають поза межами моделі.
+- `FOREIGN KEY (product_id) REFERENCES product (product_id)`
 
-## 9. Висновок
+- `UNIQUE (customer_id, product_id)`
 
-ER-модель інтернет-магазину перетворено на схему PostgreSQL
-із восьми таблиць. Визначено типи даних, первинні й зовнішні
-ключі та обмеження. Таблиці заповнено тестовими даними.
-Перевірено зв’язки, суми оплат і відхилення некоректних значень.
+## Основні обмеження
+
+- Замовлення можна оформити лише на адресу самого покупця:
+  пара (address_id, customer_id) у orders має відповідати запису в address.
+- Один товар може бути в замовленні лише в одній позиції.
+  Це забезпечує первинний ключ (order_id, product_id) у order_item.
+  Кількість одиниць зберігається в quantity і має бути не меншою за 1.
+- Ціна товару має бути більшою за нуль, а залишок на складі може бути нульовим,
+  але не від’ємним.
+- Для успішного платежу paid_at обов’язкове. Для платежів зі статусом
+  pending або failed це поле має бути NULL.
+- Покупець може залишити лише один відгук на конкретний товар.
+  Оцінка має бути від 1 до 5.
+
+## Тестові дані
+
+seed.sql додає 5 клієнтів, 6 адрес, 5 категорій, 7 товарів, 5 замовлень, 8 позицій замовлень, 8 платежів і 5 відгуків.
+
+## Запуск і перевірка в pgAdmin
+
+1. Створити нову порожню базу й відкрити для неї Query Tool.
+2. Виконати [schema.sql](./schema.sql), щоб створити таблиці.
+3. Один раз виконати [seed.sql](./seed.sql), щоб додати дані.
+4. У Query Tool виконати наведені нижче запити по одному та переглянути записи кожної таблиці у вкладці Data Output.
+
+```sql
+SELECT * FROM customer;
+SELECT * FROM address;
+SELECT * FROM category;
+SELECT * FROM product;
+SELECT * FROM orders;
+SELECT * FROM order_item;
+SELECT * FROM payment;
+SELECT * FROM review;
+```
