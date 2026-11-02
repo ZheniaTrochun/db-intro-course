@@ -45,6 +45,7 @@ model Animes {
   available            Boolean       @default(true)
 
   genres               Genres[]
+  upcomingEpisodes     UpcomingEpisodes[]
 
   @@index([available], name: "idx_anime_available")
   @@map("animes")
