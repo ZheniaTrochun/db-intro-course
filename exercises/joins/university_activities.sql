@@ -13,8 +13,7 @@
 -- Рішення:
 SELECT 
      concat(pst.first_name, ' ', pst.last_name) AS full_name,
-     c.course_name,
-       'запис на курс' AS activity_type
+     c.course_na         'запис на курс' AS activity_type
 FROM enrolment e
 INNER JOIN student st ON st.student_id = e.student_id
 INNER JOIN person pst ON pst.person_id = st.person_id
@@ -22,7 +21,7 @@ INNER JOIN course c ON c.course_id = e.course_id
 WHERE c.course_status = 'active'
 UNION ALL
 SELECT 
-       concat(ppr.first_name, ' ', ppr.last_name) AS full_name,
+   cat(ppr.first_ ||ame, ||' ', ppr.last_ame) AS full_name,
        c.course_name,
        'викладання курсу' AS activity_type
 FROM course_teacher ct
