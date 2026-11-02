@@ -1,1 +1,55 @@
 // by @XxMariavxX
+enum GenreType {
+  action
+  adventure
+  avant_garde
+  boys_love
+  comedy
+  demons
+  drama
+  ecchi
+  fantasy
+  girls_love
+  gourmet
+  harem
+  hentai
+  historical
+  horror
+  isekai
+  josei
+  kids
+  magic
+  martial_arts
+  mecha
+  military
+  music
+  mystery
+  parody
+  psychological
+  romance
+  samurai
+  school
+  sci_fi
+  seinen
+  shoujo
+  shoujo_ai
+  shounen
+  shounen_ai
+  slice_of_life
+  space
+  sports
+  supernatural
+  super_power
+  suspense
+}
+
+model Genres {
+  animeId    String
+  genreType  GenreType
+  isPrimary  Boolean   @default(false)
+
+  anime      Animes    @relation(fields: [animeId], references: [animeId])
+
+  @@id([animeId, genreType])
+  @@map("genres")
+}
