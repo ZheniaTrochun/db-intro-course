@@ -9,7 +9,7 @@
 -- Рішення:
 -- Querie where job is null
 SELECT 
-      concat(p.first_name, ' ', p.last_name) AS professor_name,
+      p.first_name || ' ' || p.last_name AS professor_name,
       pr.job_title AS job_title
 FROM professor pr
 INNER JOIN person p ON p.person_id = pr.person_id
