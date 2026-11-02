@@ -12,7 +12,7 @@
 SELECT  
       c.course_name,
       pr.first_name || ' ' || pr.last_name AS professor_name,
-        ct.professor_role AS role
+      ct.professor_role AS role
 FROM course c
 INNER JOIN course_teacher ct ON c.course_id = ct.course_id
 INNER JOIN professor p ON ct.professor_id = p.professor_id
