@@ -4,9 +4,9 @@
 
 | Комміт / PR | Модулі / Таблиці | Автор |
 | :--- | :--- | :--- |
-| [PR](https://github.com/cyjiky/Trackly-db/commit/fe769be3ed51a4be97efa4f6acac78ce98488eef) | `olap_yr` | Єгор Романов |
-| [PR](https://github.com/cyjiky/Trackly-db/commit/9610b0302135df9b9bd06bb36cbd7fab82806ff3) | `olap_vu` | Вікторія Уманець |
-
+| [PR](https://github.com/cyjiky/Trackly-db/commit/fe769be3ed51a4be97efa4f6acac78ce98488eef) | [`olap_yr`](olap_yr.sql) | Єгор Романов |
+| [PR](https://github.com/cyjiky/Trackly-db/commit/9610b0302135df9b9bd06bb36cbd7fab82806ff3) | [`olap_vu`](olap_vu.sql) | Вікторія Уманець |
+| [Commit](https://github.com/cyjiky/Trackly-db/commit/9610b0302135df9b9bd06bb36cbd7fab82806ff3) | [`olap_kp`](olap_kp.sql) | Кірілл Прокопцов |
 ---
 
 ### Звіт та опис виконаної роботи
