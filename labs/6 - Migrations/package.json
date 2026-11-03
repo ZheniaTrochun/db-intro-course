@@ -14,6 +14,7 @@
   "devDependencies": {
     "@prisma/client": "^7.10.1",
     "@types/bun": "latest",
+    "@types/node": "^26.6.6",
     "@types/pg": "^8.23.1",
     "prisma": "^7"
   },
@@ -24,6 +25,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/config": "^7.10.1",
+    "dotenv": "^18.0.9",
     "pg": "^8.23.1"
   }
 }
