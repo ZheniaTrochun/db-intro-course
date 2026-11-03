@@ -54,6 +54,7 @@ model Anime {
   genres  Genre[]
   upcomingEpisodes UpcomingEpisode[]
   animeListUnits AnimeListUnit[]
+  episodes Episode[]
 
   @@map("animes")
 }

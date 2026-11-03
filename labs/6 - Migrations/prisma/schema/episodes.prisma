@@ -1,1 +1,14 @@
 // by @dadencukillia
+model Episode {
+  episodeId BigInt @id @default(autoincrement()) @map("episode_id")
+  animeId String @map("anime_id") @db.Uuid
+  sourceUrl String @map("source_url")
+  episodeName String @map("episode_name")
+  localizationStudio String @default("") @map("localization_studio")
+  localizationType String? @map("localization_type")
+
+  anime Anime @relation(fields: [animeId], references: [animeId], onDelete: Cascade)
+
+  @@index([animeId], map: "idx_episodes_anime_id")
+  @@map("episodes")
+}
