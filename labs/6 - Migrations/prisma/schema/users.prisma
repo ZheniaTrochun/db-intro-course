@@ -1,1 +1,36 @@
 // by @ApostolQleg
+enum UserStatusEnum {
+  admin
+  banned
+  deactivated
+
+  @@map("user_status_enum")
+}
+
+model User {
+  userId               String          @id @default(dbgenerated("uuidv7()")) @map("user_id") @db.Uuid
+  nickname             String          @unique @db.VarChar(30)
+  fullName             String          @map("full_name") @db.VarChar(100)
+  email                String          @unique
+  googleId             String?         @unique @map("google_id")
+  bio                  String          @default("")
+  passwordHash         String?         @map("password_hash")
+  avatarUrl            String?         @map("avatar_url")
+  socialNetworks       String[]        @default([]) @map("social_networks")
+  maxStreak            Int             @default(0) @map("max_streak")
+  timezone             String          @default("UTC")
+  lastWatchDate        DateTime?       @map("last_watch_date") @db.Date
+  profileFrameUrl      String?         @map("profile_frame_url")
+  profileBackgroundUrl String?         @map("profile_background_url")
+  userStatus           UserStatusEnum? @map("user_status")
+  cratedAt             DateTime        @default(now()) @map("crated_at") @db.Timestamp(6)
+  updatedAt            DateTime        @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  comments Comment[]
+  // animeListUnits AnimeListUnit[]
+  // sessions Session[]
+
+  @@index([userStatus], map: "idx_user_status")
+  @@index([nickname], map: "idx_nickname")
+  @@map("users")
+}
