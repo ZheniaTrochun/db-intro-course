@@ -1,4 +1,4 @@
-// by @XxMariaxX
+// by @XxMariavxX
 enum GenreType {
   action
   adventure
@@ -41,6 +41,8 @@ enum GenreType {
   supernatural
   super_power
   suspense
+  thriller
+  vampire
 
   @@map("genre_type_enum")
 }
@@ -50,8 +52,9 @@ model Genre {
   genreType GenreType  @map("genre_type")
   isPrimary Boolean    @default(false) @map("is_primary")
 
-  anime     Anime      @relation(fields: [animeId], references: [animeId])
+  anime     Anime      @relation(fields: [animeId], references: [animeId], onDelete: Cascade)
 
   @@id([animeId, genreType])
+  @@index([genreType], map: "idx_genres_genre_type")
   @@map("genres")
 }
