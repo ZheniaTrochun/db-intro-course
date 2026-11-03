@@ -13,6 +13,7 @@ model AnimeListUnit {
   userId String @map("user_id") @db.Uuid
   animeId String @map("anime_id") @db.Uuid
   watchedEpisodes Int @default(0) @map("watched_episodes")
+  repeatTimes Int @default(0) @map("repeat_times")
   startedWatching DateTime @default(dbgenerated("(now())::date")) @map("started_watching") @db.Date
   listUnitStatus AnimeListUnitStatus @default(watching) @map("list_unit_status")
   grade Int?
