@@ -24,7 +24,7 @@ enum AnimeFormat {
 }
 
 model Anime {
-  animeId            String       @id @default(uuid()) @map("anime_id")
+  animeId            String       @id @default(uuid()) @map("anime_id") @db.Uuid
   slug               String       @unique
   titleUa            String       @map("title_ua")
   titleEn            String       @map("title_en")
@@ -47,7 +47,6 @@ model Anime {
   genres             Genre[]
   upcomingEpisodes   UpcomingEpisode[]
   comments           Comment[]
-  animelistUnits     AnimelistUnit[]
 
-  @@map("animes")
+  @@map("anime")
 }

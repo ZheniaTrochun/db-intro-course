@@ -43,12 +43,12 @@ enum GenreType {
 }
 
 model Genre {
-  animeId   String     @map("anime_id")
+  animeId   String     @map("anime_id") @db.Uuid
   genreType GenreType  @map("genre_type")
   isPrimary Boolean    @default(false) @map("is_primary")
 
   anime     Anime      @relation(fields: [animeId], references: [animeId])
 
   @@id([animeId, genreType])
-  @@map("genres")
+  @@map("genre")
 }
