@@ -1,4 +1,3 @@
-// by @XxMariavxX
 enum MpaaRating {
   g
   pg
@@ -24,29 +23,28 @@ enum AnimeFormat {
 }
 
 model Animes {
-  animeId              String        @id @default(uuid())
-  slug                 String        @unique
-  titleUa              String
-  titleEn              String
-  titleOriginal        String
-  animeDescription     String        @default("")
-  coverUrl             String?
-  productionStudio     String?
-  malId                String?
-  anilistId            String?
-  hikkaId              String?
-  imdbId               String?
-  yearReleased         Int?
-  avgEpisodeDuration   Int
-  episodeCount         Int
-  ageRestriction        MpaaRating? 
-  animeStatus          AnimeStatus? 
-  animeFormat          AnimeFormat   @default(tv)
-  available            Boolean       @default(true)
+  animeId            String       @id @default(uuid())
+  slug               String       @unique
+  titleUa            String
+  titleEn            String
+  titleOriginal      String
+  animeDescription   String       @default("")
+  coverUrl           String?
+  productionStudio   String?
+  malId              String?
+  anilistId          String?
+  hikkaId            String?
+  imdbId             String?
+  yearReleased       Int?
+  avgEpisodeDuration Int
+  episodeCount       Int
+  ageRestriction     MpaaRating?
+  animeStatus        AnimeStatus?
+  animeFormat        AnimeFormat  @default(tv)
+  isExist            Boolean      @default(false)
 
-  genres               Genres[]
-  upcomingEpisodes     UpcomingEpisodes[]
+  genres             Genres[]
+  upcomingEpisodes   UpcomingEpisodes[]
 
-  @@index([available], name: "idx_anime_available")
   @@map("animes")
 }

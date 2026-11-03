@@ -1,11 +1,10 @@
-// by @XxMariavxX
 model UpcomingEpisodes {
-  animeId      String
-  episode_name String?
-  episode_date DateTime @default(now())
+  animeId     String
+  episodeName String
+  episodeDate DateTime @default(now())
 
   anime       Animes   @relation(fields: [animeId], references: [animeId])
 
-  @@id([animeId, episode_name])
+  @@id([animeId, episodeName])
   @@map("upcoming_episodes")
 }

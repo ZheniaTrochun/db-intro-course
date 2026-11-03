@@ -1,4 +1,3 @@
-// by @XxMariavxX
 enum GenreType {
   action
   adventure
@@ -44,11 +43,11 @@ enum GenreType {
 }
 
 model Genres {
-  animeId    String
-  genreType  GenreType
-  isPrimary  Boolean   @default(false)
+  animeId   String
+  genreType GenreType
+  isPrimary Boolean   @default(false)
 
-  anime      Animes    @relation(fields: [animeId], references: [animeId])
+  anime     Animes    @relation(fields: [animeId], references: [animeId])
 
   @@id([animeId, genreType])
   @@map("genres")
