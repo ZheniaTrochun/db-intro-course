@@ -1,0 +1,111 @@
+// ============================================
+// Lab 6: Prisma ORM — schema.prisma
+// Проєкт: VideoHub (відеохостинг-платформа)
+// Степаненко Денис, ІМ-051
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// МОДЕЛІ (відповідають фінальній схемі з Lab 2:
+// композитні PK, TIMESTAMPTZ, uuid_generate_v4)
+// ============================================
+
+model User {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email       String   @unique @db.VarChar(255)
+  username    String   @unique @db.VarChar(100)
+  password    String?  @db.VarChar(255)
+  googleId    String?  @unique @map("google_id") @db.VarChar(255)
+  description String?
+  avatar      String?  @db.VarChar(500)
+  banner      String?  @db.VarChar(500)
+  createdAt   DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
+
+  videos        Video[]
+  comments      Comment[]
+  likes         Like[]
+  subscribers   Subscription[] @relation("SubscriberRelation")
+  subscriptions Subscription[] @relation("ChannelRelation")
+
+  @@map("User")
+}
+
+model Video {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title       String   @db.VarChar(255)
+  description String?
+  url         String   @db.VarChar(500)
+  thumbnail   String?  @db.VarChar(500)
+  views       Int      @default(0)
+  duration    Int?
+  createdAt   DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
+  authorId    String   @map("author_id") @db.Uuid
+  categoryId  Int?     @map("category_id")
+
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category    Category? @relation(fields: [categoryId], references: [id])
+  comments    Comment[]
+  likes       Like[]
+
+  @@map("Video")
+}
+
+model Comment {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  text      String
+  createdAt DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
+  userId    String   @map("user_id") @db.Uuid
+  videoId   String   @map("video_id") @db.Uuid
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@map("Comment")
+}
+
+model Like {
+  userId    String   @map("user_id") @db.Uuid
+  videoId   String   @map("video_id") @db.Uuid
+  createdAt DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@id([userId, videoId])
+
+  @@map("Like")
+}
+
+model Subscription {
+  subscriberId String   @map("subscriber_id") @db.Uuid
+  channelId    String   @map("channel_id") @db.Uuid
+  createdAt    DateTime @default(dbgenerated("now()")) @map("created_at") @db.Timestamptz
+
+  subscriber User @relation("SubscriberRelation", fields: [subscriberId], references: [id], onDelete: Cascade)
+  channel    User @relation("ChannelRelation", fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@id([subscriberId, channelId])
+
+  @@map("Subscription")
+}
+
+// ============================================
+// МОДЕЛІ ДОДАНІ ЧЕРЕЗ МІГРАЦІЇ
+// ============================================
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique @db.VarChar(100)
+
+  videos Video[]
+
+  @@map("Category")
+}
