@@ -1,0 +1,26 @@
+# 1793735805-init-upcoming-episodes
+
+Створено таблицю `upcoming_episodes` (модель `UpcomingEpisode`) з полями anime_id, episode_name, episode_date. Додано складений первинний ключ (anime_id, episode_name) та зовнішній ключ на animes(anime_id).
+
+**Було:**
+```prisma
+// таблиця upcoming_episodes відсутня
+```
+
+**Стало:**
+```prisma
+model UpcomingEpisode {
+  animeId     String   @map("anime_id") @db.Uuid
+  episodeName String   @map("episode_name")
+  episodeDate DateTime @default(now()) @map("episode_date")
+
+  anime      Anime    @relation(fields: [animeId], references: [animeId])
+
+  @@id([animeId, episodeName])
+  @@map("upcoming_episodes")
+}
+```
+
+
+## Prisma Studio
+![alt text](image-2.png)

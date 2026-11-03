@@ -1,4 +1,5 @@
-// by @XxMariaxX
+// by @XxMariavxX
+
 enum MpaaRating {
   g
   pg
@@ -12,6 +13,7 @@ enum MpaaRating {
 enum AnimeStatus {
   upcoming
   ongoing
+  dropped
   finished
 
   @@map("anime_status_enum")
@@ -32,23 +34,22 @@ enum AnimeFormat {
 model Anime {
   animeId            String       @id @default(uuid()) @map("anime_id") @db.Uuid
   slug               String       @unique
-  titleUa            String       @map("title_ua")
-  titleEn            String       @map("title_en")
-  titleOriginal      String       @map("title_original")
-  animeDescription   String       @default("") @map("anime_description")
+  titleUa            String       @default("") @map("title_ua")
+  titleEn            String       @default("") @map("title_en")
+  titleOriginal      String       @default("") @map("title_original")
   coverUrl           String?      @map("cover_url")
   productionStudio   String?      @map("production_studio")
-  malId              String?      @map("mal_id")
-  anilistId          String?      @map("anilist_id")
+  malId              Int?         @map("mal_id")
+  anilistId          Int?         @map("anilist_id")
   hikkaId            String?      @map("hikka_id")
   imdbId             String?      @map("imdb_id")
   yearReleased       Int?         @map("year_released")
-  avgEpisodeDuration Int          @map("avg_episode_duration")
-  episodeCount       Int          @map("episode_count")
+  avgEpisodeDuration Int          @default(0) @map("avg_episode_duration")
+  episodeCount       Int          @default(0) @map("episode_count")
   ageRestriction     MpaaRating?  @map("age_restriction")
   animeStatus        AnimeStatus? @map("anime_status")
   animeFormat        AnimeFormat  @default(tv) @map("anime_format")
-  isExist            Boolean      @default(false) @map("is_exist")
+  available          Boolean      @default(true) @map("available")
 
   comments Comment[]
   genres  Genre[]
@@ -56,5 +57,6 @@ model Anime {
   animeListUnits AnimeListUnit[]
   episodes Episode[]
 
+  @@index([available], map: "idx_anime_available")
   @@map("animes")
 }
