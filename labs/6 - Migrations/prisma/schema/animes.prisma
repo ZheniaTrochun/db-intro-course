@@ -1,4 +1,4 @@
-
+// by @dadencukillia
 enum MpaaRating {
   g
   pg
@@ -23,7 +23,7 @@ enum AnimeFormat {
   other
 }
 
-model Animes {
+model Anime {
   animeId            String       @id @default(uuid()) @map("anime_id")
   slug               String       @unique
   titleUa            String       @map("title_ua")
@@ -44,8 +44,10 @@ model Animes {
   animeFormat        AnimeFormat  @default(tv) @map("anime_format")
   isExist            Boolean      @default(false) @map("is_exist")
 
-  genres           Genres[]
-  upcomingEpisodes UpcomingEpisodes[]
+  genres             Genre[]
+  upcomingEpisodes   UpcomingEpisode[]
+  comments           Comment[]
+  animelistUnits     AnimelistUnit[]
 
   @@map("animes")
 }

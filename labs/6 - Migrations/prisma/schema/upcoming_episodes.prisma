@@ -1,9 +1,9 @@
-model UpcomingEpisodes {
+model UpcomingEpisode {
   animeId     String   @map("anime_id")
   episodeName String   @map("episode_name")
   episodeDate DateTime @default(now()) @map("episode_date")
 
-  anime Animes @relation(fields: [animeId], references: [animeId])
+  anime       Anime    @relation(fields: [animeId], references: [animeId])
 
   @@id([animeId, episodeName])
   @@map("upcoming_episodes")

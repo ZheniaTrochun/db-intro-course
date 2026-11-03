@@ -42,12 +42,12 @@ enum GenreType {
   suspense
 }
 
-model Genres {
-  animeId   String    @map("anime_id")
-  genreType GenreType @map("genre_type")
-  isPrimary Boolean   @default(false) @map("is_primary")
+model Genre {
+  animeId   String     @map("anime_id")
+  genreType GenreType  @map("genre_type")
+  isPrimary Boolean    @default(false) @map("is_primary")
 
-  anime Animes @relation(fields: [animeId], references: [animeId])
+  anime     Anime      @relation(fields: [animeId], references: [animeId])
 
   @@id([animeId, genreType])
   @@map("genres")
