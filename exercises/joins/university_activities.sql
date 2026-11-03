@@ -20,7 +20,7 @@ join enrolment e on s.student_id = e.student_id
 join course c on e.course_id = c.course_id
 where c.course_status = 'active'
 
-union
+union all
 
 select pl.first_name || ' ' || pl.last_name as full_name,
        c.course_name,
@@ -31,4 +31,4 @@ join course_teacher cl on pr.professor_id = cl.professor_id
 join course c on cl.course_id = c.course_id
 where c.course_status = 'active'
 
-order by course_name,activity_type, full_name
+order by course_name, activity_type, full_name
