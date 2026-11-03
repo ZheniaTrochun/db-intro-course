@@ -27,6 +27,7 @@ model User {
   updatedAt            DateTime        @default(now()) @map("updated_at") @db.Timestamp(6)
   
   comments             Comment[]
+  animeListUnits AnimeListUnit[]
 
   @@index([userStatus], map: "idx_user_status")
   @@index([nickname], map: "idx_nickname")
