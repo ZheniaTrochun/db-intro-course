@@ -1,16 +1,20 @@
-// by @dadencukillia
+// by @XxMariaxX
 enum MpaaRating {
   g
   pg
   pg13
   r
   nc17
+
+  @@map("mpaa_rating_enum")
 }
 
 enum AnimeStatus {
   upcoming
   ongoing
   finished
+
+  @@map("anime_status_enum")
 }
 
 enum AnimeFormat {
@@ -21,6 +25,8 @@ enum AnimeFormat {
   special
   music
   other
+
+  @@map("anime_format_enum")
 }
 
 model Anime {
@@ -44,5 +50,5 @@ model Anime {
   animeFormat        AnimeFormat  @default(tv) @map("anime_format")
   isExist            Boolean      @default(false) @map("is_exist")
 
-  @@map("anime")
+  @@map("animes")
 }
