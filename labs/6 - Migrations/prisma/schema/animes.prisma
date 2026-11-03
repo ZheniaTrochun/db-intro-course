@@ -50,5 +50,7 @@ model Anime {
   animeFormat        AnimeFormat  @default(tv) @map("anime_format")
   isExist            Boolean      @default(false) @map("is_exist")
 
+  comments Comment[]
+
   @@map("animes")
 }

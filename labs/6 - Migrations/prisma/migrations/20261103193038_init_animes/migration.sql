@@ -1,9 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `users` table. If the table is not empty, all the data it contains will be lost.
-
-*/
 -- CreateEnum
 CREATE TYPE "mpaa_rating_enum" AS ENUM ('g', 'pg', 'pg13', 'r', 'nc17');
 
@@ -12,12 +6,6 @@ CREATE TYPE "anime_status_enum" AS ENUM ('upcoming', 'ongoing', 'finished');
 
 -- CreateEnum
 CREATE TYPE "anime_format_enum" AS ENUM ('tv', 'ova', 'ona', 'movie', 'special', 'music', 'other');
-
--- DropTable
-DROP TABLE "users";
-
--- DropEnum
-DROP TYPE "user_status_enum";
 
 -- CreateTable
 CREATE TABLE "animes" (

@@ -25,6 +25,8 @@ model User {
   userStatus           UserStatusEnum? @map("user_status")
   cratedAt             DateTime        @default(now()) @map("crated_at") @db.Timestamp(6)
   updatedAt            DateTime        @default(now()) @map("updated_at") @db.Timestamp(6)
+  
+  comments             Comment[]
 
   @@index([userStatus], map: "idx_user_status")
   @@index([nickname], map: "idx_nickname")
