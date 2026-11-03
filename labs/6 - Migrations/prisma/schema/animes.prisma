@@ -1,3 +1,4 @@
+
 enum MpaaRating {
   g
   pg
@@ -23,28 +24,28 @@ enum AnimeFormat {
 }
 
 model Animes {
-  animeId            String       @id @default(uuid())
+  animeId            String       @id @default(uuid()) @map("anime_id")
   slug               String       @unique
-  titleUa            String
-  titleEn            String
-  titleOriginal      String
-  animeDescription   String       @default("")
-  coverUrl           String?
-  productionStudio   String?
-  malId              String?
-  anilistId          String?
-  hikkaId            String?
-  imdbId             String?
-  yearReleased       Int?
-  avgEpisodeDuration Int
-  episodeCount       Int
-  ageRestriction     MpaaRating?
-  animeStatus        AnimeStatus?
-  animeFormat        AnimeFormat  @default(tv)
-  isExist            Boolean      @default(false)
+  titleUa            String       @map("title_ua")
+  titleEn            String       @map("title_en")
+  titleOriginal      String       @map("title_original")
+  animeDescription   String       @default("") @map("anime_description")
+  coverUrl           String?      @map("cover_url")
+  productionStudio   String?      @map("production_studio")
+  malId              String?      @map("mal_id")
+  anilistId          String?      @map("anilist_id")
+  hikkaId            String?      @map("hikka_id")
+  imdbId             String?      @map("imdb_id")
+  yearReleased       Int?         @map("year_released")
+  avgEpisodeDuration Int          @map("avg_episode_duration")
+  episodeCount       Int          @map("episode_count")
+  ageRestriction     MpaaRating?  @map("age_restriction")
+  animeStatus        AnimeStatus? @map("anime_status")
+  animeFormat        AnimeFormat  @default(tv) @map("anime_format")
+  isExist            Boolean      @default(false) @map("is_exist")
 
-  genres             Genres[]
-  upcomingEpisodes   UpcomingEpisodes[]
+  genres           Genres[]
+  upcomingEpisodes UpcomingEpisodes[]
 
   @@map("animes")
 }
