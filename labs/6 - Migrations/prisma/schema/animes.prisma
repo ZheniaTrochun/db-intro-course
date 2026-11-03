@@ -52,6 +52,7 @@ model Anime {
 
   comments Comment[]
   genres  Genre[]
+  upcomingEpisodes UpcomingEpisode[]
 
   @@map("animes")
 }
