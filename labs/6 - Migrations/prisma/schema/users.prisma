@@ -16,16 +16,15 @@ enum UserRoleEnum {
 
 model User {
   userId               String         @id @default(dbgenerated("uuidv7()")) @map("user_id") @db.Uuid
-  nickname             String         @unique @db.VarChar(30)
+  nickname             String         @db.VarChar(30)
   fullName             String         @map("full_name") @db.VarChar(100)
-  email                String         @unique
+  email                String
   googleId             String?        @unique @map("google_id")
   bio                  String         @default("")
   passwordHash         String?        @map("password_hash")
-  avatarUrl            String?        @map("avatar_url")
-  socialNetworks       String[]       @default([]) @map("social_networks")
+  avatarUrl            String         @default("") @map("avatar_url")
   maxStreak            Int            @default(0) @map("max_streak")
-  timezone             String         @default("UTC")
+  timezone             String         @default("Europe/Kyiv")
   streakStartDate      DateTime?      @map("streak_start_date") @db.Date
   lastWatchDate        DateTime?      @map("last_watch_date") @db.Date
   profileFrameUrl      String?        @map("profile_frame_url")
@@ -40,6 +39,6 @@ model User {
   sessions       Session[]
   userLinks      UserLink[]
 
-  @@index([userStatus], map: "idx_user_status")
+  @@index([userStatus], map: "idx_users_status")
   @@map("users")
 }
