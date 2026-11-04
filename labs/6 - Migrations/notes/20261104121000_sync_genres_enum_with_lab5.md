@@ -14,4 +14,4 @@
 
 ## Prisma Studio
 
-https://example.com
+[alt text](image-9.png)
