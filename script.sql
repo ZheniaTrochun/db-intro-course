@@ -61,12 +61,13 @@ CREATE TABLE playlists (
 );
 
 CREATE TABLE artist_monthly_stats (
-    stats_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     stats_artist_id BIGINT NOT NULL REFERENCES artists(artist_id) ON DELETE CASCADE,
     stats_month DATE NOT NULL
 		CHECK (EXTRACT(DAY FROM stats_month) = 1),
     stats_play_count INTEGER NOT NULL
-		CHECK (stats_play_count >= 0)
+		CHECK (stats_play_count >= 0),
+
+	PRIMARY KEY (stats_artist_id, stats_month)
 );
 
 CREATE TABLE track_features (
@@ -83,7 +84,7 @@ CREATE TABLE playlist_tracks (
 	added_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (playlist_id, track_id),
 
-	CONSTRAINT unique_track_position UNIQUE(playlist_id, track_position)
+	CONSTRAINT unique_track_position UNIQUE(playlist_id, track_position) DEFERRABLE INITIALLY DEFERRED
 );
 
 INSERT INTO users (user_email, user_password_hash) VALUES
@@ -107,6 +108,7 @@ INSERT INTO tracks (track_artist_id, track_album_id, track_name, track_duration_
 	(2, NULL, 'Diamonds', 			  225000, 'audio/9.mp3'),
 	(2, NULL, 'Umbrella', 			  255000, 'audio/10.mp3'),
 	(2, NULL, 'Numb', 				  205000, 'audio/11.mp3');
+SELECT track_name, track_album_id FROM tracks;
 
 WITH new_album AS (
 	INSERT INTO albums (album_artist_id, album_name) VALUES (1, 'Recovery')
@@ -127,7 +129,7 @@ FROM new_album
 WHERE track_id IN (2, 3, 4);
 
 WITH new_album AS (
-	INSERT INTO albums (album_artist_id, album_name) VALUES (1, 'Unapologetic')
+	INSERT INTO albums (album_artist_id, album_name) VALUES (2, 'Unapologetic')
 	RETURNING album_id
 )
 UPDATE tracks
@@ -151,36 +153,85 @@ INSERT INTO artist_monthly_stats (stats_artist_id, stats_month, stats_play_count
 INSERT INTO playlists (playlist_user_id, playlist_name, playlist_view) VALUES
 	(3, 'Eminem singles', 'private');
 
+BEGIN;
 INSERT INTO playlist_tracks (playlist_id, track_id, track_position) VALUES
 	(1, 5, 1),
 	(1, 6, 2),
 	(1, 7, 3);
+COMMIT;
 
-SELECT track_name, track_duration_milliseconds FROM tracks WHERE track_artist_id = 1;
-SELECT track_name, track_duration_milliseconds FROM tracks WHERE track_duration_milliseconds > 300000;
-SELECT track_id, track_name FROM tracks WHERE track_album_id IS NULL;
+-- Обрати усі треки, які належать певному альбому
+SELECT * FROM tracks WHERE track_album_id = 2;
 
-SELECT track_name, track_duration_milliseconds FROM tracks
-WHERE track_artist_id = 1 AND track_duration_milliseconds > 300000;
+-- Обрати усі треки, які не належать жодному альбому
+SELECT * FROM tracks WHERE track_album_id IS NULL;
 
-UPDATE tracks
-SET track_name = 'Not Afraid (Remastered)'
-WHERE track_id = 1;
+-- Обрати усі треки, які належать певному виконавцю
+SELECT * FROM tracks WHERE track_artist_id = 1;
 
-UPDATE playlists
-SET playlist_view = 'public'
-WHERE playlist_id = 1;
+-- Обрати усі треки, які належать тільки одному виконавцю
+SELECT * FROM tracks t WHERE NOT EXISTS (
+	SELECT 1 FROM track_features tf WHERE tf.track_id = t.track_id
+);
 
-UPDATE artists
-SET artist_bio = 'Updated artist biography'
-WHERE artist_id = 1;
+-- Обрати усі треки, які належать тільки одному ПЕВНОМУ виконавцю
+SELECT * FROM tracks t WHERE t.track_artist_id = 1 AND NOT EXISTS (
+	SELECT 1 FROM track_features tf WHERE tf.track_id = t.track_id
+);
 
+-- Обрати усі альбоми, які належать певному виконавцю
+SELECT * FROM albums WHERE album_artist_id = 1;
+
+-- Змістити позиції всіх треків певного плейліста починаючи від певної позиції і вставити на цю позицію новий трек
+-- Фактично вставка в середину
+BEGIN;
+
+UPDATE playlist_tracks
+SET track_position = track_position + 1
+WHERE playlist_id = 1 AND track_position >= 2;
+
+INSERT INTO playlist_tracks (playlist_id, track_id, track_position) VALUES (1, 8, 2);
+
+-- Перевірка: вивести всі записи для певного плейліста, відсортувавши позиції треків за зростанням
+SELECT * FROM playlist_tracks WHERE playlist_id = 1 ORDER BY track_position ASC;
+
+ROLLBACK;
+
+-- Змінити місцями позиції двох треків у певному плейлісті 
+BEGIN;
+
+UPDATE playlist_tracks
+SET track_position = CASE
+	WHEN track_position = 1 THEN 2
+	WHEN track_position = 2 THEN 1
+END
+WHERE playlist_id = 1 AND track_position in (1, 2);
+
+-- Перевірка: вивести всі записи для певного плейліста, відсортувавши позиції треків за зростанням
+SELECT * FROM playlist_tracks WHERE playlist_id = 1 ORDER BY track_position ASC;
+
+ROLLBACK;
+
+-- Оновити кількість прослуховувань треків певного виконавця у певному місяці
 UPDATE artist_monthly_stats
-SET stats_play_count = stats_play_count + 1000
-WHERE stats_artist_id = 1 AND stats_month = '2026-01-01';
+SET stats_play_count = stats_play_count + 10000
+WHERE stats_artist_id = 1 AND EXTRACT(MONTH FROM stats_month) = 3;
+SELECT * FROM artist_monthly_stats WHERE stats_artist_id = 1 AND EXTRACT(MONTH FROM stats_month) = 3;
 
-DELETE FROM users WHERE user_id = 1;
-DELETE FROM tracks WHERE track_album_id IS NULL;
-
+-- Видалити певний альбом (при цьому треки в цьому альбоми не видаляються)
 DELETE FROM albums WHERE album_id = 1;
-SELECT track_name, track_album_id FROM tracks;
+SELECT * FROM tracks;
+
+-- Видалити певний трек з плейлісту та змістити позіції усіх треків, які передують видаленому.
+-- Фактично видалення з середини
+BEGIN;
+
+DELETE FROM playlist_tracks WHERE track_position = 2;
+UPDATE playlist_tracks
+SET track_position = track_position - 1
+WHERE track_position > 2;
+
+-- Перевірка: вивести всі записи для певного плейліста, відсортувавши позиції треків за зростанням
+SELECT * FROM playlist_tracks WHERE playlist_id = 1 ORDER BY track_position ASC;
+
+ROLLBACK;
