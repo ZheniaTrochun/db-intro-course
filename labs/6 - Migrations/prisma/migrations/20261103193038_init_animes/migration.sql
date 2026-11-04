@@ -14,7 +14,6 @@ CREATE TABLE "animes" (
     "title_ua" TEXT NOT NULL,
     "title_en" TEXT NOT NULL,
     "title_original" TEXT NOT NULL,
-    "anime_description" TEXT NOT NULL DEFAULT '',
     "cover_url" TEXT,
     "production_studio" TEXT,
     "mal_id" TEXT,
