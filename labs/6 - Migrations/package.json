@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "client": "prisma generate && bun run ./src/index.ts",
     "gen": "prisma migrate dev",
     "up": "prisma migrate deploy"
   },
@@ -23,6 +24,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@lab6-orm": "./node_modules/@lab6-orm",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/config": "^7.10.1",
     "dotenv": "^18.0.9",

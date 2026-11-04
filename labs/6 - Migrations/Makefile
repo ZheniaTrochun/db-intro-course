@@ -4,7 +4,7 @@
 
 help:
 	echo "bun gen --name <migration_name>"
-	echo "bun up"
+	echo "bun run up"
 	echo "sudo make run_deamon"
 	echo "sudo make stop_deamon"
 	echo "sudo make run_db"
@@ -21,3 +21,6 @@ run_db:
 
 stop_db:
 	./grant_sudo.sh && sh -c "docker stop $$(docker ps -q -f "name=lab6-pg")"
+
+fill_db:
+	./grant_sudo.sh && (cat queries.sql | sh -c "docker exec -i $$(docker ps -q -f "name=lab6-pg") psql -U postgres your_database_name")
