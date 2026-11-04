@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS users;
 
 
 CREATE TABLE users (
-    user_id UUID PRIMARY KEY,
+    user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL
@@ -13,7 +13,7 @@ CREATE TABLE users (
 
 
 CREATE TABLE wishlists (
-    wishlist_id UUID PRIMARY KEY,
+    wishlist_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     name VARCHAR(100) NOT NULL,
     description TEXT,
@@ -26,7 +26,7 @@ CREATE TABLE wishlists (
 
 
 CREATE TABLE wishlist_items (
-    item_id UUID PRIMARY KEY,
+    item_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     wishlist_id UUID NOT NULL,
     name VARCHAR(150) NOT NULL,
     description TEXT,
@@ -42,7 +42,7 @@ CREATE TABLE wishlist_items (
 
 
 CREATE TABLE reservations (
-    reservation_id UUID PRIMARY KEY,
+    reservation_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     item_id UUID NOT NULL UNIQUE,
     user_id UUID NOT NULL,
     reserved_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

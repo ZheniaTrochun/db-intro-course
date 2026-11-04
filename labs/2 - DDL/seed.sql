@@ -1,65 +1,39 @@
-INSERT INTO users (user_id, name, email, password_hash)
+INSERT INTO users (name, email, password_hash)
 VALUES
-    ('11111111-1111-1111-1111-111111111111',
-     'Maria',
-     'maria@example.com',
-     'hash_maria'),
-
-    ('22222222-2222-2222-2222-222222222222',
-     'Anna',
-     'anna@example.com',
-     'hash_anna'),
-
-    ('33333333-3333-3333-3333-333333333333',
-     'Olena',
-     'olena@example.com',
-     'hash_olena'),
-
-    ('44444444-4444-4444-4444-444444444444',
-     'Sofia',
-     'sofia@example.com',
-     'hash_sofia'),
-
-     ('55555555-5555-5555-5555-555555555555',
-     'Daria',
-     'daria@example.com',
-     'hash_daria');
+    ('Maria', 'maria@example.com', 'hash_maria'),
+    ('Anna', 'anna@example.com', 'hash_anna'),
+    ('Olena', 'olena@example.com', 'hash_olena'),
+    ('Sofia', 'sofia@example.com', 'hash_sofia'),
+    ('Daria', 'daria@example.com', 'hash_daria');
 
 
-INSERT INTO wishlists
-    (wishlist_id, user_id, name, description, is_public)
+INSERT INTO wishlists (user_id, name, description, is_public)
 VALUES
-    ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-     '11111111-1111-1111-1111-111111111111',
+    ((SELECT user_id FROM users WHERE email = 'maria@example.com'),
      'Birthday Wishlist',
      'Things I would like to receive for my birthday',
      TRUE),
 
-    ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-     '11111111-1111-1111-1111-111111111111',
+    ((SELECT user_id FROM users WHERE email = 'maria@example.com'),
      'Books',
      'Books I want to read',
      TRUE),
 
-    ('cccccccc-cccc-cccc-cccc-cccccccccccc',
-     '22222222-2222-2222-2222-222222222222',
+    ((SELECT user_id FROM users WHERE email = 'anna@example.com'),
      'Tech Wishlist',
      'Useful technology and accessories',
      TRUE),
 
-    ('dddddddd-dddd-dddd-dddd-dddddddddddd',
-     '33333333-3333-3333-3333-333333333333',
+    ((SELECT user_id FROM users WHERE email = 'olena@example.com'),
      'Private Wishlist',
      'Personal items',
      FALSE);
 
 
 INSERT INTO wishlist_items
-    (item_id, wishlist_id, name, description, price,
-     product_url, image_url, is_completed)
+    (wishlist_id, name, description, price, product_url, image_url, is_completed)
 VALUES
-    ('aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa',
-     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    ((SELECT wishlist_id FROM wishlists WHERE name = 'Birthday Wishlist'),
      'Wireless Headphones',
      'Noise cancelling headphones',
      199.99,
@@ -67,8 +41,7 @@ VALUES
      NULL,
      FALSE),
 
-    ('bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb',
-     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    ((SELECT wishlist_id FROM wishlists WHERE name = 'Birthday Wishlist'),
      'Coffee Machine',
      'Automatic coffee machine',
      349.00,
@@ -76,8 +49,7 @@ VALUES
      NULL,
      FALSE),
 
-    ('cccccccc-3333-3333-3333-cccccccccccc',
-     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    ((SELECT wishlist_id FROM wishlists WHERE name = 'Books'),
      'Clean Code',
      'Book about software craftsmanship',
      45.50,
@@ -85,8 +57,7 @@ VALUES
      NULL,
      TRUE),
 
-    ('dddddddd-4444-4444-4444-dddddddddddd',
-     'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    ((SELECT wishlist_id FROM wishlists WHERE name = 'Tech Wishlist'),
      'Mechanical Keyboard',
      'Mechanical keyboard for programming',
      120.00,
@@ -94,8 +65,7 @@ VALUES
      NULL,
      FALSE),
 
-    ('eeeeeeee-5555-5555-5555-eeeeeeeeeeee',
-     'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    ((SELECT wishlist_id FROM wishlists WHERE name = 'Tech Wishlist'),
      'USB-C Hub',
      'Multi-port USB-C adapter',
      59.99,
@@ -104,18 +74,13 @@ VALUES
      FALSE);
 
 
-INSERT INTO reservations
-    (reservation_id, item_id, user_id)
+INSERT INTO reservations (item_id, user_id)
 VALUES
-    ('11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-     'aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa',
-     '22222222-2222-2222-2222-222222222222'),
+    ((SELECT item_id FROM wishlist_items WHERE name = 'Wireless Headphones'),
+     (SELECT user_id FROM users WHERE email = 'anna@example.com')),
 
-    ('22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-     'dddddddd-4444-4444-4444-dddddddddddd',
-     '44444444-4444-4444-4444-444444444444'),
+    ((SELECT item_id FROM wishlist_items WHERE name = 'Mechanical Keyboard'),
+     (SELECT user_id FROM users WHERE email = 'sofia@example.com')),
 
-    ('33333333-cccc-cccc-cccc-cccccccccccc',
-     'eeeeeeee-5555-5555-5555-eeeeeeeeeeee',
-     '33333333-3333-3333-3333-333333333333');
-     
+    ((SELECT item_id FROM wishlist_items WHERE name = 'USB-C Hub'),
+     (SELECT user_id FROM users WHERE email = 'olena@example.com'));
