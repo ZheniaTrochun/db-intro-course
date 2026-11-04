@@ -18,7 +18,12 @@ VALUES
     ('44444444-4444-4444-4444-444444444444',
      'Sofia',
      'sofia@example.com',
-     'hash_sofia');
+     'hash_sofia'),
+
+     ('55555555-5555-5555-5555-555555555555',
+     'Daria',
+     'daria@example.com',
+     'hash_daria');
 
 
 INSERT INTO wishlists
@@ -113,3 +118,4 @@ VALUES
     ('33333333-cccc-cccc-cccc-cccccccccccc',
      'eeeeeeee-5555-5555-5555-eeeeeeeeeeee',
      '33333333-3333-3333-3333-333333333333');
+     
