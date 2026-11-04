@@ -71,6 +71,7 @@ create table tournament (
     status tournament_status not null default 'registration',
     check (max_teams >= min_teams),
     check (max_team_players >= min_team_players)
+
 );
 
 create table tournament_application (
@@ -98,6 +99,7 @@ create table encounter (
     next_encounter_id uuid references encounter(id) on delete set null,
     max_matches smallint not null,
     status encounter_status not null default 'scheduled'
+    CONSTRAINT duplication_check check(tournament_application_id_1 != tournament_application_id_2)
 );
 
 create table "match" (
