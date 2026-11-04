@@ -1,12 +1,13 @@
 // by @XxMariavxX
 model UpcomingEpisode {
-  animeId     String   @map("anime_id") @db.Uuid
-  episodeName String   @map("episode_name")
-  episodeDate DateTime @default(now()) @map("episode_date")
+  upcomingEpisodeId UUID     @id @default(uuid()) @map("upcoming_episode_id") @db.Uuid
+  animeId           String   @map("anime_id") @db.Uuid
+  episodeName       String   @map("episode_name")
+  episodeDate       DateTime @default(now()) @map("episode_date")
 
-  anime      Anime    @relation(fields: [animeId], references: [animeId], onDelete: Cascade)
+  anime             Anime    @relation(fields: [animeId], references: [animeId], onDelete: Cascade)
 
-  @@id([animeId, episodeName])
+  @@unique([animeId, episodeName])
   @@index([episodeDate], map: "idx_upcoming_episode_date")
   @@map("upcoming_episodes")
 }

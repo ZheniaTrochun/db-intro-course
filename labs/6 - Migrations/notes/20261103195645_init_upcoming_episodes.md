@@ -1,6 +1,6 @@
 # 20261103195645_init_upcoming_episodes
 
-Створено таблицю `upcoming_episodes` (модель `UpcomingEpisode`) з полями anime_id, episode_name, episode_date. Додано складений первинний ключ (anime_id, episode_name) та зовнішній ключ на animes(anime_id).
+Створено таблицю `upcoming_episodes` (модель `UpcomingEpisode`) з полями upcoming_episode_id, anime_id, episode_name, episode_date. Додано сурогатний первинний ключ (upcoming_episode_id), унікальний ключ (anime_id, episode_name) та зовнішній ключ на animes(anime_id).
 
 **Було:**
 ```prisma
