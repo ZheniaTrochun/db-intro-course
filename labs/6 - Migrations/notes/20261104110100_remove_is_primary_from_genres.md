@@ -32,4 +32,4 @@ model Genre {
 ```
 
 ## Prisma Studio
-[alt text](image-7.png)
+![alt text](image-7.png)
