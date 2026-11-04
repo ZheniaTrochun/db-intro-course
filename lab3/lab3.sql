@@ -104,7 +104,7 @@ INSERT INTO dorms (dorm_number, address) VALUES
     (4, 'вул. Тараса Шевченка 2-в');
 
 INSERT INTO users (first_name, last_name, email, date_of_birth, status, dorm_id) VALUES
-    ('Іван',   'Петренко',  'ivan.petrenko@example.com',     '2003-05-14', 'active', 1),
+    ('Іван1',   'Петренко',  'ivan.petrenko@example.com',     '2003-05-14', 'active', 1),
     ('Марія',  'Коваль',    'maria.koval@example.com',       '2002-11-02', 'active', 1),
     ('Олег',   'Бондар',    'oleg.bondar@example.com',       '2001-03-20', 'active', 2),
     ('Анна',   'Сидоренко', 'anna.sydorenko@example.com',    '2004-07-08', 'active', 2),
@@ -209,6 +209,8 @@ ORDER BY d.dorm_number, p.slot_number;
 INSERT INTO vacancies (company_name, job_name)
 VALUES ('SoftServe', 'Trainee Database Developer');
 
+SELECT * FROM vacancies;
+
 -- заява студента на вакансію
 INSERT INTO applications (student_id, vacancy_id, application_date, status)
 VALUES (
@@ -260,16 +262,23 @@ JOIN vacancies v ON v.vacancy_id = a.vacancy_id
 WHERE a.student_id = (SELECT student_id FROM students WHERE user_id = 1)
   AND v.company_name = 'EPAM';
 
+-- статус до зміни
+SELECT * FROM users WHERE user_id = 8;
+
 -- призначення гуртожитку студенту
 UPDATE users
 SET dorm_id = 3
 WHERE user_id = 8;
 
+SELECT * FROM users WHERE user_id = 8;
+
+-- статус до зміни
+SELECT * FROM students WHERE user_id = 8;
+
 -- призначення кімнати студенту
 UPDATE students
 SET room_id = 5
 WHERE user_id = 8;
-
 
 -- перевірка
 SELECT u.first_name, u.last_name, d.dorm_number, r.room_number
@@ -280,6 +289,11 @@ JOIN rooms r ON r.room_id = s.room_id
 WHERE s.user_id = 8;
 
 -- 4 Видалення даних
+
+SELECT * FROM applications;
+SELECT vacancy_id, company_name, job_name
+FROM vacancies
+ORDER BY vacancy_id;
 
 -- видалення вакансій у Rozetka
 DELETE FROM vacancies
@@ -308,3 +322,5 @@ WHERE slot_number = 'P-401'
 SELECT parking_slot_id, dorm_id, slot_number, user_id
 FROM parking_slots
 WHERE slot_number = 'P-401';
+
+SELECT * FROM parking_slots WHERE slot_number LIKE 'P-1%';
