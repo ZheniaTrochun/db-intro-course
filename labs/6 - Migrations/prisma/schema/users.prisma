@@ -38,6 +38,7 @@ model User {
   comments       Comment[]
   animeListUnits AnimeListUnit[]
   sessions       Session[]
+  userLinks      UserLink[]
 
   @@index([userStatus], map: "idx_user_status")
   @@map("users")
