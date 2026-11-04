@@ -1,4 +1,4 @@
-# 1793749059-update-genres-map-and-enum
+# 20261103233739_update_genres_map_and_enum
 
 Додано мапінги `@map`/`@@map` для моделі `Genre` та enum `GenreType`. Додано значення `thriller` та `vampire` до enum `genre_type_enum`. Змінено зовнішній ключ `genres_anime_id_fkey` на `ON DELETE CASCADE`. Додано індекс `idx_genres_genre_type` на колонку `genre_type`.
 

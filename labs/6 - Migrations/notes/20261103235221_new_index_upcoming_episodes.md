@@ -1,4 +1,4 @@
-# 1793749941-new-index-upcoming-episodes
+# 20261103235221_new_index_upcoming_episodes
 
 Додано мапінги `@map`/`@@map` для моделі `UpcomingEpisode`. Додано індекс `idx_upcoming_episodes_date` на колонку `episode_date`. Змінено зовнішній ключ `upcoming_episodes_anime_id_fkey` на `ON DELETE CASCADE`.
 

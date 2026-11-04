@@ -1,4 +1,4 @@
-# 1793748355-new-fields-and-enums-in-animes
+# 20261103232555_new_fields_and_enums_in_animes
 
 Додано значення `dropped` до enum `anime_status_enum`. В таблиці `animes` додано колонку `available` (BOOLEAN, default true) з індексом `idx_anime_available`. Видалено колонки `anime_description` та `is_exist`. Встановлено defaults для `title_ua`, `title_en`, `title_original` (''), `avg_episode_duration` та `episode_count` (0). Змінено тип `mal_id` та `anilist_id` з TEXT на INTEGER. Виправлено тип `anime_id` на UUID (додано `@db.Uuid`), щоб уникнути зміни первинного ключа.
 
