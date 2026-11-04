@@ -3,13 +3,13 @@ model Comment {
   commentId BigInt   @id @default(autoincrement()) @map("comment_id")
   authorId  String   @map("author_id") @db.Uuid
   animeId   String   @map("anime_id") @db.Uuid
-  grade     Int?     @db.SmallInt
   content   String
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  isEdited  Boolean  @default(false) @map("is_edited")
 
   author User  @relation(fields: [authorId], references: [userId], onDelete: Cascade)
   anime  Anime @relation(fields: [animeId], references: [animeId], onDelete: Cascade)
 
-  @@index([animeId], map: "idx_comments_anime_id")
+  @@index([animeId, commentId(sort: Desc)], map: "idx_comments_anime_created")
   @@map("comments")
 }

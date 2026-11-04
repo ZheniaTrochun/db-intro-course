@@ -1,3 +1,4 @@
+// by @ApostolQleg
 enum UserStatusEnum {
   active
   banned
