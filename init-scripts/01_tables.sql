@@ -40,7 +40,7 @@ create table if not exists category(
 
 create table if not exists app_category(
     category_id int not null references category(category_id) on delete cascade,
-    app_id bigint not null references app(app_id) on delete cascade,
+    app_id int not null references app(app_id) on delete cascade,
     primary key(category_id, app_id)
 );
 
@@ -75,7 +75,7 @@ create table if not exists "order" (
 
 create table if not exists order_item (
     order_id bigint not null references "order"(order_id) on delete cascade,
-    app_id int not null references app(app_id),
+    app_id int not null,
     price_at_purchase decimal(10, 2) not null,
     primary key (order_id, app_id),
     constraint item_price_positive check (price_at_purchase >= 0)
