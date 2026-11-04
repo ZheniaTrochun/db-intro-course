@@ -33,4 +33,4 @@ model UpcomingEpisode {
 
 
 ## Prisma Studio
-[alt text](image-6.png)
+![alt text](image-6.png)
