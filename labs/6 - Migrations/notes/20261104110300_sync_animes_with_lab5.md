@@ -60,5 +60,4 @@ model Anime {
 ```
 
 ## Prisma Studio
-
-![Скріншот з Prisma Studio](https://example.com)
+[alt text](image-8.png)
