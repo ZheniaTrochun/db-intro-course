@@ -33,4 +33,4 @@ model Genre {
 
 ## Prisma Studio
 
-![Скріншот з Prisma Studio](https://example.com)
+![Скріншот з Prisma Studio](![alt text](image-7.png))
