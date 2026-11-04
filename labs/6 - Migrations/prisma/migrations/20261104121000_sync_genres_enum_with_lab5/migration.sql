@@ -1,0 +1,44 @@
+-- Add new enum values (from lab 5)
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'award_winning';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'adult_cast';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'anthropomorphic';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'cgdct';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'childcare';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'combat_sports';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'crossdressing';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'delinquents';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'detective';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'educational';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'gag_humor';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'gore';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'high_stakes_game';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'idols_female';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'idols_male';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'iyashikei';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'love_polygon';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'love_status_quo';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'fantasy_sex_shift';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'mahou_shoujo';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'medical';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'mythology';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'organized_crime';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'otaku_culture';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'performing_arts';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'pets';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'racing';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'reincarnation';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'reverse_harem';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'showbiz';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'strategy_game';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'survival';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'team_sports';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'time_travel';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'urban_fantasy';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'video_game';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'villainess';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'visual_arts';
+ALTER TYPE "genre_type_enum" ADD VALUE IF NOT EXISTS 'workplace';
+
+-- Rename index
+DROP INDEX IF EXISTS "idx_genres_genre_type";
+CREATE INDEX "idx_genres_type" ON "genres"("genre_type");
