@@ -1,4 +1,5 @@
 // by @dadencukillia
+
 model Session {
   sessionId BigInt @id @default(autoincrement()) @map("session_id")
   userId String @map("user_id") @db.Uuid
@@ -15,5 +16,6 @@ model Session {
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@index([userId], map: "idx_sessions_user_id")
+  @@index([expireTime(sort: Asc)], map: "idx_sessions_expire_time")
   @@map("sessions")
 }
