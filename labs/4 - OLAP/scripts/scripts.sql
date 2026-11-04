@@ -68,6 +68,13 @@ WHERE ps.kills > (SELECT AVG(kills)
 FROM player_statistic as ps_inner
 WHERE ps_inner.user_id = u.id)
 
+SELECT u.nickname, SUM(t.prize_pool), 
+(SUM(t.prize_pool) / (SELECT SUM(prize_pool) FROM tournament)) * 100 AS 
+percentage
+FROM tournament as t
+INNER JOIN "user" as u ON t.organizer_id = u.id
+GROUP BY u.id;
+
 
 
 
