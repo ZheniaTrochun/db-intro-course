@@ -302,7 +302,113 @@ CREATE EXTENSION IF NOT EXISTS vector;
 Всі запити створення таблиць також знаходяться у [файлі](../../scripts/create-campus-tables.sql).
 
 ```sql
--- TBD
+
+create type person_status as enum ('registered', 'banned', 'inactive');
+create type student_status as enum ('active', 'expelled', 'graduated', 'academ');
+create type professor_status as enum ('active', 'inactive', 'fired', 'vacation');
+create type study_level as enum ('bachelors', 'masters', 'phd');
+create type job_title as enum ('associate professor', 'professor', 'senior researcher');
+create type course_status as enum ('active', 'in development', 'retired', 'inactive');
+create type profesor_role as enum ('lecturer', 'practice', 'full_ownership');
+create type enrolment_status as enum ('not_started', 'started', 'finished');
+create type student_group_status as enum ('active', 'disbanned', 'graduated');
+create type student_group_assignment_status as enum ('active', 'inactive', 'graduated');
+
+create table person
+(
+    person_id         int generated always as identity primary key,
+    first_name        varchar(100)  not null,
+    last_name         varchar(100)  not null,
+    date_of_birth     DATE          not null,
+    contact_medium    JSON,
+    registration_date timestamp     not null default now(),
+    person_status     person_status not null default 'registered'
+);
+
+create table student
+(
+    student_id     int generated always as identity primary key,
+    person_id      int            not null references person (person_id),
+    student_status student_status not null default 'active'
+);
+
+create table professor
+(
+    professor_id     int generated always as identity primary key,
+    person_id        int              not null references person (person_id),
+    start_year       date             not null default now(),
+    professor_status professor_status not null default 'active',
+    professor_degree study_level,
+    job_title        job_title
+);
+
+create table course
+(
+    course_id     int generated always as identity primary key,
+    course_name   varchar(100)  not null check (length(trim(both ' ' from course_name)) > 0),
+    credits       int           not null check (credits > 0),
+    course_status course_status not null default 'active'
+);
+
+create table course_teacher
+(
+    course_id     int           not null references course (course_id),
+    professor_id  int           not null references professor (professor_id),
+    profesor_role profesor_role not null,
+    primary key (course_id, professor_id)
+);
+
+create table course_prerequisite
+(
+    course_id              int not null references course (course_id),
+    prerequisite_course_id int not null references course (course_id),
+    primary key (course_id, prerequisite_course_id)
+);
+
+create table enrolment
+(
+    student_id       int              not null references student (student_id),
+    course_id        int              not null references course (course_id),
+    grade            int,
+    enrolment_status enrolment_status not null default 'not_started',
+    created_at       timestamp        not null default now(),
+    primary key (student_id, course_id)
+);
+
+create table specialties
+(
+    specialty_code     varchar(4)  not null primary key,
+    field_of_knowledge varchar(25) not null
+);
+
+create table cohort
+(
+    cohort_id      int generated always as identity primary key,
+    cohort_name    char(5)    not null,
+    specialty_code varchar(4) not null references specialties (specialty_code)
+);
+
+create table student_group
+(
+    group_id     int generated always as identity primary key,
+    group_name   varchar(8)           not null,
+    start_year   smallint             not null check (start_year > 1898),
+    end_year     smallint             not null check (end_year > start_year),
+    study_level  study_level          not null,
+    group_status student_group_status not null default 'active',
+    curator_id   int                  not null references professor (professor_id),
+    student_lead int references student (student_id),
+    cohort_id    int                  not null references cohort (cohort_id)
+);
+
+create table student_group_assignment
+(
+    student_id        int                             not null references student (student_id),
+    group_id          int                             not null references student_group (group_id),
+    assignment_status student_group_assignment_status not null default 'active',
+    primary key (student_id, group_id)
+);
+
 ```
 
 ---
