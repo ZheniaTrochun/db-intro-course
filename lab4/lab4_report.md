@@ -107,16 +107,16 @@ ORDER BY u.user_id;
 
 Запит показує активних користувачів і їхні гуртожитки. На відміну від `INNER JOIN`, `LEFT JOIN` не виключає користувача, якщо йому ще не призначено гуртожиток. У такому випадку `dorm_number` буде `NULL`.
 
-### 2.4. `CROSS JOIN`
+### 2.4. `RIGHT JOIN`
 
 ```sql
-SELECT d.dorm_number, dep.department_name
-FROM dorms d
-CROSS JOIN departments dep
-ORDER BY d.dorm_number, dep.department_name;
+SELECT d.dorm_number, p.slot_number, p.user_id
+FROM parking_slots p
+RIGHT JOIN dorms d ON d.dorm_id = p.dorm_id
+ORDER BY d.dorm_number, p.slot_number;
 ```
 
-`CROSS JOIN` створює всі можливі комбінації гуртожитків і кафедр. Якщо є 4 гуртожитки та 3 кафедри, результат міститиме 12 рядків. У цьому запиті об'єднання за ключем не використовується.
+`RIGHT JOIN` виводить повний список усіх гуртожитків, а також показує номери існуючих паркомісць та ID користувачів які їх займають.
 
 ## 3. Підзапити
 
@@ -173,5 +173,5 @@ ORDER BY dep.department_name;
 
 ## 4. Висновок
 
-У лабораторній роботі було створено аналітичні запити для бази даних студентського містечка. Використано агрегатні функції `COUNT`, `SUM`, `AVG`, `MIN` і `MAX`, групування через `GROUP BY`, фільтрування груп через `HAVING`, різні типи об'єднань `INNER JOIN`, `LEFT JOIN`, `RIGHT JOIN` і `CROSS JOIN`, а також підзапити в `SELECT`, `WHERE` та `HAVING`.
+У лабораторній роботі було створено аналітичні запити для бази даних студентського містечка. Використано агрегатні функції `COUNT`, `SUM`, `AVG`, `MIN` і `MAX`, групування через `GROUP BY`, фільтрування груп через `HAVING`, різні типи об'єднань `INNER JOIN`, `LEFT JOIN` і `RIGHT JOIN`, а також підзапити в `SELECT`, `WHERE` та `HAVING`.
 
