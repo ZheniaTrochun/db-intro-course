@@ -245,7 +245,7 @@ model Genre {
 
 # 20261103195645_init_upcoming_episodes
 
-Створено таблицю `upcoming_episodes` (модель `UpcomingEpisode`) з полями anime_id, episode_name, episode_date. Додано складений первинний ключ (anime_id, episode_name) та зовнішній ключ на animes(anime_id).
+Створено таблицю `upcoming_episodes` (модель `UpcomingEpisode`) з полями upcoming_episode_id, anime_id, episode_name, episode_date. Додано сурогатний первинний ключ (upcoming_episode_id), унікальний ключ (anime_id, episode_name) та зовнішній ключ на animes(anime_id).
 
 **Було:**
 ```prisma
@@ -701,7 +701,7 @@ model UpcomingEpisode {
 
 
 ## Prisma Studio
-[alt text](image-6.png)
+![alt text](image-6.png)
 
 
 # 20261104081400_list_units_grade_field_to_smallint
@@ -1273,7 +1273,7 @@ model User {
 
 ## Prisma Studio
 
-[alt text](image-5.png)
+![alt text](image-5.png)
 
 
 # 20261104110100-remove-is-primary-from-genres
@@ -1310,7 +1310,7 @@ model Genre {
 ```
 
 ## Prisma Studio
-[alt text](image-7.png)
+![alt text](image-7.png)
 
 
 # 20261104110300-sync-animes-with-lab5
@@ -1375,7 +1375,7 @@ model Anime {
 ```
 
 ## Prisma Studio
-[alt text](image-8.png)
+![alt text](image-8.png)
 
 
 # 20261104121000-sync-genres-enum-with-lab5
@@ -1394,12 +1394,17 @@ model Anime {
 
 ## Prisma Studio
 
-https://example.com
+![alt text](image-9.png)
 
 
 # 20261104121500-sync-upcoming-episodes-with-lab5
 
 Синхронізовано таблицю `upcoming_episodes` зі схемою лаб. 5.
+
+**Зміни:**
+- Додано сурогатний ключ `upcoming_episode_id UUID PRIMARY KEY DEFAULT uuidv7()`
+- Видалено складений PK `(anime_id, episode_name)` → додано `UNIQUE(anime_id, episode_name)`
+- Додано CHECK constraint: `length(trim(episode_name)) > 0`
 
 **Було:**
 ```prisma
@@ -1408,7 +1413,7 @@ model UpcomingEpisode {
   episodeName String   @map("episode_name")
   episodeDate DateTime @default(now()) @map("episode_date")
 
-  anime Anime @relation(fields: [animeId], references: [animeId], onDelete: Cascade)
+  anime      Anime    @relation(fields: [animeId], references: [animeId], onDelete: Cascade)
 
   @@id([animeId, episodeName])
   @@index([episodeDate], map: "idx_upcoming_episode_date")
@@ -1424,7 +1429,7 @@ model UpcomingEpisode {
   episodeName       String   @map("episode_name")
   episodeDate       DateTime @default(now()) @map("episode_date")
 
-  anime Anime @relation(fields: [animeId], references: [animeId], onDelete: Cascade)
+  anime             Anime    @relation(fields: [animeId], references: [animeId], onDelete: Cascade)
 
   @@unique([animeId, episodeName])
   @@index([episodeDate], map: "idx_upcoming_episode_date")
@@ -1434,5 +1439,5 @@ model UpcomingEpisode {
 
 ## Prisma Studio
 
-![Скріншот з Prisma Studio](https://example.com)
+![alt text](image-10.png)
 
