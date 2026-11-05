@@ -1,11 +1,11 @@
 // by @ApostolQleg
 model UserLink {
-    userLinkId  BigInt @id @default(autoincrement()) @map("user_link_id")
-    userId      String @map("user_id") @db.Uuid
-    userLinkUrl String @map("user_link_url")
+  userLinkId  BigInt @id @default(autoincrement()) @map("user_link_id")
+  userId      String @map("user_id") @db.Uuid
+  userLinkUrl String @map("user_link_url")
 
-    user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
-    @@unique([userId, userLinkUrl])
-    @@map("user_links")
+  @@unique([userId, userLinkUrl])
+  @@map("user_links")
 }

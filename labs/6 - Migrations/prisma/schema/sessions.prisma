@@ -1,16 +1,16 @@
 // by @dadencukillia
 
 model Session {
-  sessionId BigInt @id @default(autoincrement()) @map("session_id")
-  userId String @map("user_id") @db.Uuid
-  refreshToken Bytes @unique @map("refresh_token")
-  expireTime DateTime @default(dbgenerated("(now() + '180 days'::interval)")) @map("expire_time") @db.Timestamptz(6)
-  deviceType String? @map("device_type")
-  deviceName String? @map("device_name")
-  os String?
-  browser String?
-  userLocation String? @map("user_location")
-  ipAddress String? @map("ip_address") @db.Inet
+  sessionId    BigInt   @id @default(autoincrement()) @map("session_id")
+  userId       String   @map("user_id") @db.Uuid
+  refreshToken Bytes    @unique @map("refresh_token")
+  expireTime   DateTime @default(dbgenerated("(now() + '180 days'::interval)")) @map("expire_time") @db.Timestamptz(6)
+  deviceType   String?  @map("device_type")
+  deviceName   String?  @map("device_name")
+  os           String?
+  browser      String?
+  userLocation String?  @map("user_location")
+  ipAddress    String?  @map("ip_address") @db.Inet
 
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
 

@@ -4,7 +4,7 @@ model UpcomingEpisode {
   episodeName String   @map("episode_name")
   episodeDate DateTime @default(now()) @map("episode_date")
 
-  anime      Anime    @relation(fields: [animeId], references: [animeId], onDelete: Cascade)
+  anime Anime @relation(fields: [animeId], references: [animeId], onDelete: Cascade)
 
   @@id([animeId, episodeName])
   @@index([episodeDate], map: "idx_upcoming_episode_date")
