@@ -81,4 +81,4 @@ enum AnimeStatus {
 
 
 ## Prisma Studio
-![alt text](image-3.png)
+![alt text](https://ucarecdn.com/81904937-e6d3-4554-a00c-64e78ad7c362/image3.png)

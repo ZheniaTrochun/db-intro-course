@@ -14,4 +14,4 @@
 
 ## Prisma Studio
 
-![alt text](image-9.png)
+![alt text](https://ucarecdn.com/e0e2ca89-9664-4f6e-b6fd-f0c3872a3a1c/image9.png)

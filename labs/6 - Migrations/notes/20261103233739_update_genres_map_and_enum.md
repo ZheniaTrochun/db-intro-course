@@ -127,4 +127,4 @@ model Genre {
 
 
 ## Prisma Studio
-![alt text](image-4.png)
+![alt text](https://ucarecdn.com/5f2cb42c-9e1c-4aee-bbe9-d94c52fd7ec0/image4.png)

@@ -32,4 +32,4 @@ model Genre {
 ```
 
 ## Prisma Studio
-![alt text](image-7.png)
+![alt text](https://ucarecdn.com/ffc84ace-3f4d-4e11-9f45-cce8f39d3312/image7.png)

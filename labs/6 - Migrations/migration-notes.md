@@ -122,7 +122,7 @@ model Anime {
 
 
 ## Prisma Studio
-![alt text](image.png)
+![alt text](https://ucarecdn.com/ec1467a3-3b76-4189-bda2-d34a5b15af3d/-/preview/999x209/)
 
 
 # 20261103193846_init_comments
@@ -240,7 +240,7 @@ model Genre {
 
 
 ## Prisma Studio
-![alt text](image-1.png)
+![alt text](https://ucarecdn.com/737e7563-3c86-4b45-90d0-e9906c93b8cb/image1.png)
 
 
 # 20261103195645_init_upcoming_episodes
@@ -268,7 +268,7 @@ model UpcomingEpisode {
 
 
 ## Prisma Studio
-![alt text](image-2.png)
+![alt text](https://ucarecdn.com/dd09682d-13f4-42e7-b292-cf96420e9bdc/image2.png)
 
 
 # 20261103200712_init_anime_list_units
@@ -531,7 +531,7 @@ enum AnimeStatus {
 
 
 ## Prisma Studio
-![alt text](image-3.png)
+![alt text](https://ucarecdn.com/81904937-e6d3-4554-a00c-64e78ad7c362/image3.png)
 
 
 # 20261103233739_update_genres_map_and_enum
@@ -663,7 +663,7 @@ model Genre {
 
 
 ## Prisma Studio
-![alt text](image-4.png)
+![alt text](https://ucarecdn.com/5f2cb42c-9e1c-4aee-bbe9-d94c52fd7ec0/image4.png)
 
 
 # 20261103235221_new_index_upcoming_episodes
@@ -701,7 +701,7 @@ model UpcomingEpisode {
 
 
 ## Prisma Studio
-![alt text](image-6.png)
+![alt text](https://ucarecdn.com/216baf9e-71f3-4e13-9a83-42624237643f/-/preview/542x292/)
 
 
 # 20261104081400_list_units_grade_field_to_smallint
@@ -1273,7 +1273,7 @@ model User {
 
 ## Prisma Studio
 
-![alt text](image-5.png)
+![alt text](https://ucarecdn.com/04965751-d011-49cc-8952-bd9ccf51964a/image5.png)
 
 
 # 20261104110100-remove-is-primary-from-genres
@@ -1310,7 +1310,7 @@ model Genre {
 ```
 
 ## Prisma Studio
-![alt text](image-7.png)
+![alt text](https://ucarecdn.com/ffc84ace-3f4d-4e11-9f45-cce8f39d3312/image7.png)
 
 
 # 20261104110300-sync-animes-with-lab5
@@ -1375,7 +1375,7 @@ model Anime {
 ```
 
 ## Prisma Studio
-![alt text](image-8.png)
+![alt text](https://ucarecdn.com/b5435030-ea3e-4bf2-b082-8732fd58cf58/image8.png)
 
 
 # 20261104121000-sync-genres-enum-with-lab5
@@ -1394,7 +1394,7 @@ model Anime {
 
 ## Prisma Studio
 
-![alt text](image-9.png)
+![alt text](https://ucarecdn.com/e0e2ca89-9664-4f6e-b6fd-f0c3872a3a1c/image9.png)
 
 
 # 20261104121500-sync-upcoming-episodes-with-lab5
@@ -1439,5 +1439,5 @@ model UpcomingEpisode {
 
 ## Prisma Studio
 
-![alt text](image-10.png)
+![alt text](https://ucarecdn.com/0c66c133-5db9-4559-a194-a7307faaba28/image10.png)
 

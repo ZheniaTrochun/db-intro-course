@@ -60,4 +60,4 @@ model Anime {
 ```
 
 ## Prisma Studio
-![alt text](image-8.png)
+![alt text](https://ucarecdn.com/b5435030-ea3e-4bf2-b082-8732fd58cf58/image8.png)

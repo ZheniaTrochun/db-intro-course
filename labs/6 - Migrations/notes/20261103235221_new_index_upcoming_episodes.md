@@ -33,4 +33,4 @@ model UpcomingEpisode {
 
 
 ## Prisma Studio
-![alt text](image-6.png)
+![alt text](https://ucarecdn.com/216baf9e-71f3-4e13-9a83-42624237643f/-/preview/542x292/)
