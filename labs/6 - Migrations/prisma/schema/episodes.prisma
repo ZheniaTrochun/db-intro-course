@@ -8,12 +8,12 @@ enum EpisodeLocalizationType {
 }
 
 model Episode {
-  episodeId BigInt @id @default(autoincrement()) @map("episode_id")
-  animeId String @map("anime_id") @db.Uuid
-  sourceUrl String @unique @map("source_url")
-  episodeName String @map("episode_name")
-  localizationStudio String @default("") @map("localization_studio")
-  localizationType EpisodeLocalizationType? @map("localization_type")
+  episodeId          BigInt                   @id @default(autoincrement()) @map("episode_id")
+  animeId            String                   @map("anime_id") @db.Uuid
+  sourceUrl          String                   @unique @map("source_url")
+  episodeName        String                   @map("episode_name")
+  localizationStudio String                   @default("") @map("localization_studio")
+  localizationType   EpisodeLocalizationType? @map("localization_type")
 
   anime Anime @relation(fields: [animeId], references: [animeId], onDelete: Cascade)
 

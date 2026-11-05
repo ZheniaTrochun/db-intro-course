@@ -44,19 +44,19 @@ model Anime {
   anilistId          BigInt?      @unique @map("anilist_id")
   hikkaId            String?      @unique @map("hikka_id")
   imdbId             String?      @unique @map("imdb_id")
-  yearReleased       Int?         @db.SmallInt @map("year_released")
-  avgEpisodeDuration Int          @default(0) @db.SmallInt @map("avg_episode_duration")
-  episodeCount       Int          @default(0) @db.SmallInt @map("episode_count")
+  yearReleased       Int?         @map("year_released") @db.SmallInt
+  avgEpisodeDuration Int          @default(0) @map("avg_episode_duration") @db.SmallInt
+  episodeCount       Int          @default(0) @map("episode_count") @db.SmallInt
   ageRestriction     MpaaRating?  @map("age_restriction")
   animeStatus        AnimeStatus? @map("anime_status")
   animeFormat        AnimeFormat  @default(tv) @map("anime_format")
   available          Boolean      @default(true) @map("available")
 
-  comments Comment[]
-  genres  Genre[]
+  comments         Comment[]
+  genres           Genre[]
   upcomingEpisodes UpcomingEpisode[]
-  animeListUnits AnimeListUnit[]
-  episodes Episode[]
+  animeListUnits   AnimeListUnit[]
+  episodes         Episode[]
 
   @@index([available], map: "idx_anime_available")
   @@map("animes")
