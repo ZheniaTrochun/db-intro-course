@@ -1,6 +1,6 @@
 // by @XxMariavxX
 model UpcomingEpisode {
-  upcomingEpisodeId UUID     @id @default(uuid()) @map("upcoming_episode_id") @db.Uuid
+  upcomingEpisodeId String   @id @default(uuid()) @map("upcoming_episode_id") @db.Uuid
   animeId           String   @map("anime_id") @db.Uuid
   episodeName       String   @map("episode_name")
   episodeDate       DateTime @default(now()) @map("episode_date")
