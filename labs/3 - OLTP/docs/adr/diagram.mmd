@@ -23,7 +23,7 @@ erDiagram
         VARCHAR_50 sku_code UK "NOT NULL"
         VARCHAR_100 name "NOT NULL"
         TEXT description
-        ENUM unit "unit_type, DEFAULT piece"
+        ENUM unit "unit_type, NOT NULL, DEFAULT piece"
         INT min_stock_level "NOT NULL, DEFAULT 0, CHECK >= 0"
     }
 
@@ -41,7 +41,7 @@ erDiagram
         INT supplier_id FK "NOT NULL"
         TIMESTAMP supply_date "NOT NULL, DEFAULT now()"
         NUMERIC_10_2 total_cost "NOT NULL, DEFAULT 0, CHECK >= 0"
-        ENUM status "order_status, DEFAULT draft"
+        ENUM status "order_status, NOT NULL, DEFAULT draft"
     }
 
     SUPPLY_ITEM {

@@ -8,22 +8,22 @@
 
 | ID | Вимога | Реалізація | Перевірка (tests.sql) |
 |---|---|---|---|
-| R-01 | Товари: унікальний артикул, одиниця виміру зі списку, мінімальний залишок >= 0 | `product`; `UNIQUE (sku_code)`, enum `unit_type`, `CHECK (min_stock_level >= 0)` | 1, 4 |
+| R-01 | Товари: унікальний артикул, одиниця виміру зі списку, мінімальний залишок >= 0 | `product`; `UNIQUE (sku_code)`, enum `unit_type` (NOT NULL, DEFAULT 'piece'), `CHECK (min_stock_level >= 0)` | 1, 4 |
 | R-02 | Постачальники: унікальний email, телефон починається з `+` | `supplier`; `UNIQUE (email)`, `CHECK (phone LIKE '+%')` | 2 |
-| R-03 | Комірки: унікальний код, пара (zone, shelf_number) унікальна, місткість > 0 | `warehouse_location`; `UNIQUE`, `CONSTRAINT uk_zone_shelf`, `CHECK (max_capacity > 0)` | - |
-| R-04 | Накладна: статус з набору draft, received, cancelled, за замовчуванням draft | `supply_order`; enum `order_status`, `DEFAULT 'draft'` | - |
+| R-03 | Комірки: унікальний код, пара (zone, shelf_number) унікальна, місткість > 0 | `warehouse_location`; `UNIQUE (location_code)`, `CONSTRAINT uk_zone_shelf`, `CHECK (max_capacity > 0)` | - |
+| R-04 | Накладна: статус з набору draft, received, cancelled, за замовчуванням draft | `supply_order`; enum `order_status` (NOT NULL, DEFAULT 'draft') | - |
 | R-05 | Позиції накладної: кількість > 0, ціна >= 0, складений PK | `supply_item`; `PRIMARY KEY (order_id, product_id)`, `CHECK` | 8 |
 | R-06 | Залишки в комірках не від'ємні | `inventory_stock`; `CHECK (quantity >= 0)` | 5 |
 | R-07 | Переміщення між різними комірками | `inventory_movement`; `CHECK (from_location_id <> to_location_id)` | 6 |
 | R-08 | Списання без комірки-отримувача, переміщення з отримувачем | `inventory_movement`; `CHECK chk_movement_target` | 7 |
-| R-09 | Кожна операція переміщення має автора, час і причину | `created_by NOT NULL`, `movement_date DEFAULT now()`, `reason` | 9 |
+| R-09 | Кожна операція переміщення має автора, час і може мати причину | `created_by NOT NULL`, `movement_date DEFAULT now()`, `reason` (необов'язковий) | 9 |
 | R-10 | Цілісність посилань: не можна посилатися на неіснуючі записи | `FOREIGN KEY` без `ON DELETE` | 3 |
 
 ## 2. Сутності та атрибути
 
-- **Постачальник (supplier)**: `supplier_id` (PK, IDENTITY), `company_name`, `contact_person`, `phone` (NOT NULL, CHECK починається з `+`), `email` (NOT NULL, UNIQUE), `address` (NOT NULL).
+- **Постачальник (supplier)**: `supplier_id` (PK, IDENTITY), `company_name` (NOT NULL), `contact_person` (NOT NULL), `phone` (NOT NULL, CHECK починається з `+`), `email` (NOT NULL, UNIQUE), `address` (NOT NULL).
 - **Товар (product)**: `product_id` (PK, IDENTITY), `sku_code` (NOT NULL, UNIQUE), `name` (NOT NULL), `description` (необов'язковий), `unit` (enum `unit_type`, NOT NULL, DEFAULT 'piece'), `min_stock_level` (NOT NULL, DEFAULT 0, CHECK >= 0).
-- **Комірка складу (warehouse_location)**: `location_id` (PK, IDENTITY), `location_code` (NOT NULL, UNIQUE), `zone`, `shelf_number` (UNIQUE разом), `max_capacity` (NOT NULL, CHECK > 0).
+- **Комірка складу (warehouse_location)**: `location_id` (PK, IDENTITY), `location_code` (NOT NULL, UNIQUE), `zone` (NOT NULL), `shelf_number` (NOT NULL, UNIQUE разом), `max_capacity` (NOT NULL, CHECK > 0).
 - **Накладна (supply_order)**: `order_id` (PK, IDENTITY), `order_number` (NOT NULL, UNIQUE), `supplier_id` (NOT NULL, FK), `supply_date` (TIMESTAMP, NOT NULL, DEFAULT now()), `total_cost` (NUMERIC(10,2), NOT NULL, DEFAULT 0, CHECK >= 0), `status` (enum `order_status`, NOT NULL, DEFAULT 'draft').
 - **Позиція накладної (supply_item)**: `order_id` і `product_id` (складений PK, обидва FK), `location_id` (NOT NULL, FK, комірка приймання), `quantity` (NOT NULL, CHECK > 0), `unit_price` (NOT NULL, CHECK >= 0), `batch_number` (NOT NULL), `expiry_date` (DATE, необов'язкова).
 - **Залишок (inventory_stock)**: `product_id` і `location_id` (складений PK, обидва FK), `quantity` (NOT NULL, CHECK >= 0).
@@ -44,7 +44,7 @@
 4. **Місткість комірки не перевіряється.** Сума залишків у комірці може перевищити `max_capacity`.
 5. **Журнал переміщень не захищений від змін.** Записи можна змінити або видалити.
 6. **Видалення накладних і позицій не обмежене статусом.** Немає `ON DELETE` правил, тому видалення батьківського запису з дочірніми блокується FK.
-7. **Email і артикул перевіряються без урахування регістру.** `UNIQUE` чутливий до регістру, `sku_code` не має CHECK на формат.
+7. **Email і артикул перевіряються з урахуванням регістру.** `UNIQUE` чутливий до регістру, тому `INFO@x.ua` і `info@x.ua` не вважаються дублем; `sku_code` не має CHECK на формат.
 
 ## 5. Процеси (як дані записуються і читаються)
 

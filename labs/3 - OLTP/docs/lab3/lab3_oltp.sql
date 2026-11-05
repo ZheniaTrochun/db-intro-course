@@ -153,6 +153,9 @@ SELECT * FROM supplier;
 SELECT * FROM product;
 SELECT * FROM warehouse_location;
 SELECT * FROM supply_order;
+SELECT * FROM supply_item;
+SELECT * FROM inventory_stock;
+SELECT * FROM inventory_movement;
 
 
 -- 1. SELECT
@@ -238,23 +241,33 @@ INSERT INTO supplier (company_name, contact_person, phone, email, address)
 VALUES ('ТОВ СвітлоМережа', 'Наталія Гриценко', '+380501239876',
         'order@svitlomerezha.ua', 'м. Одеса, вул. Портова, 7')
 RETURNING supplier_id, company_name;
+-- Перевірка:
+SELECT supplier_id, company_name, email FROM supplier WHERE email = 'order@svitlomerezha.ua';
 
 -- 2.2
 INSERT INTO product (sku_code, name, description, unit, min_stock_level)
 VALUES
     ('SKU-SFP-10G',  'Модуль SFP 10G',          'Оптичний трансівер',   'piece', 15),
     ('SKU-PDU-8',    'Блок розеток 8 гнізд',    'З вимикачем',          'piece',  4),
-    ('SKU-TEST-DEL', 'Тестовий товар',          NULL,                   'piece',  0);
+    ('SKU-TEST-DEL', 'Тестовий товар',          NULL,                   'piece',  0)
+RETURNING product_id, sku_code;
+-- Перевірка:
+SELECT product_id, sku_code, name FROM product WHERE sku_code IN ('SKU-SFP-10G','SKU-PDU-8','SKU-TEST-DEL');
 
 -- 2.3
 INSERT INTO warehouse_location (location_code, zone, shelf_number, max_capacity)
-VALUES ('LOC-E-1', 'Зона Д', 'Стелаж 1', 250);
+VALUES ('LOC-E-1', 'Зона Д', 'Стелаж 1', 250)
+RETURNING location_id, location_code;
+-- Перевірка:
+SELECT location_id, location_code, zone, max_capacity FROM warehouse_location WHERE location_code = 'LOC-E-1';
 
 -- 2.4
 INSERT INTO supply_order (order_number, supplier_id)
 VALUES ('ORD-2026-06',
         (SELECT supplier_id FROM supplier WHERE email = 'order@svitlomerezha.ua'))
 RETURNING order_id, order_number, status;
+-- Перевірка:
+SELECT order_id, order_number, status, total_cost FROM supply_order WHERE order_number = 'ORD-2026-06';
 
 -- 2.5
 INSERT INTO supply_item (order_id, product_id, location_id, quantity, unit_price, batch_number, expiry_date)
@@ -266,7 +279,10 @@ VALUES
     ((SELECT order_id FROM supply_order WHERE order_number = 'ORD-2026-06'),
      (SELECT product_id FROM product WHERE sku_code = 'SKU-PDU-8'),
      (SELECT location_id FROM warehouse_location WHERE location_code = 'LOC-E-1'),
-     30, 320.00, 'P-2026-0606', NULL);
+     30, 320.00, 'P-2026-0606', NULL)
+RETURNING order_id, product_id, quantity;
+-- Перевірка:
+SELECT order_id, product_id, quantity, unit_price FROM supply_item WHERE order_id = (SELECT order_id FROM supply_order WHERE order_number = 'ORD-2026-06');
 
 -- 2.6 Суму накладної БД не перераховує автоматично (spec.md, розд. 4)
 UPDATE supply_order
@@ -277,12 +293,17 @@ SET total_cost = (
 )
 WHERE order_number = 'ORD-2026-06'
 RETURNING order_number, total_cost;
+-- Перевірка:
+SELECT order_number, total_cost FROM supply_order WHERE order_number = 'ORD-2026-06';
 
 -- 2.7 Існуючий постачальник: 0 рядків, помилки немає
 INSERT INTO supplier (company_name, contact_person, phone, email, address)
 VALUES ('ТОВ Мережні Рішення', 'Василь Шевченко', '+380445556677',
         'net@solutions.ua', 'м. Київ, вул. Стецена, 12')
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT (email) DO NOTHING
+RETURNING supplier_id, email;
+-- Перевірка (рядок існує, тому RETURNING вище повернув 0 рядків):
+SELECT supplier_id, company_name, email FROM supplier WHERE email = 'net@solutions.ua';
 
 
 -- 3. UPDATE
@@ -327,7 +348,8 @@ SELECT product_id, location_id, quantity
 FROM supply_item
 WHERE order_id = (SELECT order_id FROM supply_order WHERE order_number = 'ORD-2026-06')
 ON CONFLICT (product_id, location_id)
-DO UPDATE SET quantity = inventory_stock.quantity + excluded.quantity;
+DO UPDATE SET quantity = inventory_stock.quantity + excluded.quantity
+RETURNING product_id, location_id, quantity;
 
 COMMIT;
 
@@ -345,17 +367,20 @@ VALUES
      (SELECT product_id FROM product WHERE sku_code = 'SKU-PDU-8'),
      (SELECT location_id FROM warehouse_location WHERE location_code = 'LOC-E-1'),
      NULL,
-     2, 'Пошкоджена упаковка', 'Іваненко О.');
+     2, 'Пошкоджена упаковка', 'Іваненко О.')
+RETURNING movement_id, movement_type, quantity;
 
 UPDATE inventory_stock
 SET quantity = quantity - 5
 WHERE product_id = (SELECT product_id FROM product WHERE sku_code = 'SKU-SFP-10G')
-  AND location_id = (SELECT location_id FROM warehouse_location WHERE location_code = 'LOC-E-1');
+  AND location_id = (SELECT location_id FROM warehouse_location WHERE location_code = 'LOC-E-1')
+RETURNING product_id, location_id, quantity;
 
 UPDATE inventory_stock
 SET quantity = quantity - 2
 WHERE product_id = (SELECT product_id FROM product WHERE sku_code = 'SKU-PDU-8')
-  AND location_id = (SELECT location_id FROM warehouse_location WHERE location_code = 'LOC-E-1');
+  AND location_id = (SELECT location_id FROM warehouse_location WHERE location_code = 'LOC-E-1')
+RETURNING product_id, location_id, quantity;
 
 INSERT INTO inventory_stock (product_id, location_id, quantity)
 VALUES (
@@ -364,7 +389,8 @@ VALUES (
     5
 )
 ON CONFLICT (product_id, location_id)
-DO UPDATE SET quantity = inventory_stock.quantity + excluded.quantity;
+DO UPDATE SET quantity = inventory_stock.quantity + excluded.quantity
+RETURNING product_id, location_id, quantity;
 
 COMMIT;
 
@@ -372,10 +398,13 @@ COMMIT;
 SELECT * FROM inventory_stock ORDER BY product_id, location_id;
 
 -- 3.8 Демо: UPDATE без WHERE змінює всі рядки; ROLLBACK повертає їх назад
+-- УВАГА: для коректного відкату в pgAdmin вимкніть Autocommit (Query Tool) або запускайте блок одним скриптом.
 BEGIN;
-UPDATE warehouse_location SET max_capacity = 1;
+UPDATE warehouse_location SET max_capacity = 1
+RETURNING location_code, max_capacity;
 SELECT location_code, max_capacity FROM warehouse_location;
 ROLLBACK;
+-- Підтвердження: значення повернулися до початкових (див. розділ 5, warehouse_location).
 SELECT location_code, max_capacity FROM warehouse_location;
 
 
@@ -387,6 +416,8 @@ SELECT product_id, sku_code FROM product WHERE sku_code = 'SKU-TEST-DEL';
 DELETE FROM product
 WHERE sku_code = 'SKU-TEST-DEL'
 RETURNING product_id, sku_code;
+-- Перевірка (має бути 0 рядків):
+SELECT product_id, sku_code FROM product WHERE sku_code = 'SKU-TEST-DEL';
 
 -- 4.2 Спочатку дочірні рядки (supply_item), потім батьківський (supply_order)
 BEGIN;
@@ -404,13 +435,18 @@ DELETE FROM supply_order
 WHERE order_number = 'ORD-2026-04'
   AND status = 'cancelled'
 RETURNING order_id, order_number;
+-- Перевірка (має бути 0 рядків):
+SELECT order_id, order_number FROM supply_order WHERE order_number = 'ORD-2026-04';
 
 COMMIT;
 
 -- 4.3 Демо: DELETE з WHERE і ROLLBACK
+-- УВАГА: для коректного відкату в pgAdmin вимкніть Autocommit (Query Tool) або запускайте блок одним скриптом.
 BEGIN;
-DELETE FROM inventory_movement WHERE created_by = 'Петренко А.';
+DELETE FROM inventory_movement WHERE created_by = 'Петренко А.'
+RETURNING movement_id, created_by;
 ROLLBACK;
+-- Підтвердження: рядки залишилися (див. розділ 5, inventory_movement).
 SELECT movement_id, reason FROM inventory_movement WHERE created_by = 'Петренко А.';
 
 
