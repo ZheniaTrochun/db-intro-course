@@ -10,9 +10,7 @@
 - користувачі та їхні налаштування сповіщень
 - області та міста з координатами
 - підписки користувачів на міста (радіус, мінімальний рівень загрози)
-- типи цілей (дрон, крилата ракета, балістична ракета, літак) та їхній рівень загрози
-- самі цілі та їхні статуси
-- спостереження: де й коли ціль була зафіксована
+- цілі, їх тип, рівень загрози та їхні статуси
 - джерела даних (радар, офіційний канал, моніторинговий канал)
 - сповіщення, надіслані користувачам
 
@@ -30,9 +28,28 @@
 - Кожна ціль має хоча б одне спостереження, одну ціль можуть фіксувати різні джерела
 - Статус цілі: active, neutralized, left_territory, lost
 - Сповіщення створюється для конкретної підписки й конкретної цілі, коли відстань < радіуса, а рівень загрози > мінімального. Для однієї пари "підписка + ціль" повторні сповіщення не надсилаються частіше, ніж раз на задану кількість хвилин
-- Кожне сповіщення посилається на спостереження, яке його спричинило
 
 
+## Сутності, атрибути
+
+Сутність | PK | Атрибути
+ 
+OBLAST  |  oblast_id  |  name
+CITY  |  city_id  |  name, latitude, longitude, population, oblast_id (FK)
+USER_ACCOUNT  |  user_id  |  full_name, email, telegram_chat_id, created_at
+SUBSCRIPTION  |  subscription_id  |  user_id (FK), city_id (FK), radius_km(10-300), min_threat_level(1-5), is_active, created_at
+AIR_TARGET  |  target_id  |  target_type, status, latitude, longitude, speed_kmh, last_seen_at
+DATA_SOURCE  |  source_id  |  name, source_kind, reliability
+ALERT  |  alert_id  |  subscription_id (FK), target_id (FK), distance_km(10-300), threat_level(1-5), created_at, delivery_status
+
+## Зв'язки
+
+OBLAST - CITY:	одна область має багато міст, місто належить одній області (1:N)
+USER_ACCOUNT - SUBSCRIPTION:	користувач має 0..N підписок (1:N)
+CITY - SUBSCRIPTION:	на місто 0..N підписок (1:N)
+DATA_SOURCE - AIR_TARGET:   джерело яке повідомило одне, цілей про які воно повідомляє багато (1:N)
+SUBSCRIPTION - ALERT:	підписка породжує 0..N сповіщень (1:N)
+AIR_TARGET - ALERT:	 ціль викликає 0..N сповіщень (1:N)
 
 
 
