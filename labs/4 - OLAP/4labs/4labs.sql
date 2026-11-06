@@ -52,7 +52,7 @@ JOIN departments dd ON dd.department_id = dp.department_id;
 SELECT p.last_name, t.type
 FROM patients p
 JOIN appointments a ON p.patient_id = a.patient_id
-JOIN treatments t ON a.appointment_id = t.appoi
+JOIN treatments t ON a.appointment_id = t.appointment_id
 
 SELECT d.doctor_id, dp.department_id
 FROM doctors d
