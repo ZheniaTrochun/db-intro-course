@@ -1,0 +1,67 @@
+erDiagram
+    OBLAST ||--o{ CITY : "містить"
+    USER_ACCOUNT ||--o{ SUBSCRIPTION : "оформлює"
+    CITY ||--o{ SUBSCRIPTION : "відстежується"
+    DATA_SOURCE ||--o{ AIR_TARGET : "повідомляє"
+    SUBSCRIPTION ||--o{ ALERT : "генерує"
+    AIR_TARGET ||--o{ ALERT : "викликає"
+
+    OBLAST {
+        int oblast_id PK
+        string name
+    }
+
+    CITY {
+        int city_id PK
+        int oblast_id FK
+        string name
+        float latitude
+        float longitude
+        int population
+    }
+
+    USER_ACCOUNT {
+        int user_id PK
+        string full_name
+        string email
+        string telegram_chat_id
+        datetime created_at
+    }
+
+    SUBSCRIPTION {
+        int subscription_id PK
+        int user_id FK
+        int city_id FK
+        int radius_km "10..300"
+        int min_threat_level "1..5"
+        boolean is_active
+        datetime created_at
+    }
+
+    DATA_SOURCE {
+        int source_id PK
+        string name
+        string source_kind
+        int reliability
+    }
+
+    AIR_TARGET {
+        int target_id PK
+        int source_id FK
+        string target_type
+        string status
+        float latitude
+        float longitude
+        int speed_kmh
+        datetime last_seen_at
+    }
+
+    ALERT {
+        int alert_id PK
+        int subscription_id FK
+        int target_id FK
+        float distance_km "10..300"
+        int threat_level "1..5"
+        datetime created_at
+        string delivery_status
+    }
