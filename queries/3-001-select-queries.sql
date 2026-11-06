@@ -25,6 +25,7 @@ WHERE ended_at IS NULL;
 SELECT incident_id, description
 FROM incident
 WHERE description ILIKE '%лавк%';
+OR description ILIKE '%стіл%';
 
 -- 1.6 Сортування і обмеження
 -- Мета: 3 найновіші інциденти.
