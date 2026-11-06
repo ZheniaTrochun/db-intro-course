@@ -1,15 +1,11 @@
 -- фінальна схема в 3НФ 
 
-DROP TABLE IF EXISTS incident_participant, incident, visit, student,
-    student_group, faculty, participant_role, incident_status,
-    incident_type, security_employee CASCADE;
-
-CREATE TABLE faculty (
+CREATE TABLE IF NOT EXISTS faculty (
     faculty_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name       VARCHAR(150) NOT NULL UNIQUE
 );
 
-CREATE TABLE student_group (
+CREATE TABLE IF NOT EXISTS student_group (
     group_id   INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     faculty_id INTEGER     NOT NULL,
     name       VARCHAR(50) NOT NULL UNIQUE,
@@ -17,7 +13,7 @@ CREATE TABLE student_group (
         FOREIGN KEY (faculty_id) REFERENCES faculty (faculty_id)
 );
 
-CREATE TABLE student (
+CREATE TABLE IF NOT EXISTS student (
     student_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     group_id   INTEGER      NOT NULL,
     full_name  VARCHAR(150) NOT NULL,
@@ -25,29 +21,29 @@ CREATE TABLE student (
         FOREIGN KEY (group_id) REFERENCES student_group (group_id)
 );
 
-CREATE TABLE security_employee (
+CREATE TABLE IF NOT EXISTS security_employee (
     employee_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     full_name   VARCHAR(150) NOT NULL,
     position    VARCHAR(100) NOT NULL,
     phone       VARCHAR(20)  NOT NULL UNIQUE
 );
 
-CREATE TABLE incident_type (
+CREATE TABLE IF NOT EXISTS incident_type (
     type_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name    VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE incident_status (
+CREATE TABLE IF NOT EXISTS incident_status (
     status_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name      VARCHAR(30) NOT NULL UNIQUE
 );
 
-CREATE TABLE participant_role (
+CREATE TABLE IF NOT EXISTS participant_role (
     role_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name    VARCHAR(50) NOT NULL UNIQUE
 );
 
-CREATE TABLE visit (
+CREATE TABLE IF NOT EXISTS visit (
     visit_id   INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     student_id INTEGER     NOT NULL,
     category   VARCHAR(50) NOT NULL DEFAULT 'Відпочинок',
@@ -59,7 +55,7 @@ CREATE TABLE visit (
         CHECK (ended_at IS NULL OR ended_at >= started_at)
 );
 
-CREATE TABLE incident (
+CREATE TABLE IF NOT EXISTS incident (
     incident_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     visit_id    INTEGER     NOT NULL,
     type_id     INTEGER     NOT NULL,
@@ -80,7 +76,7 @@ CREATE TABLE incident (
         CHECK (severity IN ('Низький', 'Середній', 'Високий'))
 );
 
-CREATE TABLE incident_participant (
+CREATE TABLE IF NOT EXISTS incident_participant (
     incident_id INTEGER NOT NULL,
     visit_id    INTEGER NOT NULL,
     role_id     INTEGER NOT NULL,
@@ -95,4 +91,6 @@ CREATE TABLE incident_participant (
 );
 
 -- Початковий статус, на який посилається DEFAULT 1 в incident.status_id
-INSERT INTO incident_status (name) VALUES ('Відкрито'), ('В обробці'), ('Закрито');
+INSERT INTO incident_status (name)
+VALUES ('Відкрито'), ('В обробці'), ('Закрито')
+ON CONFLICT (name) DO NOTHING;
