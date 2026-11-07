@@ -644,13 +644,41 @@ ORDER BY ranked.course_name, ranked.full_name;
 ```sql
 -- порахувати розміри груп (включно з порожніми)
 
-  
+select distinct sg.group_name
+from student_group sg
+left join student_group_assignment sga using (group_id);
+
+
+select sg.group_name, count(sga.student_id) as group_size
+from student_group sg
+left join student_group_assignment sga using (group_id)
+group by group_id
+order by sg.group_name;
+
 -- порахувати навантаження викладачів - скільки активних курсів та кредитів викладає кожен з викладачів
 
-  
+select 
+	p.first_name || ' ' || p.last_name as name, 
+	count(c.course_id) as active_courses_count, 
+	coalesce(sum(c.credits), 0) as num_of_credits
+from professor prof
+inner join person p using (person_id)
+left join course_teacher ct using (professor_id)
+left join course c on c.course_id = ct.course_id and course_status = 'active'
+group by professor_id, p.first_name, p.last_name
+order by name;
+
 -- знайти усіх студентів, середній бал яких більше 90
 
-  
+select
+  p.first_name || ' ' || p.last_name as name,
+  round(coalesce(avg(grade), 0), 2) as avg_grade
+from student s
+       inner join person p using (person_id)
+       left join enrolment e using (student_id)
+group by student_id, p.first_name, p.last_name
+having avg(grade) > 90;
+
 -- отримати оцінки студентів у порівнянні з середнім балом по предмету
 -- та з середнім балом самого студента
 
