@@ -56,8 +56,8 @@ CREATE TABLE Coaches (
 CREATE TABLE PlayerRankingHistory (
     ranking_id UUID PRIMARY KEY,
     player_id UUID NOT NULL REFERENCES Players(player_id) ON DELETE CASCADE,
-    rank INT NOT NULL,
-    points INT NOT NULL,
+    rank INT NOT NULL CHECK (rank >= 1),
+    points INT NOT NULL CHECK (points >= 0),
     ranking_date DATE NOT NULL,
     CONSTRAINT unique_player_data_rank UNIQUE (player_id, ranking_date)
 );
@@ -88,17 +88,18 @@ CREATE TABLE Matches (
     duration_minutes INT,
     court_id UUID REFERENCES Courts(court_id) ON DELETE SET NULL,
     CONSTRAINT different_players_check CHECK (player1_id <> player2_id),
-    CONSTRAINT valid_winner_check CHECK (winner_id IS NULL OR winner_id IN (player1_id, player2_id))
+    CONSTRAINT valid_winner_check CHECK (winner_id IS NULL OR winner_id IN (player1_id, player2_id)),
+    CONSTRAINT check_winner_if_finished CHECK (status <> 'Finished' OR winner_id IS NOT NULL)
 );
  
 CREATE TABLE MatchSets (
     set_id UUID PRIMARY KEY,
     match_id UUID NOT NULL REFERENCES Matches(match_id) ON DELETE CASCADE,
     set_number INT NOT NULL,
-    player1_games INT NOT NULL,
-    player2_games INT NOT NULL,
-    player1_tiebreak INT,
-    player2_tiebreak INT,
+    player1_games INT NOT NULL CHECK (player1_games BETWEEN 0 AND 7),
+    player2_games INT NOT NULL CHECK (player2_games BETWEEN 0 AND 7),
+    player1_tiebreak INT CHECK (player1_tiebreak IS NULL OR player1_tiebreak >= 0),
+    player2_tiebreak INT CHECK (player2_tiebreak IS NULL OR player2_tiebreak >= 0),
     CONSTRAINT set_number_range CHECK (set_number BETWEEN 1 AND 3),
     CONSTRAINT unique_match_set UNIQUE (match_id, set_number)
 );
@@ -107,18 +108,18 @@ CREATE TABLE PlayerMatchStatistics (
     stat_id UUID PRIMARY KEY,
     match_id UUID NOT NULL REFERENCES Matches(match_id) ON DELETE CASCADE,
     player_id UUID NOT NULL REFERENCES Players(player_id) ON DELETE CASCADE,
-    aces INT DEFAULT 0,
-    double_faults INT DEFAULT 0,
-    first_serves_in INT DEFAULT 0,
-    first_serve_points_won INT DEFAULT 0,
-    first_serves_total INT DEFAULT 0,
-    second_serve_points_won INT DEFAULT 0,
-    second_serve_points_total INT DEFAULT 0,
-    break_points_converted INT DEFAULT 0,
-    break_points_saved INT DEFAULT 0,
-    break_points_opportunities INT DEFAULT 0,
-    break_points_faced INT DEFAULT 0,
-    total_points_won INT DEFAULT 0,
+    aces INT DEFAULT 0 CHECK (aces >= 0),
+    double_faults INT DEFAULT 0 CHECK (double_faults >= 0),
+    first_serves_in INT DEFAULT 0 CHECK (first_serves_in >= 0),
+    first_serve_points_won INT DEFAULT 0 CHECK (first_serve_points_won >= 0),
+    first_serves_total INT DEFAULT 0 CHECK (first_serves_total >= 0),
+    second_serve_points_won INT DEFAULT 0 CHECK (second_serve_points_won >= 0),
+    second_serve_points_total INT DEFAULT 0 CHECK (second_serve_points_total >= 0),
+    break_points_converted INT DEFAULT 0 CHECK (break_points_converted >= 0),
+    break_points_saved INT DEFAULT 0 CHECK (break_points_saved >= 0),
+    break_points_opportunities INT DEFAULT 0 CHECK (break_points_opportunities >= 0),
+    break_points_faced INT DEFAULT 0 CHECK (break_points_faced >= 0),
+    total_points_won INT DEFAULT 0 CHECK (total_points_won >= 0),
     CONSTRAINT unique_player_match_stat UNIQUE (match_id, player_id)
 );
 
@@ -151,12 +152,20 @@ INSERT INTO Coaches (coach_id, player_id, first_name, last_name, country_code) V
 INSERT INTO PlayerTitles (title_id, player_id, tournament_id) VALUES 
     ('b1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 
      '11111111-1111-1111-1111-111111111111',
-     'a4444444-4444-4444-4444-444444444444');
+     'a4444444-4444-4444-4444-444444444444'),
+    ('b2eeec99-9c0b-4ef8-bb6d-6bb9bd380a22', 
+     '33333333-3333-3333-3333-333333333333',
+     'a1111111-1111-1111-1111-111111111111'),
+    ('b3eeec99-9c0b-4ef8-bb6d-6bb9bd380a33', 
+     '22222222-2222-2222-2222-222222222222',
+     'a2222222-2222-2222-2222-222222222222');
    
 INSERT INTO Courts (court_id, tournament_id, court_name) VALUES
     ('c1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'a4444444-4444-4444-4444-444444444444', 'Center Court'),
     ('c2eeec99-9c0b-4ef8-bb6d-6bb9bd380a22', 'a4444444-4444-4444-4444-444444444444', 'Court 1'),
-    ('c3eeec99-9c0b-4ef8-bb6d-6bb9bd380a33', 'a4444444-4444-4444-4444-444444444444', 'Court 2');
+    ('c3eeec99-9c0b-4ef8-bb6d-6bb9bd380a33', 'a4444444-4444-4444-4444-444444444444', 'Court 2'),
+    ('c4eeec99-9c0b-4ef8-bb6d-6bb9bd380a44', 'a1111111-1111-1111-1111-111111111111', 'Rod Laver Arena'),
+    ('c5eeec99-9c0b-4ef8-bb6d-6bb9bd380a55', 'a2222222-2222-2222-2222-222222222222', 'Stadium 1');
 
 INSERT INTO Matches (match_id, tournament_id, player1_id, player2_id, winner_id, round, status, match_date, duration_minutes, court_id) VALUES 
     ('e1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 
@@ -164,13 +173,32 @@ INSERT INTO Matches (match_id, tournament_id, player1_id, player2_id, winner_id,
      '11111111-1111-1111-1111-111111111111',
      '22222222-2222-2222-2222-222222222222',
      '11111111-1111-1111-1111-111111111111',
-     'Final', 'Finished', '2026-06-01 14:00:00+00', 125, 'c1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11');
+     'Final', 'Finished', '2026-06-01 14:00:00+00', 125, 'c1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11'),
+    ('e2eeec99-9c0b-4ef8-bb6d-6bb9bd380a22', 
+     'a1111111-1111-1111-1111-111111111111', 
+     '33333333-3333-3333-3333-333333333333',
+     '11111111-1111-1111-1111-111111111111',
+     '33333333-3333-3333-3333-333333333333',
+     'Final', 'Finished', '2026-01-24 09:30:00+00', 148, 'c4eeec99-9c0b-4ef8-bb6d-6bb9bd380a44'),
+    ('e3eeec99-9c0b-4ef8-bb6d-6bb9bd380a33', 
+     'a2222222-2222-2222-2222-222222222222', 
+     '22222222-2222-2222-2222-222222222222',
+     '33333333-3333-3333-3333-333333333333',
+     '22222222-2222-2222-2222-222222222222',
+     'Final', 'Finished', '2026-03-15 21:00:00+00', 131, 'c5eeec99-9c0b-4ef8-bb6d-6bb9bd380a55');
 
-INSERT INTO MatchSets (set_id, match_id, set_number, player1_games, player2_games) VALUES
-    ('d1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 1, 6, 4),
-    ('d2eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 2, 3, 6),
-    ('d3eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 3, 6, 2);
+INSERT INTO MatchSets (set_id, match_id, set_number, player1_games, player2_games, player1_tiebreak, player2_tiebreak) VALUES
+    ('d1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 1, 6, 4, NULL, NULL),
+    ('d2eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 2, 3, 6, NULL, NULL),
+    ('d3eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 3, 6, 2, NULL, NULL),
+    ('d4eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e2eeec99-9c0b-4ef8-bb6d-6bb9bd380a22', 1, 6, 4, NULL, NULL),
+    ('d5eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e2eeec99-9c0b-4ef8-bb6d-6bb9bd380a22', 2, 3, 6, NULL, NULL),
+    ('d6eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e2eeec99-9c0b-4ef8-bb6d-6bb9bd380a22', 3, 7, 6, 7, 5),
+    ('d7eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e3eeec99-9c0b-4ef8-bb6d-6bb9bd380a33', 1, 7, 6, 7, 4),
+    ('d8eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e3eeec99-9c0b-4ef8-bb6d-6bb9bd380a33', 2, 6, 3, NULL, NULL);
 
 INSERT INTO PlayerMatchStatistics (stat_id, match_id, player_id, aces, double_faults, total_points_won) VALUES 
     ('a5eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', '11111111-1111-1111-1111-111111111111', 5, 2, 98),
-    ('a6eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', '22222222-2222-2222-2222-222222222222', 3, 4, 85);
+    ('a6eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', '22222222-2222-2222-2222-222222222222', 3, 4, 85),
+    ('a7eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e2eeec99-9c0b-4ef8-bb6d-6bb9bd380a22', '33333333-3333-3333-3333-333333333333', 7, 5, 106),
+    ('a8eeec99-9c0b-4ef8-bb6d-6bb9bd380a11', 'e2eeec99-9c0b-4ef8-bb6d-6bb9bd380a22', '11111111-1111-1111-1111-111111111111', 3, 2, 92);
