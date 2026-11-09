@@ -8,4 +8,14 @@
 --      Результат відсортувати за:
 --          - назвою курсу, потім за роллю викладача
 
--- Рішення:
+-- Рішення: 
+SELECT
+    course.course_name,
+    person.first_name || ' ' || person.last_name AS professor_name,
+    course_teacher.professor_role AS role
+FROM course
+JOIN course_teacher ON course_teacher.course_id = course.course_id
+JOIN professor ON professor.professor_id = course_teacher.professor_id
+JOIN person ON person.person_id = professor.person_id
+WHERE course.course_status = 'active'
+ORDER BY course.course_name, course_teacher.professor_role;
