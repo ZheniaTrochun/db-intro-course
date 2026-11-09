@@ -53,19 +53,19 @@ RETURNING id,name,author,has_author,translator,is_translated,lyrics,is_ai,langua
 
 /*
 INSERT INTO SONG(id,name,author,has_author,translator,is_translated,lyrics,is_ai,language_id)
-VALUES ('5908f8a3-753f-4650-89fd-7ecbd19aaca1','Развеселая/Буду славить я Бога Израиля/ай на на/пускай народ поет хвала звучит тебе','','TRUE','Анастасія Тітова','TRUE','Співає Твій Народ/Буду Славити Бога Ізраїля І співаю я богу своєму/Ай най най най/Хвала Звучить Тобі','FALSE','856c9ffc-6057-4440-a02a-c2e3b75e290c')
+VALUES ('5908f8a3-753f-4650-89fd-7ecbd19aaca1','Буду славить я Бога Израиля','','TRUE','Тітка Наня','TRUE','Буду Славити Бога Ізраїля','FALSE','856c9ffc-6057-4440-a02a-c2e3b75e290c')
 RETURNING id,name,author,has_author,translator,is_translated,lyrics,is_ai,language_id;
 
 INSERT INTO SONG(id,name,author,has_author,translator,is_translated,lyrics,is_ai,language_id)
-VALUES('288a07f0-f7d9-4c89-8b41-d9a3df9c2cae','Разом (Ти і я)/Ми всі дуже різні нас мільйони є','SomeLines (українська команда)','TRUE','','FALSE','Разом (Ти і я)/Ми всі дуже різні нас мільйони є','FALSE','856c9ffc-6057-4440-a02a-c2e3b75e290c')
+VALUES('288a07f0-f7d9-4c89-8b41-d9a3df9c2cae','Разом (Ти і я)','LimeMusic (українська команда)','TRUE','','FALSE','Разом (Ти і я)','FALSE','856c9ffc-6057-4440-a02a-c2e3b75e290c')
 RETURNING id,name,author,has_author,translator,is_translated,lyrics,is_ai,language_id;
 
 INSERT INTO SONG(id,name,author,has_author,translator,is_translated,lyrics,is_ai,language_id)
-VALUES('ab0e69d2-0a6c-48a0-a279-aa7283347885','Господь разом славимо Тебе/В цей ранок чудовий прийшли ми в Нове Життя/Бог Святий незрівнянний що зцілив мої рани','Тетяна Шилова','TRUE','','FALSE','Господь разом славимо Тебе/В цей ранок чудовий прийшли ми в Нове Життя/Бог Святий незрівнянний що зцілив мої рани','FALSE','856c9ffc-6057-4440-a02a-c2e3b75e290c')
+VALUES('ab0e69d2-0a6c-48a0-a279-aa7283347885','Разом славимо Тебе','Оксана Бунтовська','TRUE','','FALSE','Разом славимо Тебе','FALSE','856c9ffc-6057-4440-a02a-c2e3b75e290c')
 RETURNING id,name,author,has_author,translator,is_translated,lyrics,is_ai,language_id;
 
 INSERT INTO SONG(id,name,author,has_author,translator,is_translated,lyrics,is_ai,language_id)
-VALUES('af52f4fb-6438-43d1-9434-be5ac1a423a4','На хресті явив неземну любов','Катерина Савіна?','TRUE','','FALSE','Ранами Ісуса ми зцілились Він поніс на хрест гріхи всіх нас через Його жертву ми звільнились кров Його свята омила нас/В Тобі спасіння в Тобі надія в Тобі свобода назавжди/На хресті явив неземну любов','FALSE','856c9ffc-6057-4440-a02a-c2e3b75e290c')
+VALUES('af52f4fb-6438-43d1-9434-be5ac1a423a4','Ісус є неземна любов','Евеліна Скороходько','TRUE','','FALSE','Ісус є неземна любов','FALSE','856c9ffc-6057-4440-a02a-c2e3b75e290c')
 RETURNING id,name,author,has_author,translator,is_translated,lyrics,is_ai,language_id;
 */
 
