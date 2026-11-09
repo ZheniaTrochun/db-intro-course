@@ -40,7 +40,8 @@ WHERE email = 'maria.lab3@example.com';
 SELECT customer_id, first_name, last_name, email
 FROM customer
 WHERE email = 'maria.lab3@example.com';
-почисти файл від підказок -- 2. Перегляд категорій, додавання, зміна і видалення категорії.
+
+-- 2. Перегляд категорій, додавання, зміна і видалення категорії.
 
 BEGIN;
 
@@ -75,5 +76,56 @@ WHERE name = 'Тестова категорія ЛР3';
 SELECT category_id, name, description
 FROM category
 WHERE name = 'Тестова категорія ЛР3';
+
+COMMIT;
+
+-- 3. Перегляд товарів, додавання, зміна і видалення товару.
+
+BEGIN;
+
+-- Фільтрація за ціною з вибором потрібних стовпців.
+SELECT product_id, name, price, stock_qty
+FROM product
+WHERE price > 1000;
+
+-- Перевірка наявності категорії для нового товару.
+SELECT category_id, name
+FROM category
+WHERE category_id = 4;
+
+-- Використовуємо категорію 4 з тестових даних лабораторної №2.
+INSERT INTO product (category_id, name, description, price, stock_qty)
+VALUES (
+    4,
+    'Підставка для ноутбука ЛР3',
+    'Тестовий товар для лабораторної №3',
+    700.00,
+    10
+);
+
+-- Перевірка додавання та вибір запису для UPDATE.
+SELECT product_id, name, description, price, stock_qty
+FROM product
+WHERE name = 'Підставка для ноутбука ЛР3';
+
+-- Зміна двох полів конкретного товару.
+UPDATE product
+SET price = 750.00,
+    stock_qty = 15
+WHERE name = 'Підставка для ноутбука ЛР3';
+
+-- Перевірка оновлення.
+SELECT product_id, name, description, price, stock_qty
+FROM product
+WHERE name = 'Підставка для ноутбука ЛР3';
+
+-- Товар не має позицій замовлень і відгуків.
+DELETE FROM product
+WHERE name = 'Підставка для ноутбука ЛР3';
+
+-- Очікуємо 0 рядків.
+SELECT product_id, name, price, stock_qty
+FROM product
+WHERE name = 'Підставка для ноутбука ЛР3';
 
 COMMIT;
