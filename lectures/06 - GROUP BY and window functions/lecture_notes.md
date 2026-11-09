@@ -682,8 +682,31 @@ having avg(grade) > 90;
 -- отримати оцінки студентів у порівнянні з середнім балом по предмету
 -- та з середнім балом самого студента
 
-  
+select 
+	p.first_name || ' ' || p.last_name as name,
+	c.course_name,
+	e.grade,
+	round(avg(e.grade) over (partition by c.course_id), 2) as avg_course_grade,
+	round(avg(e.grade) over (partition by s.student_id), 2) as avg_student_grade
+from enrolment e
+	inner join student s using (student_id)
+	inner join person p using (person_id)
+	inner join course c using (course_id);
+
+
 -- побудувати список за успішністю по групах
+select 
+	sg.group_name,
+	p.first_name || ' ' || p.last_name as name,
+	round(avg(e.grade), 2) as avg_student_grade,
+	rank() over (partition by sg.group_name order by avg(e.grade) desc nulls last) as student_rank
+from student s
+	inner join person p using (person_id)
+	inner join student_group_assignment sga using (student_id)
+	inner join student_group sg using (group_id)
+	left join enrolment e using (student_id)
+group by p.person_id, sg.group_id
+order by sg.group_name, student_rank;
 ```
 
 Всі запити також можна знайти у [файлі](../../scripts/aggregations.sql).
