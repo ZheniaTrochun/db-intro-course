@@ -1,0 +1,113 @@
+erDiagram
+    stations ||--o{ stops : "has"
+    routes ||--|{ stops : "contains"
+    routes ||--o{ trips : "generates"
+    routes ||--o{ carriages : "assigned"
+    carriage_type_list ||--|{ seat_templates_list : "defines"
+    carriage_type_list ||--o{ carriages : "categorizes"
+    seat_templates_list ||--o{ ticket_segment : "reserved"
+    carriages ||--o{ ticket_segment : "placed_in"
+    trips ||--o{ ticket_segment : "booked_on"
+    users ||--o{ ticket_segment : "purchased_by"
+    users ||--o{ passengers : "manages"
+    passengers ||--o{ ticket_segment : "travels_as"
+    stations ||--o{ ticket_segment : "origin"
+    stations ||--o{ ticket_segment : "destination"
+
+    stations {
+        uuid station_id PK 
+        varchar(100) station_name
+        varchar(50) city
+    }
+
+    users {
+        uuid user_id PK 
+        varchar(50) user_name
+        varchar(400) hashed_password
+        varchar(100) email UK
+        user_role user_role "PASSENGER, ADMIN, CONDUCTOR"
+    }
+
+    passengers {
+        uuid passenger_id PK 
+        uuid user_id FK 
+        varchar(50) passenger_lastname
+        varchar(50) passenger_name
+    }
+
+    carriage_type_list {
+        uuid carriage_type_id PK 
+        carriage_type carriage_type UK "COUPE, PLATZKART, LUX, SEAT"
+        int carriage_type_price_multiplier 
+        int number_of_seats 
+    }
+
+    routes {
+        uuid route_id PK 
+        varchar(100) route_name
+        int base_segment_price 
+        varchar(10) route_number
+        route_status route_status "ACTIVE, INACTIVE"
+        schedule_rule schedule_rule "MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY, DAILY, WEEKDAYS, WEEKENDS"
+        train_type train_type "INTERCITY, REGIONAL, PASSENGER, FAST, FIRM"
+    }
+
+    carriages {
+        uuid carriage_id PK 
+        uuid carriage_type_id FK 
+        uuid route_id FK 
+        int carriage_number 
+    }
+
+    seat_templates_list {
+        uuid seat_id PK 
+        uuid carriage_type_id FK 
+        int seat_number 
+        boolean is_side
+        tier_type tier_type "TOP, DOWN, SEAT"
+    }
+
+    trips {
+        uuid trip_id PK 
+        uuid route_id FK 
+        timestamptz departure_time
+        trip_status trip_status "SCHEDULED, DEPARTED, CANCELLED, COMPLETED"
+        int delay_minutes 
+    }
+
+    stops {
+        uuid stop_id PK 
+        uuid route_id FK 
+        uuid station_id FK 
+        int arrival_offset_minutes 
+        int departure_offset_minutes 
+        int stop_order 
+    }
+
+    ticket_segment {
+        uuid ticket_id PK 
+        uuid user_id FK 
+        uuid passenger_id FK 
+        uuid trip_id FK 
+        uuid seat_id FK 
+        uuid carriage_id FK 
+        uuid from_station_id FK 
+        uuid to_station_id FK 
+        int from_stop_order 
+        int to_stop_order
+        ticket_status ticket_status "HELD, PAID, RETURNED, EXPIRED"
+        timestamptz created_at 
+        timestamptz hold_expires_at 
+        timestamptz paid_at
+        timestamptz cancelled_at
+        int price 
+        text payment_transaction_id UK
+        text pdf_url
+        varchar(50) passenger_lastname
+        varchar(50) passenger_name
+        varchar(100) from_station_name
+        varchar(100) to_station_name
+        timestamptz departure_time
+        timestamptz arrival_time 
+        timestamptz boarded_at
+    }
