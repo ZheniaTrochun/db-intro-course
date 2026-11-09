@@ -1,0 +1,52 @@
+erDiagram
+    customer {
+        int customer_id PK
+        varchar name
+        varchar email
+        varchar phone
+    }
+    address {
+        int address_id PK
+        int customer_id FK
+        varchar country
+        varchar street
+        varchar city
+        varchar postal_code
+    }
+    payment_data {
+        int payment_id PK
+        int customer_id FK
+        varchar card_type
+        varchar card_mask
+        varchar expiration_date
+    }
+    product {
+        int product_id PK
+        varchar name
+        text description
+        decimal price
+        int stock_quantity
+    }
+    orders {
+        int order_id PK
+        int customer_id FK
+        int payment_data_id FK
+        int shipping_address_id FK
+        varchar shipping_method
+        timestamp order_date
+        varchar status
+    }
+    order_product {
+        int order_id PK,FK
+        int product_id PK,FK
+        int quantity
+        decimal price_at_purchase
+    }
+
+    customer ||--o{ address : "має"
+    customer ||--o{ payment_data : "має"
+    customer ||--o{ orders : "робить"
+    payment_data ||--o{ orders : "використовується в"
+    address ||--o{ orders : "доставка на"
+    orders ||--|{ order_product : "містить"
+    product ||--o{ order_product : "входить до"

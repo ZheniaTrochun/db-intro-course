@@ -9,3 +9,9 @@
 --          - назвою курсу, потім за роллю викладача
 
 -- Рішення:
+select c.course_name, p.first_name || ' ' || p.last_name as professor_name, ct.professor_role as role from course c
+left join course_teacher ct using (course_id)
+left join professor using (professor_id)
+left join person p using (person_id)
+where course_status='active'
+order by c.course_name, ct.professor_role

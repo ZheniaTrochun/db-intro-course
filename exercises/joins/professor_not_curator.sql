@@ -5,5 +5,9 @@
 --          - посада (job_title)
 --      Результат відсортувати за:
 --          - повним іменем викладача
-
 -- Рішення:
+select p.first_name || ' ' || p.last_name as professor_name, pr.job_title from professor pr
+left join student_group sg on pr.professor_id = sg.curator_id
+inner join person p on pr.person_id = p.person_id
+where pr.professor_status = 'active' and sg.curator_id is null
+order by professor_name
