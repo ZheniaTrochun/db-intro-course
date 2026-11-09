@@ -40,5 +40,40 @@ WHERE email = 'maria.lab3@example.com';
 SELECT customer_id, first_name, last_name, email
 FROM customer
 WHERE email = 'maria.lab3@example.com';
+почисти файл від підказок -- 2. Перегляд категорій, додавання, зміна і видалення категорії.
+
+BEGIN;
+
+SELECT category_id, name, description
+FROM category;
+
+-- Перевірка, що тестова категорія ще відсутня.
+SELECT category_id, name, description
+FROM category
+WHERE name = 'Тестова категорія ЛР3';
+
+INSERT INTO category (name, description)
+VALUES ('Тестова категорія ЛР3', 'Категорія для перевірки INSERT');
+
+-- Перевірка додавання та вибір запису для UPDATE.
+SELECT category_id, name, description
+FROM category
+WHERE name = 'Тестова категорія ЛР3';
+
+UPDATE category
+SET description = 'Оновлений опис категорії'
+WHERE name = 'Тестова категорія ЛР3';
+
+-- Перевірка оновлення.
+SELECT category_id, name, description
+FROM category
+WHERE name = 'Тестова категорія ЛР3';
+
+DELETE FROM category
+WHERE name = 'Тестова категорія ЛР3';
+
+SELECT category_id, name, description
+FROM category
+WHERE name = 'Тестова категорія ЛР3';
 
 COMMIT;
