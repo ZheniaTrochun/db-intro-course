@@ -39,7 +39,7 @@ SELECT
 	u.name AS user_name,
 	COUNT(w.wishlist_id) AS wishlists_quantity,
 	COUNT(wi.item_id) AS wishlist_items_quantity,
-	SUM(wi.price) AS total_price
+	COALESCE(SUM(wi.price), 0) AS total_price
 FROM users AS u
 LEFT JOIN wishlists AS w
 	ON u.user_id = w.user_id
@@ -57,7 +57,7 @@ SELECT
 	u.name AS user_name
 FROM wishlist_items AS wi
 JOIN wishlists AS w
-	ON wi.wishlist_id = wi.wishlist_id
+	ON w.wishlist_id = wi.wishlist_id
 JOIN users AS u
 	ON w.user_id = u.user_id
 
