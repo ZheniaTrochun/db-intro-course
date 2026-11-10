@@ -1,7 +1,0 @@
-polars==1.36.1
-psycopg[binary]
-pytest
-pytest-html
-pytest-json-report
-testcontainers[postgres]
-PyYAML
