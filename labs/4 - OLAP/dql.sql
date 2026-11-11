@@ -55,11 +55,11 @@ INSERT INTO LEASE_AGREEMENT (property_id, tenant_id, realtor_id, start_date, end
 
 
 -------------------------------------------------1 
-
 SELECT p.property_id, p.adress, SUM(l.rental_amount) as total_rental_amount
 FROM lease_agreement l
 inner join property p on p.property_id = l.property_id
-group by p.adress
+group by p.property_id, p.adress
+HAVING SUM(l.rental_amount) > 10000;
 
 -------------------------------------------------2
 
@@ -77,4 +77,19 @@ SELECT
 FROM tenant t
 CROSS JOIN realtor r
 LEFT JOIN lease_agreement l ON l.tenant_id = t.tenant_id AND l.realtor_id = r.realtor_id
-GROUP BY t.tenant_id, t.full_name, r.realtor_id, r.full_name
+GROUP BY t.tenant_id, t.full_name, r.realtor_id, r.full_name;
+-------------------------------------------------4
+
+SELECT lease_id, property_id, rental_amount
+FROM lease_agreement
+WHERE rental_amount > (SELECT AVG(rental_amount) FROM lease_agreement);
+
+-------------------------------------------------5
+
+SELECT property_id, adress
+FROM property
+WHERE owner_id IN (
+    SELECT owner_id 
+    FROM property_owner 
+    WHERE full_name = 'Шевченко Тарас Григорович'
+);
