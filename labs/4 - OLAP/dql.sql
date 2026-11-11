@@ -54,18 +54,27 @@ INSERT INTO LEASE_AGREEMENT (property_id, tenant_id, realtor_id, start_date, end
 
 
 
--------------------------------------------------1
+-------------------------------------------------1 
 
-SELECT COUNT(*) as total_rental_amount
-FROM lease_agreement
-group by property_id
-having count(*) < 2;
+SELECT p.property_id, p.adress, SUM(l.rental_amount) as total_rental_amount
+FROM lease_agreement l
+inner join property p on p.property_id = l.property_id
+group by p.adress
 
 -------------------------------------------------2
 
-SELECT p.adress, count (l.lease_id) as total_leases
-FROM lease_agreement l
-right JOIN Property p ON l.property_id = p.property_id
+SELECT p.adress, count (o.*) as total_owners
+FROM Property p
+right JOIN  property_owner o on o.owner_id = p.owner_id
 GROUP BY p.property_id, p.adress;
 
 -------------------------------------------------3
+
+SELECT 
+	r.full_name AS realtor_name,
+    t.full_name AS tenant_name,    
+    COUNT(l.lease_id) AS total_leases
+FROM tenant t
+CROSS JOIN realtor r
+LEFT JOIN lease_agreement l ON l.tenant_id = t.tenant_id AND l.realtor_id = r.realtor_id
+GROUP BY t.tenant_id, t.full_name, r.realtor_id, r.full_name
