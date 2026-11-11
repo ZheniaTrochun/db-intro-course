@@ -1,8 +1,12 @@
 ## <ПІБ> - <група>
 
+Марина Володимирівна Грищенко - ІМ-51
+Анастасія Геннадіївна Усенко - ІМ-51
+Двораківський Олександр Юрійович - ІМ-51
+
 ### Виконані вправи
 
-- [ ] `group_by/enrolment_stats.sql`
+- [+] `group_by/enrolment_stats.sql`
 - [ ] `group_by/popular_courses.sql`
 - [ ] `group_by/student_average_grade.sql`
 - [ ] `group_by/student_success_rate.sql`
