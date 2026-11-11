@@ -8,3 +8,14 @@
 --          - кількістю студентів (спадання), потім за назвою курсу
 
 -- Рішення:
+
+select
+    c.course_name,
+    count(*)                as student_count,
+    round(avg(e.grade), 2) as avg_grade
+from enrolment e
+    join course c using (course_id)
+group by e.course_id, c.course_name
+having count(*) > 100
+order by student_count desc, course_name;
+
