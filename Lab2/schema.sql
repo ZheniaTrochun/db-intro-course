@@ -82,13 +82,13 @@ VALUES
 	('Цукор', 'кг'),
 	('Масло', 'г');
 
-INSERT INTO RECIPE (Name, EQUIPMENTNOTE)
+INSERT INTO Recipe (Name, EquipmentNote)
 VALUES 
 	('Пиріг з яблуками', 'Використовувати духовку'),
 	('Торт "Наполеон"', 'Використовувати міксер'),
 	('Печиво "Орео"', 'Використовувати духовку');
 
-INSERT INTO TASTE (Name) 
+INSERT INTO Taste (Name) 
 VALUES 
 	('Солодкий'),
 	('Гіркий'),
@@ -139,4 +139,3 @@ SELECT * FROM Customer;
 SELECT * FROM Orders;
 SELECT * FROM Ingredient;
 SELECT * FROM ItemQuantity;
-\
