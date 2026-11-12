@@ -14,7 +14,7 @@ SELECT
   w.name AS wishlist_name,
   COUNT(wi.wishlist_id) AS items_count,
   SUM(wi.price) AS sum_price,
-  AVG(wi.price) AS avg_price
+  ROUND(AVG(wi.price), 2) AS avg_price
 FROM wishlists AS w
 JOIN wishlist_items AS wi
   ON w.wishlist_id = wi.wishlist_id
