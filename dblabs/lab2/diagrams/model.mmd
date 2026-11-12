@@ -1,0 +1,72 @@
+erDiagram
+    READER ||--o{ LOAN : "places"
+    READER ||--o{ FINE : "incurs"
+    COPY ||--o{ LOAN : "borrowed_in"
+    ISSUE ||--o{ COPY : "has"
+    ISSUE ||--o{ CREATOR_ISSUE : "has"
+    CREATOR ||--o{ CREATOR_ISSUE : "participates"
+    LOAN |o--o{ FINE : "causes"
+
+    READER {
+        int reader_id PK "IDENTITY"
+        varchar tel_no UK "Alternative Key"
+        varchar first_name
+        varchar last_name
+        varchar middle_name "nullable"
+        reader_status status "active | blocked"
+        date reg_date
+    }
+
+    CREATOR {
+        int creator_id PK "IDENTITY"
+        varchar first_name
+        varchar last_name "nullable"
+        varchar middle_name "nullable"
+        varchar pseudonym "nullable"
+    }
+
+    ISSUE {
+        int issue_id PK "IDENTITY"
+        varchar isbn UK "nullable"
+        varchar title
+        smallint publication_year
+        varchar language
+        int pages
+        varchar genre
+    }
+
+    CREATOR_ISSUE {
+        int issue_id PK, FK
+        int creator_id PK, FK
+        creator_role role PK "author | translator | compiler | illustrator"
+    }
+
+    COPY {
+        int copy_id PK "IDENTITY"
+        int issue_id FK
+        varchar barcode UK "Alternative Key"
+        copy_condition condition "good | normal | bad | lost"
+        date reg_date
+    }
+
+    LOAN {
+        int loan_id PK "IDENTITY"
+        int reader_id FK
+        int copy_id FK
+        date start_date
+        date end_date
+        date closed_date "nullable"
+        copy_condition final_condition "nullable"
+    }
+
+    FINE {
+        int fine_id PK "IDENTITY"
+        int reader_id FK
+        int loan_id FK "nullable"
+        numeric amount "10, 2"
+        date start_date
+        date closed_date "nullable"
+        fine_type type "overdue | damage | loss | violation"
+        fine_status status "unpaid | paid | waived"
+        varchar descr
+    }
