@@ -8,4 +8,4 @@
 
 Онищенко Архип - [звіт](zwit_onyshchenko.md)
 Кроть Віктор - [звіт](zwit_krot.md)
-Бунтовський Денис - [звіт](zzwit_buntovsky.md)
+Бунтовський Денис - [звіт](zwit_buntovsky.md)
