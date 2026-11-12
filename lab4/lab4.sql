@@ -378,4 +378,4 @@ HAVING COUNT(c.course_id) >= (
         GROUP BY department_id
     ) AS department_course_counts
 )
-ORDER BY dep.department_name;
+ORDER BY dep.department_name; 
