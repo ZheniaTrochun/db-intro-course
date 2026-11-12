@@ -10,11 +10,11 @@ else
 fi
 
 if [ ! -f ../dumps/10k.dump ]; then
-  curl -L --fail -o ../dumps/10k.dump https://github.com/ZheniaTrochun/db-intro-course/releases/download/exercises-fixture-v2/10k.dump
+  curl -L --fail -o ../dumps/10k.dump https://github.com/ZheniaTrochun/db-intro-course/releases/download/exercises-fixture-v4/10k.dump
 fi
 
 if [ ! -d ./tests/golden_snapshots/10k/ ]; then
-  curl -L --fail -o ./tests/golden_snapshots/10k.zip https://github.com/ZheniaTrochun/db-intro-course/releases/download/exercises-fixture-v2/10k.zip
+  curl -L --fail -o ./tests/golden_snapshots/10k.zip https://github.com/ZheniaTrochun/db-intro-course/releases/download/exercises-fixture-v4/10k.zip
   unzip ./tests/golden_snapshots/10k.zip -d ./tests/golden_snapshots
   rm ./tests/golden_snapshots/10k.zip
 fi
