@@ -19,7 +19,7 @@ create table SONG (
     is_translated bool not null,
     lyrics varchar(1024) not null,
     is_ai bool not null,
-    language_id uuid not null references SONG_LANGUAGE(id),
+    language_id uuid not null references SONG_LANGUAGE(id)
 );
 
 create table NOTE (
