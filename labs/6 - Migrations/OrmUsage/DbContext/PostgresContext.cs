@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace OrmUsage.DbContext;
 
-public partial class PostgresContext : DbContext
+public partial class PostgresContext : Microsoft.EntityFrameworkCore.DbContext
 {
     public PostgresContext()
     {
