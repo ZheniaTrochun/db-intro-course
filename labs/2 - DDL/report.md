@@ -61,5 +61,3 @@ create table SINGING (
 3. У таблиці WORSHIP_TYPES type має бути унікальним.
 
 4. У таблиці WORSHIP views та subscribers повинні бути => 0.
-
-5. У таблиці SONG якщо has_author є false, то поле song_author має NULL. І навпаки. Те саме стосується is_translated та song_translator.

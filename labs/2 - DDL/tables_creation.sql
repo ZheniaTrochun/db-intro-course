@@ -20,8 +20,6 @@ create table SONG (
     lyrics varchar(1024) not null,
     is_ai bool not null,
     language_id uuid not null references SONG_LANGUAGE(id),
-    check ((has_author = true and author is not null) or (has_author = false and author is null)),
-	check ((is_translated = true and translator is not null) or (is_translated = false and translator is null))
 );
 
 create table NOTE (
