@@ -6,7 +6,5 @@ public partial class GeneralNote
     
     public string Note { get; set; } = null!;
     
-    public string Name { get; set; } = null!;
-
     public DateTime CreatedAt { get; set; }
 }
