@@ -51,6 +51,24 @@ namespace OrmUsage.Migrations
                     b.ToTable("church", (string)null);
                 });
 
+            modelBuilder.Entity("OrmUsage.DbContext.GeneralNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GeneralNotes");
+                });
+
             modelBuilder.Entity("OrmUsage.DbContext.Note", b =>
                 {
                     b.Property<Guid>("Id")

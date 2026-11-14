@@ -12,8 +12,8 @@ using OrmUsage.DbContext;
 namespace OrmUsage.Migrations
 {
     [DbContext(typeof(PostgresContext))]
-    [Migration("20261113221045_InitalCreate")]
-    partial class InitalCreate
+    [Migration("20261114075101_GeneralNotes")]
+    partial class GeneralNotes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,6 +52,24 @@ namespace OrmUsage.Migrations
                         .IsUnique();
 
                     b.ToTable("church", (string)null);
+                });
+
+            modelBuilder.Entity("OrmUsage.DbContext.GeneralNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GeneralNotes");
                 });
 
             modelBuilder.Entity("OrmUsage.DbContext.Note", b =>
