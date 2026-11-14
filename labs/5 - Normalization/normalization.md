@@ -12,13 +12,15 @@
 ---
 
 ## Функціональні залежності (для початкової схеми)
-
+в
 -   **CHURCH**
     -   `id` -> (`name`, `location`)
     -   (`name`, `location`) -> `id`
+    - потенційний ключ (`name`, `location`)
 -   **SONG_LANGUAGE**
     -   `id` -> `language`
     -   `language` -> `id`
+    - потенційний ключ `language`
 -   **SONG**
     -   `id` -> (`name`, `author`, `has_author`, `translator`, `is_translated`, `lyrics`, `is_ai`, `language_id`)
     -   `author` -> `has_author` (Транзитивна залежність)
@@ -28,6 +30,7 @@
 -   **WORSHIP_TYPES**
     -   `id` -> `type`
     -   `type` -> `id`
+    - потенційний ключ `type`
 -   **WORSHIP**
     -   `id` -> (`church_id`, `date`, `type_id`, `views`, `subscribers`, `link`)
 -   **SINGING**
