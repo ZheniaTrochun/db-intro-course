@@ -41,6 +41,8 @@ SELECT customer_id, first_name, last_name, email
 FROM customer
 WHERE email = 'maria.lab3@example.com';
 
+COMMIT;
+
 -- 2. Перегляд категорій, додавання, зміна і видалення категорії.
 
 BEGIN;
