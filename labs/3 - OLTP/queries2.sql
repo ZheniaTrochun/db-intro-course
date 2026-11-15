@@ -29,7 +29,7 @@ WHERE match_id = 'e1eeec99-9c0b-4ef8-bb6d-6bb9bd380a11';
 
 -- 2: Оновити місто проведення для турніру
 UPDATE Tournaments 
-SET city = 'Lviv' 
+SET city = 'Lviv', tournament_name = 'Lviv Open'
 WHERE tournament_id = 'a1eeec99-9c0b-4ef8-bb6d-6bb9bd380111';
 
 

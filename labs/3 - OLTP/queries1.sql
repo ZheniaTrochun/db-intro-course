@@ -26,7 +26,7 @@ VALUES ('f4eebc99-9c0b-4ef8-bb6d-6bb9bd380004', '44444444-4444-4444-4444-4444444
 --Оновлення інформації про кількість очок у гравця
 UPDATE PlayerRankingHistory
 SET points = 5400 
-WHERE player_id = '11111111-1111-1111-1111-111111111111';
+WHERE player_id = '11111111-1111-1111-1111-111111111111' AND ranking_date = '2026-10-29';
 
 --Оновлення пошти для користувача
 UPDATE Users 
