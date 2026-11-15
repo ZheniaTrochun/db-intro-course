@@ -80,3 +80,51 @@ RIGHT JOIN product AS p
     ON p.product_id = r.product_id
 WHERE r.review_id IS NULL
 ORDER BY p.product_id;
+
+
+-- 8. Підзапит у WHERE: товари, дорожчі за середню ціну каталогу.
+SELECT
+    product_id,
+    name,
+    price
+FROM product
+WHERE price > (
+    SELECT AVG(price)
+    FROM product
+)
+ORDER BY price DESC, product_id;
+
+
+-- 9. Підзапит у WHERE: клієнти, які мають більше однієї адреси.
+SELECT
+    customer_id,
+    first_name,
+    last_name,
+    email
+FROM customer
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM address
+    GROUP BY customer_id
+    HAVING COUNT(*) > 1
+)
+ORDER BY customer_id;
+
+
+-- 10. Підзапит у SELECT: сума успішних оплат кожного замовлення.
+-- Підзапит виконує розрахунок для відповідного order_id.
+-- Якщо успішних платежів немає, COALESCE повертає 0.
+SELECT
+    o.order_id,
+    o.status,
+    COALESCE(
+        (
+            SELECT SUM(p.amount)
+            FROM payment AS p
+            WHERE p.order_id = o.order_id
+              AND p.status = 'successful'
+        ),
+        0
+    ) AS paid_amount
+FROM orders AS o
+ORDER BY o.order_id;
