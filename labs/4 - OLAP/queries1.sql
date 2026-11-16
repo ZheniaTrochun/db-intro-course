@@ -18,3 +18,39 @@ GROUP BY career_status
 --Знайти максимальне, мінімальне та середнє значення кількості очок у гравців у записах рейтингів
 SELECT MAX(points) AS max_points, MIN(points) AS min_points, ROUND(AVG(points), 2) AS avg_points
 FROM PlayerRankingHistory
+
+--Джоіни
+
+--Вивести список усіх завершених фінальних матчів (назва турніру, прізвище переможця та назва корту)
+SELECT tournament_name, last_name AS winner_surname, court_name
+FROM Matches m
+INNER JOIN Tournaments AS t ON m.tournament_id = t.tournament_id
+INNER JOIN Players AS p ON m.winner_id = p.player_id
+INNER JOIN Courts AS c ON m.court_id = c.court_id
+WHERE m.status = 'Finished' AND m.round = 'Final'
+ORDER BY tournament_name
+
+--Вивести список усіх турнірів (назва турніру) і супутніх їм кортів через LEFT JOIN
+SELECT t.tournament_name, c.court_name
+FROM Tournaments t
+LEFT JOIN Courts AS c ON t.tournament_id = c.tournament_id
+
+--Підзапити
+
+--Знайти інформацію про гравців, чий зріст перевищує середній зріст усіх тенісистів у таблиці
+SELECT p.first_name || ' ' || p.last_name AS full_name, p.height_cm,
+	(SELECT ROUND(AVG(height_cm), 2) AS avg_height FROM Players)
+FROM Players p
+WHERE height_cm > (
+	SELECT ROUND(AVG(p.height_cm), 2)
+	FROM Players p
+)
+
+--Вивести список турнірів, які належать до тієї ж категорії, що і турнір з назвою 'Wimbledon'
+SELECT tournament_name
+FROM Tournaments
+WHERE category = (
+	SELECT category
+	FROM Tournaments
+	WHERE tournament_name = 'Wimbledon'
+)
