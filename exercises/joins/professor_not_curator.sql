@@ -8,7 +8,7 @@
 
 -- Рішення:
 select 
-    concat(p.first_name, ' ', p.last_name) as professor_name, 
+    p.first_name || ' ' || p.last_name as professor_name, 
     pr.job_title as job_title
 from professor pr
 join person p on pr.person_id = p.person_id
