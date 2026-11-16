@@ -26,11 +26,10 @@ with student_stats as (
 ),
 group_stats as (
     select 
-        sga.group_id,
-        avg(e.grade) as avg_group_grade
-    from student_group_assignment sga
-    join enrolment e on sga.student_id = e.student_id
-    group by sga.group_id
+        group_id,
+        avg(avg_student_grade) as avg_group_grade
+    from student_stats
+    group by group_id
 )
 select 
     ss.student_id,
