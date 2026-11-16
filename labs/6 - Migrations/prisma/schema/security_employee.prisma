@@ -1,0 +1,9 @@
+model security_employee {
+  employee_id Int        @id @default(autoincrement())
+  full_name   String     @db.VarChar(150)
+  position    String     @db.VarChar(100)
+  phone       String     @unique @db.VarChar(20)
+  incident    incident[]
+  incident_comment incident_comment[]
+  email String? @unique @db.VarChar(150)
+}

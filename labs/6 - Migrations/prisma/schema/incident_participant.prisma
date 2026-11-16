@@ -1,0 +1,10 @@
+model incident_participant {
+  incident_id      Int
+  visit_id         Int
+  role_id          Int
+  incident         incident         @relation(fields: [incident_id], references: [incident_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_participant_incident")
+  participant_role participant_role @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_participant_role")
+  visit            visit            @relation(fields: [visit_id], references: [visit_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_participant_visit")
+
+  @@id([incident_id, visit_id], map: "pk_incident_participant")
+}

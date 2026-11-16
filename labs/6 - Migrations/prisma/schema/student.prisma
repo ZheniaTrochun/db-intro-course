@@ -1,0 +1,7 @@
+model student {
+  student_id    Int           @id @default(autoincrement())
+  group_id      Int
+  full_name     String        @db.VarChar(150)
+  student_group student_group @relation(fields: [group_id], references: [group_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_student_group")
+  visit         visit[]
+}

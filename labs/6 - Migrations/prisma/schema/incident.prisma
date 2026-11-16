@@ -1,0 +1,18 @@
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model incident {
+  incident_id          Int                    @id @default(autoincrement())
+  visit_id             Int
+  type_id              Int
+  employee_id          Int
+  status_id            Int                    @default(1)
+  description          String?
+  occurred_at          DateTime               @db.Timestamp(6)
+  severity             String                 @db.VarChar(20)
+  security_employee    security_employee      @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_incident_employee")
+  incident_status      incident_status        @relation(fields: [status_id], references: [status_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_incident_status")
+  incident_type        incident_type          @relation(fields: [type_id], references: [type_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_incident_type")
+  visit                visit                  @relation(fields: [visit_id], references: [visit_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_incident_visit")
+  incident_participant incident_participant[]
+  incident_comment     incident_comment[]
+  resolved_at DateTime? @db.Timestamp(6)
+}

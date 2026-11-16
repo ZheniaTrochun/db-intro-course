@@ -1,0 +1,12 @@
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model visit {
+  visit_id             Int                    @id @default(autoincrement())
+  student_id           Int
+  visit_type String @default("Відпочинок") @db.VarChar(50)
+  started_at           DateTime               @default(now()) @db.Timestamp(6)
+  ended_at             DateTime?              @db.Timestamp(6)
+  incident             incident[]
+  incident_participant incident_participant[]
+  student              student                @relation(fields: [student_id], references: [student_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_visit_student")
+  @@index([student_id])
+}

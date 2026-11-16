@@ -1,0 +1,5 @@
+model participant_role {
+  role_id              Int                    @id @default(autoincrement())
+  name                 String                 @unique @db.VarChar(50)
+  incident_participant incident_participant[]
+}

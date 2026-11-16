@@ -1,0 +1,9 @@
+model incident_comment {
+  comment_id        Int               @id @default(autoincrement())
+  incident_id       Int
+  employee_id       Int
+  text              String
+  created_at        DateTime          @default(now()) @db.Timestamp(6)
+  incident          incident          @relation(fields: [incident_id], references: [incident_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_comment_incident")
+  security_employee security_employee @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_comment_employee")
+}

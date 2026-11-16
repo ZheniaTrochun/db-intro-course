@@ -1,0 +1,5 @@
+model faculty {
+  faculty_id    Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar(150)
+  student_group student_group[]
+}

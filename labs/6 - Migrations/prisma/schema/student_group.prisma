@@ -1,0 +1,7 @@
+model student_group {
+  group_id   Int       @id @default(autoincrement())
+  faculty_id Int
+  name       String    @unique @db.VarChar(50)
+  student    student[]
+  faculty    faculty   @relation(fields: [faculty_id], references: [faculty_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_student_group_faculty")
+}

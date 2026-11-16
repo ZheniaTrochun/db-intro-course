@@ -1,0 +1,20 @@
+{
+  "name": "6---migrations",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/pg": "^8.23.1",
+    "prisma": "7.10.0"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "7.10.0",
+    "dotenv": "^18.0.8",
+    "pg": "^8.23.1"
+  }
+}

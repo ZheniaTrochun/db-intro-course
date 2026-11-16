@@ -1,0 +1,5 @@
+model incident_type {
+  type_id  Int        @id @default(autoincrement())
+  name     String     @unique @db.VarChar(100)
+  incident incident[]
+}
