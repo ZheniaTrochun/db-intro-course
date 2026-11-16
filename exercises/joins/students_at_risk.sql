@@ -21,7 +21,7 @@ select
 from enrolment e
 join student s on e.student_id = s.student_id
 join person sp on s.person_id = sp.person_id
-join student_group_assignment sga on s.student_id = sga.student_id and sga.assignment_status = 'active'
+join student_group_assignment sga on s.student_id = sga.student_id
 join student_group sg on sga.group_id = sg.group_id
 join course c on e.course_id = c.course_id
 join course_teacher ct on c.course_id = ct.course_id and ct.professor_role in ('lecturer', 'full_ownership')
