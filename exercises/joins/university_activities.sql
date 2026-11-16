@@ -12,7 +12,7 @@
 
 -- Рішення:
 select 
-    concat(ps.first_name, ' ', ps.last_name) as full_name, 
+    ps.first_name || ' ' || ps.last_name as full_name, 
     c.course_name as course_name, 
     'запис на курс' as activity_type
 from enrolment e
@@ -22,7 +22,7 @@ join course c on e.course_id = c.course_id
 where c.course_status = 'active'
 union all
 select 
-    concat(pp.first_name, ' ', pp.last_name) as full_name, 
+    pp.first_name || ' ' || pp.last_name as full_name, 
     c.course_name as course_name, 
     'викладання курсу' as activity_type
 from course_teacher ct
