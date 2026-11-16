@@ -11,7 +11,7 @@
 -- Рішення:
 select 
     c.course_name as course_name, 
-    concat(p.first_name, ' ', p.last_name) as professor_name, 
+    p.first_name || ' ' || p.last_name as professor_name,
     ct.professor_role as role
 from course c
 join course_teacher ct on c.course_id = ct.course_id
