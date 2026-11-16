@@ -13,11 +13,11 @@
 
 -- Рішення:
 select 
-    concat(sp.first_name, ' ', sp.last_name) as student_name, 
+    sp.first_name || ' ' || sp.last_name as student_name, 
     sg.group_name as group_name, 
     c.course_name as course_name, 
     e.grade as grade, 
-    concat(pp.first_name, ' ', pp.last_name) as lecturer_name
+    pp.first_name || ' ' || pp.last_name as lecturer_name
 from enrolment e
 join student s on e.student_id = s.student_id
 join person sp on s.person_id = sp.person_id
