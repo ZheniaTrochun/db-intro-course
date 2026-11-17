@@ -1,0 +1,56 @@
+erDiagram
+    STUDENTS {
+        int id PK
+        string full_name
+        string group_name
+        string email UK
+    }
+    TEACHERS {
+        int id PK
+        string full_name
+        string department
+    }
+    SUBJECTS {
+        int id PK
+        string name
+        int teacher_id FK
+    }
+    LESSONS {
+        int id PK
+        int student_id FK
+        int subject_id FK
+        string day_of_week
+        time start_time
+        time end_time
+    }
+    HOMEWORKS {
+        int id PK
+        int student_id FK
+        int subject_id FK
+        string title
+        date start_date
+        date due_date
+        string status
+    }
+    NOTES {
+        int id PK
+        int student_id FK
+        int subject_id FK
+        string title
+        text content
+    }
+
+    STUDENTS ||--o{ LESSONS : "has"
+    STUDENTS ||--o{ HOMEWORKS : "has"
+    STUDENTS ||--o{ NOTES : "writes"
+    TEACHERS ||--o{ SUBJECTS : "teaches"
+    SUBJECTS ||--o{ LESSONS : "includes"
+    SUBJECTS ||--o{ HOMEWORKS : "includes"
+    SUBJECTS ||--o{ NOTES : "categorizes"
+
+    style STUDENTS fill:#F8CECC,stroke:#B85450
+    style TEACHERS fill:#D5E8D4,stroke:#82B366
+    style SUBJECTS fill:#DAE8FC,stroke:#6C8EBF
+    style LESSONS fill:#E1D5E7,stroke:#9673A6
+    style HOMEWORKS fill:#FFE6CC,stroke:#D79B00
+    style NOTES fill:#FFF2CC,stroke:#D6B656
