@@ -32,7 +32,7 @@ CREATE TYPE ticket_status AS ENUM ('HELD', 'PAID', 'RETURNED', 'EXPIRED');
 CREATE TYPE user_role AS ENUM ('PASSENGER', 'ADMIN', 'CONDUCTOR');
 
 CREATE TABLE IF NOT EXISTS stations ( 
-        station_id UUID DEFAULT uuid_generate_v7(),
+        station_id UUID DEFAULT uuidv7(),
         station_name VARCHAR(100) NOT NULL,
         city VARCHAR(50) NOT NULL,
 
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS stations (
     );
 
 CREATE TABLE IF NOT EXISTS users ( 
-        user_id UUID DEFAULT uuid_generate_v7(),
+        user_id UUID DEFAULT uuidv7(),
         user_name VARCHAR(50) NOT NULL,
         hashed_password VARCHAR(400) NOT NULL,
         email VARCHAR(100) NOT NULL UNIQUE,
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS users (
     );
 
 CREATE TABLE IF NOT EXISTS passengers ( 
-        passenger_id UUID DEFAULT uuid_generate_v7(),
+        passenger_id UUID DEFAULT uuidv7(),
         user_id UUID NOT NULL,
         passenger_lastname VARCHAR(50) NOT NULL,
         passenger_name VARCHAR(50) NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS passengers (
     );
 
 CREATE TABLE IF NOT EXISTS carriage_type_list (
-        carriage_type_id UUID DEFAULT uuid_generate_v7(),
+        carriage_type_id UUID DEFAULT uuidv7(),
         carriage_type carriage_type NOT NULL UNIQUE,
         carriage_type_price_multiplier INT NOT NULL DEFAULT 100 
                 CHECK (carriage_type_price_multiplier > 0), -- 100 = 1.0x, 150 = 1.5x, 200 = 2.0x
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS carriage_type_list (
     );
 
 CREATE TABLE IF NOT EXISTS routes (
-        route_id UUID DEFAULT uuid_generate_v7(),
+        route_id UUID DEFAULT uuidv7(),
         route_name VARCHAR(100) NOT NULL,
         base_segment_price INT NOT NULL DEFAULT 50
                 CHECK (base_segment_price > 0), -- price in kopiyka
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS routes (
     );
 
 CREATE TABLE IF NOT EXISTS carriages (
-        carriage_id UUID DEFAULT uuid_generate_v7(),
+        carriage_id UUID DEFAULT uuidv7(),
         carriage_type_id UUID NOT NULL,
         route_id UUID NOT NULL,
         carriage_number INT NOT NULL
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS carriages (
     );
 
 CREATE TABLE IF NOT EXISTS seat_templates_list (
-        seat_id UUID DEFAULT uuid_generate_v7(),
+        seat_id UUID DEFAULT uuidv7(),
         carriage_type_id UUID NOT NULL,
         seat_number INT NOT NULL
                 CHECK (seat_number > 0),
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS seat_templates_list (
     );
 
 CREATE TABLE IF NOT EXISTS trips (
-        trip_id UUID DEFAULT uuid_generate_v7(),
+        trip_id UUID DEFAULT uuidv7(),
         route_id UUID NOT NULL,
         departure_time TIMESTAMPTZ NOT NULL,
         trip_status trip_status NOT NULL DEFAULT 'SCHEDULED',
@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS trips (
     );
 
 CREATE TABLE IF NOT EXISTS stops (
-        stop_id UUID DEFAULT uuid_generate_v7(),
+        stop_id UUID DEFAULT uuidv7(),
         route_id UUID NOT NULL,
         station_id UUID NOT NULL,
         arrival_offset_minutes INT NOT NULL 
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS stops (
     );
 
 CREATE TABLE IF NOT EXISTS ticket_segment (
-        ticket_id UUID DEFAULT uuid_generate_v7(),
+        ticket_id UUID DEFAULT uuidv7(),
         user_id UUID NOT NULL,
         passenger_id UUID NOT NULL,
         trip_id UUID NOT NULL,
