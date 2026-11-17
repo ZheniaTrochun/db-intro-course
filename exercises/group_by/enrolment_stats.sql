@@ -7,5 +7,23 @@
 --          - кількість записів з виставленою оцінкою (number_of_graded_enrolments)
 --      Результат відсортувати за:
 --          - роком запису на курс (зростання)
-
 -- Рішення:
+select
+    extract(
+        year
+        from
+            created_at
+    ) as enrolment_year,
+    count(distinct course_id) as number_of_courses,
+    count(*) as number_of_enrolments,
+    count(grade) as number_of_graded_enrolments
+from
+    enrolment
+group by
+    extract(
+        year
+        from
+            created_at
+    )
+order by
+    enrolment_year asc
