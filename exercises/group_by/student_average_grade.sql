@@ -33,4 +33,5 @@ group by
     sg.group_id
 order by
     sg.group_name,
-    full_name;
+    full_name,
+    s.student_id;
