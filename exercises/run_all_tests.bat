@@ -33,7 +33,7 @@ if "%PYTHON_EXE%"=="" (
     exit /b
 )
 
-set VENV_DIR=tests\venv
+set VENV_DIR=exercises\tests\venv
 
 IF NOT EXIST "%VENV_DIR%\" (
     echo Creating virtual environment in "%VENV_DIR%"...
@@ -44,9 +44,9 @@ echo Activating environment...
 call "%VENV_DIR%\Scripts\activate.bat"
 
 IF NOT EXIST "%VENV_DIR%\.installed" (
-    echo Installing dependencies from tests\requirements.txt...
+    echo Installing dependencies from exercises\tests\requirements.txt...
     python -m pip install --upgrade pip > nul
-    pip install -r tests\requirements.txt
+    pip install -r exercises\tests\requirements.txt
     if !ERRORLEVEL! equ 0 (
         echo. > "%VENV_DIR%\.installed"
     ) else (
@@ -59,9 +59,9 @@ IF NOT EXIST "%VENV_DIR%\.installed" (
 )
 
 IF NOT EXIST "config.yaml" (
-    IF EXIST "tests\config.yaml" (
+    IF EXIST "exercises\tests\config.yaml" (
         echo Copying config.yaml to working directory...
-        copy "tests\config.yaml" "config.yaml" > nul
+        copy "exercises\tests\config.yaml" "config.yaml" > nul
     ) ELSE (
         echo [WARNING] config.yaml not found in root or tests folder!
     )
@@ -93,7 +93,7 @@ IF NOT EXIST "exercises\tests\golden_snapshots\10k\" (
 echo.
 echo === Running pytest ===
 set PYTHONUTF8=1
-pytest tests\
+pytest exercises\tests\
 
 echo // Testing process completed
 pause
