@@ -5,7 +5,6 @@ model incident {
   type_id              Int
   employee_id          Int
   status_id            Int                    @default(1)
-  description          String?
   occurred_at          DateTime               @db.Timestamp(6)
   severity             String                 @db.VarChar(20)
   security_employee    security_employee      @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_incident_employee")
@@ -14,5 +13,5 @@ model incident {
   visit                visit                  @relation(fields: [visit_id], references: [visit_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_incident_visit")
   incident_participant incident_participant[]
   incident_comment     incident_comment[]
-  resolved_at DateTime? @db.Timestamp(6)
+  resolved_at          DateTime?              @db.Timestamp(6)
 }

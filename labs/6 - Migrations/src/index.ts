@@ -20,7 +20,7 @@ async function main() {
   // Нове поле email (міграція add-employee-email)
   await prisma.security_employee.update({
     where: { employee_id: employee.employee_id },
-    data: { email: "updated@example.com" },
+    data: { email: `employee-${employee.employee_id}-${crypto.randomUUID()}@example.com` },
   });
 
   const incidents = await prisma.incident.findMany({

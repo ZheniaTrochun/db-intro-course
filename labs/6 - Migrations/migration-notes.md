@@ -339,7 +339,6 @@ bun src/index.ts
     "type_id": 1,
     "employee_id": 1,
     "status_id": 1,
-    "description": null,
     "occurred_at": "2026-11-10T11:15:00.000Z",
     "severity": "Низький",
     "resolved_at": null,
@@ -349,7 +348,35 @@ bun src/index.ts
         "incident_id": 1,
         "employee_id": 1,
         "text": "Перевірка після міграцій",
-        "created_at": "2026-11-16T20:50:49.310Z"
+        "created_at": "2026-11-17T01:28:00.213Z"
+      },
+      {
+        "comment_id": 2,
+        "incident_id": 1,
+        "employee_id": 2,
+        "text": "Перевірка після міграцій",
+        "created_at": "2026-11-17T01:30:12.740Z"
+      },
+      {
+        "comment_id": 3,
+        "incident_id": 1,
+        "employee_id": 2,
+        "text": "Перевірка після міграцій",
+        "created_at": "2026-11-17T01:30:17.817Z"
+      },
+      {
+        "comment_id": 4,
+        "incident_id": 1,
+        "employee_id": 2,
+        "text": "Перевірка після міграцій",
+        "created_at": "2026-11-17T10:18:11.188Z"
+      },
+      {
+        "comment_id": 5,
+        "incident_id": 1,
+        "employee_id": 2,
+        "text": "Перевірка після міграцій",
+        "created_at": "2026-11-17T10:19:02.915Z"
       }
     ]
   },
@@ -359,7 +386,6 @@ bun src/index.ts
     "type_id": 3,
     "employee_id": 2,
     "status_id": 2,
-    "description": null,
     "occurred_at": "2026-11-10T12:00:00.000Z",
     "severity": "Середній",
     "resolved_at": null,
@@ -371,7 +397,6 @@ bun src/index.ts
     "type_id": 2,
     "employee_id": 1,
     "status_id": 3,
-    "description": null,
     "occurred_at": "2026-11-12T10:20:00.000Z",
     "severity": "Високий",
     "resolved_at": "2026-11-12T14:00:00.000Z",
@@ -380,7 +405,7 @@ bun src/index.ts
 ]
 ```
 
-Вивід підтверджує, що нова таблиця `incident_comment` працює (запис пов'язаний з інцидентом), нові поля `resolved_at` і `email` доступні, а `description` більше не повертається.
+Вивід підтверджує, що нова таблиця `incident_comment` працює (записи пов'язані з інцидентом), поле `resolved_at` доступне, а `description` більше не повертається. Скрипт також оновлює поле `email` працівника, але не включає його у вивід.
 
 **Prisma Studio:**
 
