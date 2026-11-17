@@ -19,6 +19,6 @@ INNER JOIN student s USING(student_id)
 INNER JOIN enrolment e USING(student_id)
 WHERE e.grade IS NOT NULL
 GROUP BY g.group_id
-	HAVING ROUND(AVG(COALESCE(e.grade, 0)), 2) > 75
+	HAVING AVG(COALESCE(e.grade, 0)) > 75
 ORDER BY avg_grade DESC, g.group_name;
 
