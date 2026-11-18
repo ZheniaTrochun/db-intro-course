@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-  FIXTURE_RELEASE: exercises-fixture-v3
+  FIXTURE_RELEASE: exercises-fixture-v4
 
 jobs:
   test:
