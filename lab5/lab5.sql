@@ -1,8 +1,5 @@
-BEGIN;
-
 DROP TABLE IF EXISTS applications, vacancies, companies, enrollments, courses,
     parking_slots, dorm_admins, students, rooms, dorms, departments, users CASCADE;
-DROP FUNCTION IF EXISTS check_dorm_assignment(), check_dorm_change();
 DROP TYPE  IF EXISTS student_status, user_status, application_status CASCADE;
 
 
@@ -99,59 +96,6 @@ CREATE TABLE applications (
     status           application_status NOT NULL DEFAULT 'submitted',
     UNIQUE (student_id, vacancy_id)
 );
-
--- Перевірка між таблицями без дублювання dorm_id в записах призначення.
-CREATE FUNCTION check_dorm_assignment() RETURNS trigger
-LANGUAGE plpgsql AS $$
-DECLARE
-    user_dorm INTEGER;
-    room_dorm INTEGER;
-BEGIN
-    -- Оновлення тим самим значенням серіалізує конкурентні зміни
-    -- призначення та гуртожитку, зокрема в REPEATABLE READ.
-    UPDATE users SET dorm_id = dorm_id WHERE user_id = NEW.user_id
-    RETURNING dorm_id INTO user_dorm;
-    IF NOT FOUND THEN
-        RETURN NEW; -- відсутнього користувача відхилить зовнішній ключ
-    END IF;
-
-    IF NEW.room_id IS NULL THEN
-        RETURN NEW;
-    END IF;
-
-    UPDATE rooms SET dorm_id = dorm_id WHERE room_id = NEW.room_id
-    RETURNING dorm_id INTO room_dorm;
-    IF FOUND AND user_dorm IS DISTINCT FROM room_dorm THEN
-        RAISE EXCEPTION 'Користувач і кімната повинні належати до одного гуртожитку'
-            USING ERRCODE = '23514';
-    END IF;
-    RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER students_check_dorm
-    BEFORE INSERT OR UPDATE OF user_id, room_id ON students
-    FOR EACH ROW EXECUTE FUNCTION check_dorm_assignment();
-
-CREATE FUNCTION check_dorm_change() RETURNS trigger
-LANGUAGE plpgsql AS $$
-BEGIN
-    IF (NEW.dorm_id IS NULL AND EXISTS (
-        SELECT 1 FROM dorm_admins WHERE user_id = NEW.user_id
-    )) OR EXISTS (
-        SELECT 1 FROM students s JOIN rooms r USING (room_id)
-        WHERE s.user_id = NEW.user_id AND r.dorm_id IS DISTINCT FROM NEW.dorm_id
-    ) THEN
-        RAISE EXCEPTION 'Зміна гуртожитку суперечить призначенням користувача' USING ERRCODE = '23514';
-    END IF;
-    RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER users_check_dorm_change
-    AFTER UPDATE OF dorm_id ON users
-    FOR EACH ROW WHEN (OLD.dorm_id IS DISTINCT FROM NEW.dorm_id)
-    EXECUTE FUNCTION check_dorm_change();
 
 INSERT INTO dorms (dorm_number, address) VALUES
     (1, 'вул. Степана Бандери 1-б'),
@@ -439,5 +383,3 @@ HAVING COUNT(c.course_id) >= (
     ) AS department_course_counts
 )
 ORDER BY dep.department_name;
-
-COMMIT;
