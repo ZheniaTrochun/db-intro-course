@@ -67,9 +67,9 @@ VALUES
 
 	INSERT INTO RecipeTaste (RecipeID, TasteID, Intensity)
 	VALUES 
-	(1, 1, 0.80),
-	(2, 2, 0.60),
-	(3, 3, 0.90);
+	(1, 1, 'сильно'),
+	(2, 2, 'помірно'),
+	(3, 3, 'сильно');
 
 	SELECT * FROM Category;
 	SELECT * FROM Recipe;
