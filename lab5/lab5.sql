@@ -115,13 +115,6 @@ BEGIN
         RETURN NEW; -- відсутнього користувача відхилить зовнішній ключ
     END IF;
 
-    IF TG_TABLE_NAME = 'dorm_admins' THEN
-        IF user_dorm IS NULL THEN
-            RAISE EXCEPTION 'Адміністратор повинен мати гуртожиток' USING ERRCODE = '23514';
-        END IF;
-        RETURN NEW;
-    END IF;
-
     IF NEW.room_id IS NULL THEN
         RETURN NEW;
     END IF;
@@ -139,27 +132,17 @@ $$;
 CREATE TRIGGER students_check_dorm
     BEFORE INSERT OR UPDATE OF user_id, room_id ON students
     FOR EACH ROW EXECUTE FUNCTION check_dorm_assignment();
-CREATE TRIGGER dorm_admins_check_dorm
-    BEFORE INSERT OR UPDATE OF user_id ON dorm_admins
-    FOR EACH ROW EXECUTE FUNCTION check_dorm_assignment();
 
 CREATE FUNCTION check_dorm_change() RETURNS trigger
 LANGUAGE plpgsql AS $$
 BEGIN
-    IF TG_TABLE_NAME = 'users' THEN
-        IF (NEW.dorm_id IS NULL AND EXISTS (
-                SELECT 1 FROM dorm_admins WHERE user_id = NEW.user_id
-            )) OR EXISTS (
-                SELECT 1 FROM students s JOIN rooms r USING (room_id)
-                WHERE s.user_id = NEW.user_id AND r.dorm_id IS DISTINCT FROM NEW.dorm_id
-            ) THEN
-            RAISE EXCEPTION 'Зміна гуртожитку суперечить призначенням користувача' USING ERRCODE = '23514';
-        END IF;
-    ELSIF EXISTS (
-        SELECT 1 FROM students s JOIN users u USING (user_id)
-        WHERE s.room_id = NEW.room_id AND u.dorm_id IS DISTINCT FROM NEW.dorm_id
+    IF (NEW.dorm_id IS NULL AND EXISTS (
+        SELECT 1 FROM dorm_admins WHERE user_id = NEW.user_id
+    )) OR EXISTS (
+        SELECT 1 FROM students s JOIN rooms r USING (room_id)
+        WHERE s.user_id = NEW.user_id AND r.dorm_id IS DISTINCT FROM NEW.dorm_id
     ) THEN
-        RAISE EXCEPTION 'Зміна гуртожитку кімнати суперечить поселенню' USING ERRCODE = '23514';
+        RAISE EXCEPTION 'Зміна гуртожитку суперечить призначенням користувача' USING ERRCODE = '23514';
     END IF;
     RETURN NEW;
 END;
@@ -167,10 +150,6 @@ $$;
 
 CREATE TRIGGER users_check_dorm_change
     AFTER UPDATE OF dorm_id ON users
-    FOR EACH ROW WHEN (OLD.dorm_id IS DISTINCT FROM NEW.dorm_id)
-    EXECUTE FUNCTION check_dorm_change();
-CREATE TRIGGER rooms_check_dorm_change
-    AFTER UPDATE OF dorm_id ON rooms
     FOR EACH ROW WHEN (OLD.dorm_id IS DISTINCT FROM NEW.dorm_id)
     EXECUTE FUNCTION check_dorm_change();
 
