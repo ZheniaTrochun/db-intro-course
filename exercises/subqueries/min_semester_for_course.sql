@@ -8,3 +8,16 @@
 --          - мінімальним роком (зростання), потім за назвою курсу
 
 -- Рішення:
+
+SELECT 
+    c.course_id,
+    c.course_name,
+    (
+        SELECT MIN(sg.start_year)
+        FROM enrolment e
+        INNER JOIN student_group_assignment sga USING (student_id)
+        INNER JOIN student_group sg USING (group_id)
+        WHERE e.course_id = c.course_id
+    ) AS min_year
+FROM course c
+ORDER BY min_year ASC, c.course_name ASC;
