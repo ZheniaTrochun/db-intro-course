@@ -9,15 +9,27 @@
 
 -- Рішення:
 
-SELECT 
+WITH RECURSIVE course_dependencies AS (
+    SELECT c.course_id, 1 AS level
+    FROM course c
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM course_prerequisite cp
+        WHERE cp.course_id = c.course_id
+    )
+
+    UNION ALL
+
+    SELECT cp.course_id, cd.level + 1 AS level
+    FROM course_dependencies cd
+    INNER JOIN course_prerequisite cp
+        ON cp.prerequisite_course_id = cd.course_id
+)
+SELECT
     c.course_id,
     c.course_name,
-    (
-        SELECT MIN(sg.start_year)
-        FROM enrolment e
-        INNER JOIN student_group_assignment sga USING (student_id)
-        INNER JOIN student_group sg USING (group_id)
-        WHERE e.course_id = c.course_id
-    ) AS min_year
+    COALESCE(MAX(cd.level), 1) AS min_year
 FROM course c
+LEFT JOIN course_dependencies cd USING (course_id)
+GROUP BY c.course_id, c.course_name
 ORDER BY min_year ASC, c.course_name ASC;
