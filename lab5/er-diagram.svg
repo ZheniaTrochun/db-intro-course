@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1530" height="985" viewBox="0 0 1530 985" role="img" aria-labelledby="title desc">
+  <title id="title">ER-діаграма нормалізованої бази даних гуртожитків</title>
+  <desc id="desc">Тринадцять таблиць із первинними, зовнішніми та унікальними ключами й кратностями зв'язків.</desc>
+  <style>
+    .title{font:700 32px 'Segoe UI',sans-serif;fill:#12304a}
+    .legend{font:16px 'Segoe UI',sans-serif;fill:#36536c}
+    .name{font:700 18px 'Segoe UI',sans-serif;fill:#fff}
+    .field{font:15px Consolas,'DejaVu Sans Mono',monospace;fill:#183952}
+    .edge{fill:none;stroke:#48758b;stroke-width:2}
+    .cardinality{font:700 12px 'Segoe UI',sans-serif;fill:#204d66;paint-order:stroke;stroke:#f1f6f9;stroke-width:4;stroke-linejoin:round}
+  </style>
+  <rect width="1530" height="985" fill="#f1f6f9"/>
+  <text class="title" x="65" y="55">Облік гуртожитків · ER-діаграма після нормалізації</text>
+  <text class="legend" x="65" y="83">PK — первинний ключ · FK — зовнішній ключ · UQ — унікальність · N — багато</text>
+  <g aria-label="Зовнішні ключі">
+    <path class="edge" d="M335 158 H425"/><text class="cardinality" x="343" y="149">1</text><text class="cardinality" x="391" y="149">0..N</text>
+    <path class="edge" d="M335 201 H376 V346 H425"/><text class="cardinality" x="343" y="192">0..1</text><text class="cardinality" x="391" y="337">0..N</text>
+    <path class="edge" d="M198 244 V358"/><text class="cardinality" x="207" y="261">1</text><text class="cardinality" x="207" y="350">0..N</text>
+    <path class="edge" d="M695 160 H795"/><text class="cardinality" x="703" y="151">0..1</text><text class="cardinality" x="761" y="151">0..N</text>
+    <path class="edge" d="M695 349 H720 V206 H795"/><text class="cardinality" x="703" y="369">1</text><text class="cardinality" x="761" y="197">0..1</text>
+    <path class="edge" d="M695 393 H758 V360 H795"/><text class="cardinality" x="703" y="384">1</text><text class="cardinality" x="761" y="351">0..1</text>
+    <path class="edge" d="M695 437 H744 V525 H795"/><text class="cardinality" x="703" y="428">1</text><text class="cardinality" x="761" y="516">0..1</text>
+    <path class="edge" d="M335 436 H368 V585 H750 V555 H795"/><text class="cardinality" x="343" y="427">1</text><text class="cardinality" x="761" y="546">0..1</text>
+    <path class="edge" d="M335 687 H425"/><text class="cardinality" x="343" y="678">1</text><text class="cardinality" x="391" y="678">0..N</text>
+    <path class="edge" d="M335 862 H425"/><text class="cardinality" x="343" y="853">1</text><text class="cardinality" x="391" y="853">0..N</text>
+    <path class="edge" d="M1065 161 H1165"/><text class="cardinality" x="1073" y="152">1</text><text class="cardinality" x="1131" y="152">0..N</text>
+    <path class="edge" d="M1065 216 H1100 V410 H1165"/><text class="cardinality" x="1073" y="207">1</text><text class="cardinality" x="1131" y="401">0..N</text>
+    <path class="edge" d="M695 691 H1479 V224 H1435"/><text class="cardinality" x="703" y="682">1</text><text class="cardinality" x="1440" y="215">0..N</text>
+    <path class="edge" d="M695 865 H1126 V468 H1165"/><text class="cardinality" x="703" y="856">1</text><text class="cardinality" x="1132" y="459">0..N</text>
+  </g>
+  <g transform="translate(65 118)" aria-label="dorms">
+    <rect width="270" height="126" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#254d68"/>
+    <text class="name" x="14" y="24">dorms</text>
+    <text class="field" x="14" y="58">dorm_id  PK</text>
+    <text class="field" x="14" y="86">dorm_number  UQ</text>
+    <text class="field" x="14" y="114">address  UQ</text>
+  </g>
+  <g transform="translate(425 118)" aria-label="rooms">
+    <rect width="270" height="182" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#254d68"/>
+    <text class="name" x="14" y="24">rooms</text>
+    <text class="field" x="14" y="58">room_id  PK</text>
+    <text class="field" x="14" y="86">dorm_id  FK</text>
+    <text class="field" x="14" y="114">room_number</text>
+    <text class="field" x="14" y="142">floor</text>
+    <text class="field" x="14" y="170">UQ (dorm_id, room_number)</text>
+  </g>
+  <g transform="translate(425 300)" aria-label="users">
+    <rect width="270" height="266" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#254d68"/>
+    <text class="name" x="14" y="24">users</text>
+    <text class="field" x="14" y="58">user_id  PK</text>
+    <text class="field" x="14" y="86">first_name</text>
+    <text class="field" x="14" y="114">last_name</text>
+    <text class="field" x="14" y="142">email  UQ</text>
+    <text class="field" x="14" y="170">date_of_birth</text>
+    <text class="field" x="14" y="198">registration_date</text>
+    <text class="field" x="14" y="226">status</text>
+    <text class="field" x="14" y="254">dorm_id  FK · optional</text>
+  </g>
+  <g transform="translate(65 358)" aria-label="parking_slots">
+    <rect width="270" height="154" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#254d68"/>
+    <text class="name" x="14" y="24">parking_slots</text>
+    <text class="field" x="14" y="58">parking_slot_id  PK</text>
+    <text class="field" x="14" y="86">dorm_id  FK</text>
+    <text class="field" x="14" y="114">slot_number</text>
+    <text class="field" x="14" y="142">UQ (dorm_id, slot_number)</text>
+  </g>
+  <g transform="translate(795 118)" aria-label="students">
+    <rect width="270" height="182" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#254d68"/>
+    <text class="name" x="14" y="24">students</text>
+    <text class="field" x="14" y="58">student_id  PK</text>
+    <text class="field" x="14" y="86">enrollment_year</text>
+    <text class="field" x="14" y="114">room_id  FK · optional</text>
+    <text class="field" x="14" y="142">status</text>
+    <text class="field" x="14" y="170">user_id  FK, UQ</text>
+  </g>
+  <g transform="translate(795 319)" aria-label="dorm_admins">
+    <rect width="270" height="98" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#254d68"/>
+    <text class="name" x="14" y="24">dorm_admins</text>
+    <text class="field" x="14" y="58">admin_id  PK</text>
+    <text class="field" x="14" y="86">user_id  FK, UQ</text>
+  </g>
+  <g transform="translate(795 495)" aria-label="parking_assignments">
+    <rect width="270" height="98" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#126562"/>
+    <text class="name" x="14" y="24">parking_assignments</text>
+    <text class="field" x="14" y="58">parking_slot_id  PK, FK</text>
+    <text class="field" x="14" y="86">user_id  FK, UQ</text>
+  </g>
+  <g transform="translate(65 637)" aria-label="departments">
+    <rect width="270" height="98" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#254d68"/>
+    <text class="name" x="14" y="24">departments</text>
+    <text class="field" x="14" y="58">department_id  PK</text>
+    <text class="field" x="14" y="86">department_name</text>
+  </g>
+  <g transform="translate(425 637)" aria-label="courses">
+    <rect width="270" height="126" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#254d68"/>
+    <text class="name" x="14" y="24">courses</text>
+    <text class="field" x="14" y="58">course_id  PK</text>
+    <text class="field" x="14" y="86">department_id  FK</text>
+    <text class="field" x="14" y="114">course_title</text>
+  </g>
+  <g transform="translate(65 812)" aria-label="companies">
+    <rect width="270" height="98" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#126562"/>
+    <text class="name" x="14" y="24">companies</text>
+    <text class="field" x="14" y="58">company_id  PK</text>
+    <text class="field" x="14" y="86">company_name  UQ</text>
+  </g>
+  <g transform="translate(425 812)" aria-label="vacancies">
+    <rect width="270" height="126" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#254d68"/>
+    <text class="name" x="14" y="24">vacancies</text>
+    <text class="field" x="14" y="58">vacancy_id  PK</text>
+    <text class="field" x="14" y="86">company_id  FK</text>
+    <text class="field" x="14" y="114">job_name</text>
+  </g>
+  <g transform="translate(1165 118)" aria-label="enrollments">
+    <rect width="270" height="210" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#254d68"/>
+    <text class="name" x="14" y="24">enrollments</text>
+    <text class="field" x="14" y="58">enrollment_id  PK</text>
+    <text class="field" x="14" y="86">student_id  FK</text>
+    <text class="field" x="14" y="114">course_id  FK</text>
+    <text class="field" x="14" y="142">enrollment_date</text>
+    <text class="field" x="14" y="170">grade</text>
+    <text class="field" x="14" y="198">UQ (student_id, course_id)</text>
+  </g>
+  <g transform="translate(1165 375)" aria-label="applications">
+    <rect width="270" height="210" rx="8" fill="#fff" stroke="#b2c5d2"/>
+    <path d="M8 0 H262 Q270 0 270 8 V36 H0 V8 Q0 0 8 0Z" fill="#254d68"/>
+    <text class="name" x="14" y="24">applications</text>
+    <text class="field" x="14" y="58">application_id  PK</text>
+    <text class="field" x="14" y="86">student_id  FK</text>
+    <text class="field" x="14" y="114">vacancy_id  FK</text>
+    <text class="field" x="14" y="142">application_date</text>
+    <text class="field" x="14" y="170">status</text>
+    <text class="field" x="14" y="198">UQ (student_id, vacancy_id)</text>
+  </g>
+</svg>

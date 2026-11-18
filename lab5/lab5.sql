@@ -1,4 +1,9 @@
-DROP TABLE IF EXISTS applications, vacancies, enrollments, courses, parking_slots, dorm_admins, students, rooms, dorms, departments, users CASCADE;
+-- Запускати в окремій навчальній БД: скрипт заново створює схему.
+BEGIN;
+
+DROP TABLE IF EXISTS applications, vacancies, companies, enrollments, courses,
+    parking_assignments, parking_slots, dorm_admins, students, rooms, dorms, departments, users CASCADE;
+DROP FUNCTION IF EXISTS check_dorm_assignment(), check_dorm_change();
 DROP TYPE  IF EXISTS student_status, user_status, application_status CASCADE;
 
 
@@ -20,8 +25,7 @@ CREATE TABLE users (
     date_of_birth     DATE,
     registration_date DATE DEFAULT CURRENT_DATE,
     status            user_status NOT NULL DEFAULT 'active',
-    dorm_id           INTEGER REFERENCES dorms(dorm_id) ON DELETE RESTRICT,
-    UNIQUE (user_id, dorm_id)
+    dorm_id           INTEGER REFERENCES dorms(dorm_id) ON DELETE RESTRICT
 );
 
 CREATE TABLE departments (
@@ -34,8 +38,7 @@ CREATE TABLE rooms (
     dorm_id     INTEGER NOT NULL REFERENCES dorms(dorm_id) ON DELETE RESTRICT,
     room_number VARCHAR(10) NOT NULL CHECK (room_number = trim(room_number) AND room_number <> ''),
     floor       INTEGER,
-    UNIQUE (dorm_id, room_number),
-    UNIQUE (room_id, dorm_id)
+    UNIQUE (dorm_id, room_number)
 );
 
 CREATE TABLE students (
@@ -48,22 +51,19 @@ CREATE TABLE students (
 
 CREATE TABLE dorm_admins (
     admin_id SERIAL PRIMARY KEY,
-    user_id  INTEGER NOT NULL UNIQUE,
-    dorm_id  INTEGER NOT NULL,
-    CONSTRAINT fk_dorm_admins_user_dorm
-        FOREIGN KEY (user_id, dorm_id) REFERENCES users(user_id, dorm_id)
-        ON DELETE RESTRICT
+    user_id  INTEGER NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE RESTRICT
 );
 
 CREATE TABLE parking_slots (
     parking_slot_id SERIAL PRIMARY KEY,
     dorm_id         INTEGER NOT NULL REFERENCES dorms(dorm_id) ON DELETE RESTRICT,
-    user_id         INTEGER UNIQUE,
     slot_number     VARCHAR(10) NOT NULL CHECK (slot_number = trim(slot_number) AND slot_number <> ''),
-    UNIQUE (dorm_id, slot_number),
-    CONSTRAINT fk_parking_user_same_dorm
-        FOREIGN KEY (user_id, dorm_id) REFERENCES users(user_id, dorm_id)
-        ON DELETE SET NULL (user_id)
+    UNIQUE (dorm_id, slot_number)
+);
+
+CREATE TABLE parking_assignments (
+    parking_slot_id INTEGER PRIMARY KEY REFERENCES parking_slots(parking_slot_id) ON DELETE CASCADE,
+    user_id         INTEGER NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE courses (
@@ -81,10 +81,15 @@ CREATE TABLE enrollments (
     UNIQUE (student_id, course_id)
 );
 
+CREATE TABLE companies (
+    company_id   SERIAL PRIMARY KEY,
+    company_name VARCHAR(100) NOT NULL UNIQUE CHECK (company_name = trim(company_name) AND company_name <> '')
+);
+
 CREATE TABLE vacancies (
-    vacancy_id   SERIAL PRIMARY KEY,
-    company_name VARCHAR(100) NOT NULL CHECK (company_name = trim(company_name) AND company_name <> ''),
-    job_name     VARCHAR(100) NOT NULL CHECK (job_name = trim(job_name) AND job_name <> '')
+    vacancy_id SERIAL PRIMARY KEY,
+    company_id INTEGER NOT NULL REFERENCES companies(company_id) ON DELETE RESTRICT,
+    job_name   VARCHAR(100) NOT NULL CHECK (job_name = trim(job_name) AND job_name <> '')
 );
 
 CREATE TABLE applications (
@@ -96,6 +101,101 @@ CREATE TABLE applications (
     UNIQUE (student_id, vacancy_id)
 );
 
+-- Перевірка між таблицями без дублювання dorm_id в записах призначення.
+CREATE FUNCTION check_dorm_assignment() RETURNS trigger
+LANGUAGE plpgsql AS $$
+DECLARE
+    user_dorm INTEGER;
+    place_dorm INTEGER;
+BEGIN
+    -- Оновлення тим самим значенням серіалізує конкурентні зміни
+    -- призначення та гуртожитку, зокрема в REPEATABLE READ.
+    UPDATE users SET dorm_id = dorm_id WHERE user_id = NEW.user_id
+    RETURNING dorm_id INTO user_dorm;
+    IF NOT FOUND THEN
+        RETURN NEW; -- відсутнього користувача відхилить зовнішній ключ
+    END IF;
+
+    IF TG_TABLE_NAME = 'dorm_admins' THEN
+        IF user_dorm IS NULL THEN
+            RAISE EXCEPTION 'Адміністратор повинен мати гуртожиток' USING ERRCODE = '23514';
+        END IF;
+        RETURN NEW;
+    END IF;
+
+    IF TG_TABLE_NAME = 'students' THEN
+        IF NEW.room_id IS NULL THEN
+            RETURN NEW;
+        END IF;
+        UPDATE rooms SET dorm_id = dorm_id WHERE room_id = NEW.room_id
+        RETURNING dorm_id INTO place_dorm;
+    ELSE
+        UPDATE parking_slots SET dorm_id = dorm_id WHERE parking_slot_id = NEW.parking_slot_id
+        RETURNING dorm_id INTO place_dorm;
+    END IF;
+
+    IF FOUND AND user_dorm IS DISTINCT FROM place_dorm THEN
+        RAISE EXCEPTION 'Користувач і призначене місце повинні належати до одного гуртожитку'
+            USING ERRCODE = '23514';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER students_check_dorm
+    BEFORE INSERT OR UPDATE OF user_id, room_id ON students
+    FOR EACH ROW EXECUTE FUNCTION check_dorm_assignment();
+CREATE TRIGGER dorm_admins_check_dorm
+    BEFORE INSERT OR UPDATE OF user_id ON dorm_admins
+    FOR EACH ROW EXECUTE FUNCTION check_dorm_assignment();
+CREATE TRIGGER parking_assignments_check_dorm
+    BEFORE INSERT OR UPDATE OF user_id, parking_slot_id ON parking_assignments
+    FOR EACH ROW EXECUTE FUNCTION check_dorm_assignment();
+
+CREATE FUNCTION check_dorm_change() RETURNS trigger
+LANGUAGE plpgsql AS $$
+BEGIN
+    IF TG_TABLE_NAME = 'users' THEN
+        IF (NEW.dorm_id IS NULL AND EXISTS (
+                SELECT 1 FROM dorm_admins WHERE user_id = NEW.user_id
+            )) OR EXISTS (
+                SELECT 1 FROM students s JOIN rooms r USING (room_id)
+                WHERE s.user_id = NEW.user_id AND r.dorm_id IS DISTINCT FROM NEW.dorm_id
+            ) OR EXISTS (
+                SELECT 1 FROM parking_assignments a JOIN parking_slots p USING (parking_slot_id)
+                WHERE a.user_id = NEW.user_id AND p.dorm_id IS DISTINCT FROM NEW.dorm_id
+            ) THEN
+            RAISE EXCEPTION 'Зміна гуртожитку суперечить призначенням користувача' USING ERRCODE = '23514';
+        END IF;
+    ELSIF TG_TABLE_NAME = 'rooms' THEN
+        IF EXISTS (
+            SELECT 1 FROM students s JOIN users u USING (user_id)
+            WHERE s.room_id = NEW.room_id AND u.dorm_id IS DISTINCT FROM NEW.dorm_id
+        ) THEN
+            RAISE EXCEPTION 'Зміна гуртожитку кімнати суперечить поселенню' USING ERRCODE = '23514';
+        END IF;
+    ELSIF EXISTS (
+        SELECT 1 FROM parking_assignments a JOIN users u USING (user_id)
+        WHERE a.parking_slot_id = NEW.parking_slot_id AND u.dorm_id IS DISTINCT FROM NEW.dorm_id
+    ) THEN
+        RAISE EXCEPTION 'Зміна гуртожитку паркомісця суперечить призначенню' USING ERRCODE = '23514';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER users_check_dorm_change
+    AFTER UPDATE OF dorm_id ON users
+    FOR EACH ROW WHEN (OLD.dorm_id IS DISTINCT FROM NEW.dorm_id)
+    EXECUTE FUNCTION check_dorm_change();
+CREATE TRIGGER rooms_check_dorm_change
+    AFTER UPDATE OF dorm_id ON rooms
+    FOR EACH ROW WHEN (OLD.dorm_id IS DISTINCT FROM NEW.dorm_id)
+    EXECUTE FUNCTION check_dorm_change();
+CREATE TRIGGER parking_slots_check_dorm_change
+    AFTER UPDATE OF dorm_id ON parking_slots
+    FOR EACH ROW WHEN (OLD.dorm_id IS DISTINCT FROM NEW.dorm_id)
+    EXECUTE FUNCTION check_dorm_change();
 
 INSERT INTO dorms (dorm_number, address) VALUES
     (1, 'вул. Степана Бандери 1-б'),
@@ -135,24 +235,21 @@ INSERT INTO students (enrollment_year, room_id, status, user_id) VALUES
     (2022, 4,    'on_leave',  4),
     (2024, NULL, 'enrolled',  8);
 
-INSERT INTO dorm_admins (user_id, dorm_id) VALUES
-    (5, 1),
-    (6, 1),
-    (9, 2),
-    (7, 3);
-
-INSERT INTO parking_slots (user_id, dorm_id, slot_number) VALUES
-    (1, 1, 'P-101'),
-    (2, 1, 'P-102'),
-    (3, 2, 'P-201'),
-    (4, 2, 'P-202'),
-    (5, 1, 'P-103'),
-    (9, 2, 'P-203'),
-    (7, 3, 'P-301');
+INSERT INTO dorm_admins (user_id) VALUES (5), (6), (9), (7);
 
 INSERT INTO parking_slots (dorm_id, slot_number) VALUES
+    (1, 'P-101'),
+    (1, 'P-102'),
+    (2, 'P-201'),
+    (2, 'P-202'),
+    (1, 'P-103'),
+    (2, 'P-203'),
+    (3, 'P-301'),
     (3, 'P-302'),
     (4, 'P-401');
+
+INSERT INTO parking_assignments (parking_slot_id, user_id) VALUES
+    (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 9), (7, 7);
 
 INSERT INTO courses (department_id, course_title) VALUES
     (1, 'Бази даних'),
@@ -167,10 +264,12 @@ INSERT INTO enrollments (student_id, course_id, enrollment_date, grade) VALUES
     (3, 3, '2021-09-01', 92),
     (4, 4, '2022-09-01', NULL);
 
-INSERT INTO vacancies (company_name, job_name) VALUES
-    ('EPAM',        'Junior Developer'),
-    ('Nova Poshta', 'Analyst'),
-    ('Rozetka',     'Support Specialist');
+INSERT INTO companies (company_name) VALUES ('EPAM'), ('Nova Poshta'), ('Rozetka');
+
+INSERT INTO vacancies (company_id, job_name) VALUES
+    (1, 'Junior Developer'),
+    (2, 'Analyst'),
+    (3, 'Support Specialist');
 
 INSERT INTO applications (student_id, vacancy_id, application_date, status) VALUES
     (1, 1, '2024-03-01', 'submitted'),
@@ -192,40 +291,42 @@ ORDER BY u.user_id;
 SELECT s.student_id, u.first_name, u.last_name, d.dorm_number, r.room_number, s.status
 FROM students s
 JOIN users u ON u.user_id = s.user_id
-JOIN dorms d ON d.dorm_id = u.dorm_id
 JOIN rooms r ON r.room_id = s.room_id
+JOIN dorms d ON d.dorm_id = r.dorm_id
 ORDER BY d.dorm_number, r.room_number;
 
 -- вільні паркомісця
 SELECT d.dorm_number, p.slot_number
 FROM parking_slots p
 JOIN dorms d ON d.dorm_id = p.dorm_id
-WHERE p.user_id IS NULL
+LEFT JOIN parking_assignments a USING (parking_slot_id)
+WHERE a.parking_slot_id IS NULL
 ORDER BY d.dorm_number, p.slot_number;
 
 -- 2 Додавання даних
 
--- нова вакансія 
-INSERT INTO vacancies (company_name, job_name)
-VALUES ('SoftServe', 'Trainee Database Developer');
-
--- заява студента на вакансію
+-- нова компанія, вакансія та заява студента
+WITH new_company AS (
+    INSERT INTO companies (company_name) VALUES ('SoftServe')
+    RETURNING company_id
+), new_vacancy AS (
+    INSERT INTO vacancies (company_id, job_name)
+    SELECT company_id, 'Trainee Database Developer' FROM new_company
+    RETURNING vacancy_id
+)
 INSERT INTO applications (student_id, vacancy_id, application_date, status)
-VALUES (
-    (SELECT student_id FROM students WHERE user_id = 8),
-    (SELECT vacancy_id FROM vacancies
-     WHERE company_name = 'SoftServe' AND job_name = 'Trainee Database Developer'),
-    CURRENT_DATE,
-    'submitted'
-);
+SELECT s.student_id, v.vacancy_id, CURRENT_DATE, 'submitted'
+FROM students s CROSS JOIN new_vacancy v
+WHERE s.user_id = 8;
 
 -- перевірка
-SELECT u.first_name, u.last_name, v.company_name, v.job_name, a.status
+SELECT u.first_name, u.last_name, c.company_name, v.job_name, a.status
 FROM applications a
 JOIN students s ON s.student_id = a.student_id
 JOIN users u ON u.user_id = s.user_id
 JOIN vacancies v ON v.vacancy_id = a.vacancy_id
-WHERE v.company_name = 'SoftServe';
+JOIN companies c ON c.company_id = v.company_id
+WHERE c.company_name = 'SoftServe';
 
 -- запис нового користувача
 INSERT INTO users (first_name, last_name, email, date_of_birth, status, dorm_id)
@@ -239,26 +340,30 @@ WHERE email = 'iryna.levchenko@example.com';
 -- 3 Зміна даних
 
 -- статус до зміни
-SELECT a.application_id, v.company_name, v.job_name, a.status
+SELECT a.application_id, c.company_name, v.job_name, a.status
 FROM applications a
 JOIN students s ON s.student_id = a.student_id
 JOIN users u ON u.user_id = s.user_id
 JOIN vacancies v ON v.vacancy_id = a.vacancy_id
+JOIN companies c ON c.company_id = v.company_id
 WHERE u.email = 'ivan.petrenko@example.com'
-  AND v.company_name = 'EPAM';
+  AND c.company_name = 'EPAM';
 
 -- переведення заяви у статус accepted
-UPDATE applications
+UPDATE applications a
 SET status = 'accepted'
-WHERE student_id = (SELECT student_id FROM students WHERE user_id = 1)
-  AND vacancy_id = (SELECT vacancy_id FROM vacancies WHERE company_name = 'EPAM');
+FROM vacancies v JOIN companies c USING (company_id)
+WHERE a.student_id = (SELECT student_id FROM students WHERE user_id = 1)
+  AND a.vacancy_id = v.vacancy_id
+  AND c.company_name = 'EPAM';
 
 -- перевірка
-SELECT a.application_id, v.company_name, v.job_name, a.status
+SELECT a.application_id, c.company_name, v.job_name, a.status
 FROM applications a
 JOIN vacancies v ON v.vacancy_id = a.vacancy_id
+JOIN companies c ON c.company_id = v.company_id
 WHERE a.student_id = (SELECT student_id FROM students WHERE user_id = 1)
-  AND v.company_name = 'EPAM';
+  AND c.company_name = 'EPAM';
 
 -- призначення гуртожитку студенту
 UPDATE users
@@ -275,19 +380,21 @@ WHERE user_id = 8;
 SELECT u.first_name, u.last_name, d.dorm_number, r.room_number
 FROM students s
 JOIN users u ON u.user_id = s.user_id
-JOIN dorms d ON d.dorm_id = u.dorm_id
 JOIN rooms r ON r.room_id = s.room_id
+JOIN dorms d ON d.dorm_id = r.dorm_id
 WHERE s.user_id = 8;
 
 -- 4 Видалення даних
 
 -- видалення вакансій у Rozetka
-DELETE FROM vacancies
-WHERE company_name = 'Rozetka';
+DELETE FROM vacancies v
+USING companies c
+WHERE v.company_id = c.company_id AND c.company_name = 'Rozetka';
 
 -- перевірка
-SELECT vacancy_id, company_name, job_name
-FROM vacancies
+SELECT v.vacancy_id, c.company_name, v.job_name
+FROM vacancies v
+JOIN companies c USING (company_id)
 ORDER BY vacancy_id;
 
 -- видалення користувача, який не пов'язаний з іншими записами
@@ -300,14 +407,18 @@ FROM users
 WHERE email = 'iryna.levchenko@example.com';
 
 -- видалення вільного паркомісця
-DELETE FROM parking_slots
-WHERE slot_number = 'P-401'
-  AND user_id IS NULL;
+DELETE FROM parking_slots p
+WHERE p.dorm_id = (SELECT dorm_id FROM dorms WHERE dorm_number = 4)
+  AND p.slot_number = 'P-401'
+  AND NOT EXISTS (
+      SELECT 1 FROM parking_assignments a WHERE a.parking_slot_id = p.parking_slot_id
+  );
 
 -- перевірка
-SELECT parking_slot_id, dorm_id, slot_number, user_id
-FROM parking_slots
-WHERE slot_number = 'P-401';
+SELECT p.parking_slot_id, p.dorm_id, p.slot_number, a.user_id
+FROM parking_slots p
+LEFT JOIN parking_assignments a USING (parking_slot_id)
+WHERE p.slot_number = 'P-401';
 
 
 -- 5 Агрегація, Джоїни та підзапити
@@ -333,17 +444,19 @@ ORDER BY d.dorm_number;
 
 -- гуртожитки, у яких є зайняті паркомісця
 SELECT d.dorm_number,
-       SUM(CASE WHEN p.user_id IS NOT NULL THEN 1 ELSE 0 END) AS occupied_slots
+       COUNT(a.user_id) AS occupied_slots
 FROM dorms d
 LEFT JOIN parking_slots p ON p.dorm_id = d.dorm_id
+LEFT JOIN parking_assignments a ON a.parking_slot_id = p.parking_slot_id
 GROUP BY d.dorm_id, d.dorm_number
-HAVING SUM(CASE WHEN p.user_id IS NOT NULL THEN 1 ELSE 0 END) > 0
+HAVING COUNT(a.user_id) > 0
 ORDER BY d.dorm_number;
 
 -- гуртожитки, їх паркмісця та зайнятість паркмісць
-SELECT d.dorm_number, p.slot_number, p.user_id
+SELECT d.dorm_number, p.slot_number, a.user_id
 FROM parking_slots p
 RIGHT JOIN dorms d ON d.dorm_id = p.dorm_id
+LEFT JOIN parking_assignments a ON a.parking_slot_id = p.parking_slot_id
 ORDER BY d.dorm_number, p.slot_number;
 
 -- кількість курсів кожної кафедри
@@ -378,4 +491,6 @@ HAVING COUNT(c.course_id) >= (
         GROUP BY department_id
     ) AS department_course_counts
 )
-ORDER BY dep.department_name; 
+ORDER BY dep.department_name;
+
+COMMIT;
