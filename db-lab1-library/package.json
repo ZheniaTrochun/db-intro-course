@@ -1,0 +1,6 @@
+{
+  "name": "db-lab1-library",
+  "private": true,
+  "scripts": {"render": "node tools/render.cjs"},
+  "devDependencies": {"@viz-js/viz": "3.25.0", "sharp": "0.35.4"}
+}
