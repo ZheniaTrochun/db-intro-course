@@ -1,0 +1,114 @@
+// Файл схеми Prisma ORM для бази даних інтернет-магазину «TechStore»
+// Лабораторна робота №6: Міграції схем (фінальний стан після 3 міграцій)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model categories {
+  category_id Int        @id @default(autoincrement())
+  name        String     @unique @db.VarChar(100)
+  description String?
+  products    products[]
+}
+
+model customers {
+  customer_id Int       @id @default(autoincrement())
+  full_name   String    @db.VarChar(120)
+  email       String    @unique @db.VarChar(150)
+  phone       String    @unique @db.VarChar(30)
+  city        String    @db.VarChar(80)
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  orders      orders[]
+  reviews     reviews[]
+}
+
+model suppliers {
+  supplier_id Int        @id @default(autoincrement())
+  name        String     @unique @db.VarChar(120)
+  phone       String     @db.VarChar(30)
+  email       String     @unique @db.VarChar(150)
+  products    products[]
+}
+
+model products {
+  product_id     Int            @id @default(autoincrement())
+  category_id    Int
+  supplier_id    Int
+  name           String         @db.VarChar(150)
+  price          Decimal        @db.Decimal(10, 2)
+  stock_quantity Int            @default(0)
+  is_available   Boolean        @default(true)
+  categories     categories     @relation(fields: [category_id], references: [category_id], onDelete: NoAction, onUpdate: NoAction)
+  suppliers      suppliers      @relation(fields: [supplier_id], references: [supplier_id], onDelete: NoAction, onUpdate: NoAction)
+  order_items    order_items[]
+  product_tags   product_tags[]
+  reviews        reviews[]
+}
+
+model product_tags {
+  product_id Int
+  tag_name   String   @db.VarChar(50)
+  products   products @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([product_id, tag_name])
+}
+
+model shipping_cities {
+  city_id         Int      @id @default(autoincrement())
+  city_name       String   @unique @db.VarChar(80)
+  delivery_tariff Decimal  @default(0.00) @db.Decimal(8, 2)
+  orders          orders[]
+}
+
+model orders {
+  order_id         Int             @id @default(autoincrement())
+  customer_id      Int
+  shipping_city_id Int
+  order_date       DateTime        @default(now()) @db.Timestamp(6)
+  status           String          @default("pending") @db.VarChar(30)
+  shipping_address String          @db.VarChar(255)
+  total_amount     Decimal         @db.Decimal(10, 2)
+  customers        customers       @relation(fields: [customer_id], references: [customer_id], onDelete: NoAction, onUpdate: NoAction)
+  shipping_cities  shipping_cities @relation(fields: [shipping_city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction)
+  order_items      order_items[]
+  payments         payments?
+}
+
+model order_items {
+  order_id   Int
+  product_id Int
+  quantity   Int
+  unit_price Decimal  @db.Decimal(10, 2)
+  orders     orders   @relation(fields: [order_id], references: [order_id], onDelete: Cascade, onUpdate: NoAction)
+  products   products @relation(fields: [product_id], references: [product_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([order_id, product_id])
+}
+
+model payments {
+  payment_id     Int       @id @default(autoincrement())
+  order_id       Int       @unique
+  payment_method String    @db.VarChar(40)
+  amount         Decimal   @db.Decimal(10, 2)
+  payment_status String    @default("pending") @db.VarChar(30)
+  paid_at        DateTime? @db.Timestamp(6)
+  orders         orders    @relation(fields: [order_id], references: [order_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model reviews {
+  review_id   Int       @id @default(autoincrement())
+  product_id  Int
+  customer_id Int
+  rating      Int
+  comment     String?
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  products    products  @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: NoAction)
+  customers   customers @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, onUpdate: NoAction)
+}
+

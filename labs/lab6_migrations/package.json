@@ -1,0 +1,17 @@
+{
+  "name": "techstore-lab6-migrations",
+  "version": "1.0.0",
+  "description": "Лабораторна робота №6: Міграції схем за допомогою Prisma ORM (TechStore)",
+  "main": "verify_prisma.js",
+  "scripts": {
+    "verify": "node verify_prisma.js",
+    "studio": "npx prisma studio"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  }
+}
+
