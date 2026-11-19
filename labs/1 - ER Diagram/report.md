@@ -83,10 +83,7 @@
 - PaymentDate
 - PaymentMethod
 
-<img width="674" height="410" alt="image" src="https://github.com/user-attachments/assets/dacbc241-1f45-40dc-bc3c-cd1d15b17aaa" />
-
-
-
+<img width="4255" height="4571" alt="UpdatedDiagram" src="https://github.com/user-attachments/assets/102b17c4-870d-472e-9de2-9e942a977d57" />
 
 **Висновки:**
 
