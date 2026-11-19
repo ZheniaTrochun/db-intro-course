@@ -1,0 +1,110 @@
+erDiagram
+    reader ||--o{ loan : "places (0..*)"
+    reader ||--o{ adm_fine : "incurs (0..*)"
+    
+    copy ||--o{ loan : "borrowed_in (0..*)"
+    loan ||--o{ loan_fine : "causes (0..*)"
+    issue ||--o{ copy : "has (0..*)"
+    
+    issue ||--o{ issue_creator : "has (0..*)"
+    creator ||--o{ issue_creator : "participates (0..*)"
+
+    issue ||--o{ issue_genre : "categorized_by (0..*)"
+    genre ||--o{ issue_genre : "classifies (0..*)"
+    
+    issue ||--o{ issue_language : "written_in (0..*)"
+    language ||--o{ issue_language : "used_in (0..*)"
+
+    reader {
+        integer reader_id PK "Identity"
+        varchar tel_no UK "Unique phone"
+        varchar first_name "Not Null"
+        varchar last_name "Not Null"
+        varchar middle_name "Nullable"
+        reader_status reader_status "active | blocked"
+        date reg_date "Default: current_date"
+    }
+
+    creator {
+        integer creator_id PK "Identity"
+        varchar first_name "Not Null"
+        varchar last_name "Nullable"
+        varchar middle_name "Nullable"
+        varchar pseudonym "Nullable"
+    }
+
+    issue {
+        integer issue_id PK "Identity"
+        varchar isbn UK "Nullable"
+        varchar title "Not Null"
+        smallint publication_year "Nullable"
+        integer pages "Not Null, Check > 0"
+    }
+
+    issue_creator {
+        integer issue_id PK, FK "References issue"
+        integer creator_id PK, FK "References creator"
+        creator_role creator_role PK "author | translator | compiler | illustrator"
+    }
+
+    copy {
+        integer copy_id PK "Identity"
+        integer issue_id FK "References issue"
+        varchar barcode UK "Unique barcode"
+        copy_condition copy_condition "good | normal | bad | lost"
+        date reg_date "Default: current_date"
+    }
+
+    loan {
+        integer loan_id PK "Identity"
+        integer reader_id FK "References reader"
+        integer copy_id FK "References copy"
+        date start_date "Default: current_date"
+        date end_date "Check end >= start"
+        date closed_date "Nullable"
+        copy_condition final_condition "Nullable"
+    }
+
+    genre {
+        integer genre_id PK "Identity"
+        varchar genre_name UK "Unique"
+        varchar short_description "Nullable"
+        jsonb additional_description "Nullable"
+    }
+
+    issue_genre {
+        integer issue_id PK, FK "References issue"
+        integer genre_id PK, FK "References genre"
+    }
+
+    language {
+        integer language_id PK "Identity"
+        varchar language_name UK "Unique"
+    }
+
+    issue_language {
+        integer issue_id PK, FK "References issue"
+        integer language_id PK, FK "References language"
+    }
+
+    adm_fine {
+        integer adm_fine_id PK "Identity"
+        integer reader_id FK "References reader"
+        numeric amount "Not Null, Check > 0"
+        date start_date "Default: current_date"
+        date closed_date "Nullable"
+        fine_type fine_type "violation | damage"
+        fine_status fine_status "unpaid | paid | waived"
+        varchar description "Not Null"
+    }
+
+    loan_fine {
+        integer loan_fine_id PK "Identity"
+        integer loan_id FK "References loan"
+        numeric amount "Not Null, Check > 0"
+        date start_date "Default: current_date"
+        date closed_date "Nullable"
+        fine_type fine_type "overdue | damage | loss"
+        fine_status fine_status "unpaid | paid | waived"
+        varchar description "Not Null"
+    }
