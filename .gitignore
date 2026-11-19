@@ -9,3 +9,5 @@ dumps/*
 exercises/tests/golden_snapshots/**
 !exercises/tests/golden_snapshots/base/
 !exercises/tests/golden_snapshots/base/**
+
+.vs/
