@@ -82,16 +82,16 @@ create table users(
 
   username varchar(100) not null,
   email varchar(255) not null unique CHECK (email LIKE '_%@_%._%'),
-  password_hash varchar(128) not null CHECK (trim(password_hash) <> ''),
+  password_hash varchar(128) not null CHECK (trim(password_hash) <> '')
 );
 
 create table user_ban(
   id int generated always as identity primary key,
   user_id int not null references users(id) on delete cascade,
-  
+
   ban_until timestamp with time zone not null,
   ban_reason varchar(420) not null check (trim(ban_reason) <> '')
-)
+);
 
 -- insert into users (username, email, password_hash) values
 -- 		('RodrickTheGreatest', 'verynormalemail@gmil.com', 'hashedpassword1'),
@@ -119,10 +119,10 @@ create table character(
 	class class not null
 );
 
-insert into character (worldentity_id, user_id, stats_id, name, experience, current_hp, current_mana, max_mana, skin_color_hex, sex, race, class) values
-		(3, 1, 1, 'Arthas', 0, 50, 30, 30, '#F5CBA7', 'male', 'human', 'fighter'),
-		(5, 2, 5, 'Sylvanas', 0, 100, 50, 50, '#A569BD', 'female', 'elf', 'rogue'),
-		(6, 3, 6, 'Thrall', 0, 200, 100, 100, '#229954', 'male', 'orc', 'cleric');
+--insert into character (worldentity_id, user_id, stats_id, name, experience, current_hp, current_mana, max_mana, skin_color_hex, sex, race, class) values
+--		(3, 1, 1, 'Arthas', 0, 50, 30, 30, '#F5CBA7', 'male', 'human', 'fighter'),
+--		(5, 2, 5, 'Sylvanas', 0, 100, 50, 50, '#A569BD', 'female', 'elf', 'rogue'),
+--		(6, 3, 6, 'Thrall', 0, 200, 100, 100, '#229954', 'male', 'orc', 'cleric');
 
 create table monster_entity(
     id int generated always as identity primary key,
@@ -133,10 +133,10 @@ create table monster_entity(
     target_id int references character(id)
 );
 
-insert into monster_entity (entity_id,state,stats_id, type_id,target_id) values
-    (4, default, 1, 1, default),
-    (6, default, 3, 3, default),
-    (9, default, 4, 4, default);
+--insert into monster_entity (entity_id,state,stats_id, type_id,target_id) values
+--    (4, default, 1, 1, default),
+--    (6, default, 3, 3, default),
+--    (9, default, 4, 4, default);
 
 create table npc(
     id int generated always as identity primary key,
@@ -144,10 +144,10 @@ create table npc(
     name varchar(128) not null
 );
 
-insert into npc (entity_id, name) values
-    (1, 'Patches'),
-    (2, 'Snuggly'),
-    (3, 'Undead Merchant');
+--insert into npc (entity_id, name) values
+--    (1, 'Patches'),
+--    (2, 'Snuggly'),
+--    (3, 'Undead Merchant');
 
 ----ENDREGION ENTITIES ----
 
@@ -160,10 +160,10 @@ create table inventory(
 	capacity int not null default 20
 );
 
-insert into inventory (character_id, gold, capacity) values
-	(1, 49, 20),
-	(2, 47, 23),
-	(3, 34, 545);
+--insert into inventory (character_id, gold, capacity) values
+--	(1, 49, 20),
+--	(2, 47, 23),
+--	(3, 34, 545);
 
 create type item_type as enum('weapon', 'food', 'armor', 'tool');
 
@@ -191,7 +191,7 @@ create table item(
     damage int check (damage >= 0),
     attack_speed numeric check (attack_speed > 0),
     protect int check (protect >= 0),
-    up_health int check (up_health >= 0);
+    up_health int check (up_health >= 0)
 );
 
 create table enchantment (
@@ -213,16 +213,16 @@ create table npc_item_relation(
     primary key (npc_id,item_id)
 );
 
-insert into npc_item_relation (npc_id, item_id, sell_price, buy_price) values
-    (1,1, 500, 70),
-    (1,2, 1000, 100),
-    (1,3, default, default),
-    (2,1, 10000, 1000),
-    (2,2, default, default),
-    (2,3, 5000, 800),
-    (3,1, 1000, 100),
-    (3,2, default, default),
-    (3,3, 17000, 1200);
+--insert into npc_item_relation (npc_id, item_id, sell_price, buy_price) values
+--    (1,1, 500, 70),
+--    (1,2, 1000, 100),
+--    (1,3, default, default),
+--    (2,1, 10000, 1000),
+--    (2,2, default, default),
+--    (2,3, 5000, 800),
+--   (3,1, 1000, 100),
+--    (3,2, default, default),
+--    (3,3, 17000, 1200);
 
 create table monster_drop(
     monster_id int not null references monster_type(id),
@@ -252,11 +252,11 @@ create table character_spell(
 		primary key (character_id,spell_id)
 );
 
-insert into character_spell (character_id, spell_id, quantity) values
-	(1, 1, 3),
-	(1, 2, 2),
-	(2, 3, 5),
-	(3, 1, 1),
-	(3, 2, 4);
+--insert into character_spell (character_id, spell_id, quantity) values
+--	(1, 1, 3),
+--	(1, 2, 2),
+--	(2, 3, 5),
+--	(3, 1, 1),
+--	(3, 2, 4);
 
 ----ENDREGION ITEMS/TOOLS ----
