@@ -65,35 +65,40 @@ create table world_entity(
     level int not null CHECK (level >= 0)
 );
 
-insert into world_entity (zone_id, position_x, position_y, position_z, max_hp, level) values
-    (1, 138.3, 2903.556, 248.4872, 50, 3),  --taken
-    (1, 389.4, 18937.7831, 738.3781, 100,5), --taken
-    (2, 310.10, 381.39, 39.531, 200, 8),  --taken
-    (3, 3920.42, 492.42, 8942.8924, 500, 20), --taken
-    (3, 39318.42, 32.47, 89.24, 1000, 30),
-    (4, 389.8329, 3829.3892, 38.92, 250, 16), --taken
-    (5, 290.42,19.38, 3.392, 1, 1),
-    (6, 8941.41, 49.47, 4.4920, 1000, 40),
-    (7, 3967.67, 381.8913, 8931.781, 2000, 50); --taken
+-- insert into world_entity (zone_id, position_x, position_y, position_z, max_hp, level) values
+--     (1, 138.3, 2903.556, 248.4872, 50, 3),  --taken
+--     (1, 389.4, 18937.7831, 738.3781, 100,5), --taken
+--     (2, 310.10, 381.39, 39.531, 200, 8),  --taken
+--     (3, 3920.42, 492.42, 8942.8924, 500, 20), --taken
+--     (3, 39318.42, 32.47, 89.24, 1000, 30),
+--     (4, 389.8329, 3829.3892, 38.92, 250, 16), --taken
+--     (5, 290.42,19.38, 3.392, 1, 1),
+--     (6, 8941.41, 49.47, 4.4920, 1000, 40),
+--     (7, 3967.67, 381.8913, 8931.781, 2000, 50); --taken
 
 
 create table users(
-	id int generated always as identity primary key,
+  id int generated always as identity primary key,
 
-	username varchar(100) not null,
-	email varchar(255) not null unique CHECK (email LIKE '_%@_%._%'),
-	password_hash varchar(128) not null CHECK (trim(password_hash) <> ''),
-
-	ban_until timestamp with time zone null default null,
-	ban_reason varchar(420) null default null
+  username varchar(100) not null,
+  email varchar(255) not null unique CHECK (email LIKE '_%@_%._%'),
+  password_hash varchar(128) not null CHECK (trim(password_hash) <> ''),
 );
 
-insert into users (username, email, password_hash) values
-		('RodrickTheGreatest', 'verynormalemail@gmil.com', 'hashedpassword1'),
-		('xXx_DragonSlayer_xXx', 'dragonslayer@example.com', 'hashedpassword2'),
-		('overlord123', 'overlord123@example.com', 'hashedpassword3'),
-		('ShadowAssassin', 'shadowassassin@example.com', 'hashedpassword4'),
-		('PropagandaIsUseless', 'sombraforever@gmail.com', 'hashedpassword5');
+create table user_ban(
+  id int generated always as identity primary key,
+  user_id int not null references users(id) on delete cascade,
+  
+  ban_until timestamp with time zone not null,
+  ban_reason varchar(420) not null check (trim(ban_reason) <> '')
+)
+
+-- insert into users (username, email, password_hash) values
+-- 		('RodrickTheGreatest', 'verynormalemail@gmil.com', 'hashedpassword1'),
+-- 		('xXx_DragonSlayer_xXx', 'dragonslayer@example.com', 'hashedpassword2'),
+-- 		('overlord123', 'overlord123@example.com', 'hashedpassword3'),
+-- 		('ShadowAssassin', 'shadowassassin@example.com', 'hashedpassword4'),
+-- 		('PropagandaIsUseless', 'sombraforever@gmail.com', 'hashedpassword5');
 
 create table character(
 	id int generated always as identity primary key,
@@ -183,14 +188,22 @@ create table item(
     inv_id int not null references inventory(id),
     inventory_slot smallint not null,
     quantity smallint not null default 1,
-    attributes jsonb,
-    enchantments jsonb
+    damage int check (damage >= 0),
+    attack_speed numeric check (attack_speed > 0),
+    protect int check (protect >= 0),
+    up_health int check (up_health >= 0);
 );
 
-insert into item (item_tmpl_id, inv_id, inventory_slot, quantity) values
-	(1, 1, 1, 1),
-	(2, 2, 2, 2),
-	(3, 3, 3, 34);
+create table enchantment (
+    item_id int primary key references item(id) on delete cascade,
+    ench_level int not null check (ench_level > 0),
+    effect varchar(255) not null
+);
+
+-- insert into item (item_tmpl_id, inv_id, inventory_slot, quantity) values
+-- 	(1, 1, 1, 1),
+-- 	(2, 2, 2, 2),
+-- 	(3, 3, 3, 34);
 
 create table npc_item_relation(
     npc_id int not null references npc(id),
