@@ -108,7 +108,7 @@ create table character(
 
 	name varchar(100) not null CHECK (trim(name) <> ''),
 
-	experience int not null default 0 CHECK (experience >= 0),		
+	experience int not null default 0 CHECK (experience >= 0),
 	current_hp int not null,
 	current_mana int not null CHECK (current_mana <= max_mana),
 	max_mana int not null CHECK (max_mana >= 0),
@@ -123,7 +123,7 @@ insert into character (worldentity_id, user_id, stats_id, name, experience, curr
 		(3, 1, 1, 'Arthas', 0, 50, 30, 30, '#F5CBA7', 'male', 'human', 'fighter'),
 		(5, 2, 5, 'Sylvanas', 0, 100, 50, 50, '#A569BD', 'female', 'elf', 'rogue'),
 		(6, 3, 6, 'Thrall', 0, 200, 100, 100, '#229954', 'male', 'orc', 'cleric');
-		
+
 create table monster_entity(
     id int generated always as identity primary key,
     entity_id int not null references world_entity(id),
@@ -133,7 +133,7 @@ create table monster_entity(
     target_id int references character(id)
 );
 
-insert into monster_entity (entity_id,state,stats_id, type_id,target_id) values 
+insert into monster_entity (entity_id,state,stats_id, type_id,target_id) values
     (4, default, 1, 1, default),
     (6, default, 3, 3, default),
     (9, default, 4, 4, default);
@@ -207,23 +207,22 @@ create table enchantment (
 
 create table npc_item_relation(
     npc_id int not null references npc(id),
-    item_id int not null references item(id),
-    trades boolean not null,
+    item_id int not null references item_template(id),
     sell_price int,
     buy_price int,
     primary key (npc_id,item_id)
 );
 
-insert into npc_item_relation (npc_id, item_id, trades, sell_price, buy_price) values
-    (1,1, true, 500, 70),
-    (1,2, true, 1000, 100),
-    (1,3, false, default, default),
-    (2,1, true, 10000, 1000),
-    (2,2, false, default, default),
-    (2,3, true, 5000, 800),
-    (3,1, true, 1000, 100),
-    (3,2, false, default, default),
-    (3,3, true, 17000, 1200);
+insert into npc_item_relation (npc_id, item_id, sell_price, buy_price) values
+    (1,1, 500, 70),
+    (1,2, 1000, 100),
+    (1,3, default, default),
+    (2,1, 10000, 1000),
+    (2,2, default, default),
+    (2,3, 5000, 800),
+    (3,1, 1000, 100),
+    (3,2, default, default),
+    (3,3, 17000, 1200);
 
 create table monster_drop(
     monster_id int not null references monster_type(id),
