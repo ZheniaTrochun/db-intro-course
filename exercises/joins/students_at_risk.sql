@@ -24,7 +24,11 @@ JOIN person AS p ON p.person_id = s.person_id
 JOIN student_group_assignment AS sga ON sga.student_id = s.student_id
 JOIN student_group AS sg ON sg.group_id = sga.group_id
 JOIN course AS c ON c.course_id = e.course_id
-JOIN course_teacher AS ct ON ct.course_id = c.course_id
+JOIN course_teacher AS ct
+    ON ct.course_id = c.course_id
+   AND ct.professor_role IN ('lecturer', 'full_ownership')
 JOIN professor AS prof ON prof.professor_id = ct.professor_id
 JOIN person AS lp ON lp.person_id = prof.person_id
+WHERE e.grade IS NOT NULL
+  AND e.grade < 60
 ORDER BY e.grade ASC, sg.group_name ASC, student_name ASC, c.course_name ASC;
