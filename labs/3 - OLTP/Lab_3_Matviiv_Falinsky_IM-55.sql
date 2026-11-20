@@ -1,251 +1,155 @@
--- ============================================================================
--- ЛАБОРАТОРНА РОБОТА №3: МАНІПУЛЮВАННЯ ДАНИМИ SQL (OLTP)
--- Студенти групи ІМ-55: Матвіїв Р. С., Фалінський К. П.
--- ============================================================================
+-- ЛАБОРАТОРНА РОБОТА №3. Маніпулювання даними SQL (OLTP)
+-- Схема та тестові дані з лабораторної №2 (перед запуском виконати скрипт ЛР №2).
 
--- ============================================================================
--- БЛОК 1. ОПЕРАТОРИ SELECT (ОТРИМАННЯ ТА ФІЛЬТРАЦІЯ ДАНИХ)
--- ============================================================================
 
--- Запит 1.1. Отримання списку європейських серверів із місткістю понад 10 000 гравців
-SELECT server_id, name, max_capacity
+-- ===================== 1. SELECT =====================
+
+-- 1.1 Європейські сервери з місткістю понад 10000
+SELECT name, region, max_capacity
 FROM Server
 WHERE region = 'Europe' AND max_capacity > 10000
 ORDER BY max_capacity DESC;
 
--- Запит 1.2. Пошук гравців високого рівня (level >= 20) та їхнього рейтингу
-SELECT player_id, nickname, email, level, rating
+-- 1.2 Гравці з рейтингом від 1500 до 1900
+SELECT nickname, level, rating
 FROM Player
-WHERE level >= 20 AND rating >= 1700
-ORDER BY rating DESC;
+WHERE rating BETWEEN 1500 AND 1900;
 
--- Запит 1.3. Фільтрація каталогу предметів: вибір усіх кораблів (категорія 'Ship')
-SELECT item_id, name, characteristics
+-- 1.3 Предмети категорій Ship та Character
+SELECT name, category
 FROM Item
-WHERE category = 'Ship';
+WHERE category IN ('Ship', 'Character');
 
--- Запит 1.4. Перевірка інвентарю конкретного гравця (player_id = 1)
-SELECT player_id, item_id, quantity, item_level, acquired_date
+-- 1.4 Предмети, які не є ресурсами (стандартна нерівність <>)
+SELECT name, category
+FROM Item
+WHERE category <> 'Resource';
+
+-- 1.5 Гравці, чий нікнейм починається на R
+SELECT nickname
+FROM Player
+WHERE nickname LIKE 'R%';
+
+-- 1.6 Предмети в інвентарі без рівня (ресурси)
+SELECT player_id, item_id, quantity
 FROM Player_Inventory
-WHERE player_id = 1;
+WHERE item_level IS NULL;
 
--- Запит 1.5. Пошук ресурсів в інвентарі гравців (де рівень предмета не застосовується: item_level IS NULL)
-SELECT player_id, item_id, quantity, acquired_date
-FROM Player_Inventory
-WHERE item_level IS NULL AND quantity >= 400;
+-- 1.7 Унікальні регіони серверів
+SELECT DISTINCT region
+FROM Server
+ORDER BY region;
 
--- Запит 1.6. Вибірка тривалих матчів (понад 900 секунд), проведених на сервері 1
-SELECT match_id, server_id, match_date, duration
-FROM Match
-WHERE server_id = 1 AND duration > 900
-ORDER BY match_date DESC;
-
--- Запит 1.7. Отримання переможних виступів гравців із високою результативністю (score > 2200)
-SELECT match_id, player_id, result, score, kills, deaths, resources_earned
-FROM Match_Player
-WHERE result = 'Victory' AND score > 2200;
+-- 1.8 Базова статистика рейтингу гравців
+SELECT COUNT(*) AS players,
+       MIN(rating) AS min_rating,
+       MAX(rating) AS max_rating,
+       AVG(rating) AS avg_rating
+FROM Player;
 
 
--- ============================================================================
--- БЛОК 2. ОПЕРАТОРИ INSERT (ДОДАВАННЯ НОВИХ ЗАПИСІВ — OLTP-ОПЕРАЦІЇ)
--- ============================================================================
+-- ===================== 2. INSERT =====================
 
--- Запит 2.1. Додавання нового регіонального сервера
+-- 2.1 Додавання нового сервера (повертає server_id = 6)
 INSERT INTO Server (name, region, max_capacity)
 VALUES ('EU-North-3', 'Europe', 14000)
-RETURNING server_id, name, region, max_capacity;
+RETURNING server_id;
 
--- Перевірка доданого сервера
-SELECT server_id, name, region, max_capacity
+-- Дізнаємося server_id для EU-Central-1 перед вставкою гравця (server_id = 1)
+SELECT server_id, name
 FROM Server
-WHERE name = 'EU-North-3';
+WHERE name = 'EU-Central-1';
 
--- Запит 2.2. Реєстрація двох нових гравців (один із яких буде тестовим для подальшого видалення)
-INSERT INTO Player (server_id, nickname, email, level, rating)
-VALUES
-    (1, 'KpiAdmiral', 'admiral.kpi@example.com', 10, 1250),
-    (5, 'TempBot_99', 'tempbot99@example.com', 1, 1000)
-RETURNING player_id, nickname, server_id, level, rating;
+-- 2.2 Додавання тестового гравця (level і rating отримають DEFAULT; повертає player_id = 6)
+INSERT INTO Player (server_id, nickname, email)
+VALUES (1, 'TempBot_99', 'tempbot99@example.com')
+RETURNING player_id;
 
--- Перевірка доданих гравців
-SELECT player_id, nickname, email, server_id, level, rating
-FROM Player
-WHERE nickname IN ('KpiAdmiral', 'TempBot_99');
-
--- Запит 2.3. Додавання нового предмета в каталог (французький танк/техніка або персонаж)
-INSERT INTO Item (name, category, characteristics)
-VALUES ('Clorinde', 'Character', 'Champion Duelist, Electro element, high-speed lunge attack')
-RETURNING item_id, name, category;
-
--- Перевірка каталогу предметів
-SELECT item_id, name, category, characteristics
+-- Дізнаємося item_id для Steel_Ingot (item_id = 5)
+SELECT item_id, name
 FROM Item
-WHERE name = 'Clorinde';
+WHERE name = 'Steel_Ingot';
 
--- Запит 2.4. Додавання предметів в інвентар гравців
+-- 2.3 Видача ресурсу новому гравцю (player_id = 6, item_id = 5)
 INSERT INTO Player_Inventory (player_id, item_id, quantity, item_level, acquired_date)
-VALUES
-    (5, 1, 1, 5, CURRENT_DATE),      -- Гравець CyberPartner отримує корабель Napoli 5-го рівня
-    (1, 6, 1, 1, CURRENT_DATE),      -- Гравець Rostislav77 отримує персонажа Clorinde 1-го рівня
-    (5, 5, 100, NULL, CURRENT_DATE); -- Гравець CyberPartner отримує 100 одиниць ресурсу Steel_Ingot
+VALUES (6, 5, 100, NULL, '2026-10-05');
 
--- Перевірка оновленого інвентарю для гравців 1 та 5
-SELECT player_id, item_id, quantity, item_level, acquired_date
-FROM Player_Inventory
-WHERE player_id IN (1, 5)
-ORDER BY player_id, item_id;
-
--- Запит 2.5. Реєстрація нового матчу та статистики його учасників
+-- 2.4 Створення нового матчу на сервері 1 (повертає match_id = 6)
 INSERT INTO Match (server_id, match_date, duration)
 VALUES (1, '2026-10-05 20:00:00', 980)
-RETURNING match_id, server_id, match_date, duration;
+RETURNING match_id;
 
+-- 2.5 Запис результату гравця 6 у матчі 6
 INSERT INTO Match_Player (match_id, player_id, result, score, resources_earned, kills, deaths)
-VALUES
-    (6, 1, 'Victory', 2950, 180, 6, 1),
-    (6, 2, 'Victory', 2400, 140, 3, 1),
-    (6, 5, 'Defeat',  1150,  40, 0, 2);
+VALUES (6, 6, 'Defeat', 1150, 40, 0, 2);
 
--- Перевірка записів нового матчу (match_id = 6)
-SELECT match_id, player_id, result, score, resources_earned, kills, deaths
-FROM Match_Player
-WHERE match_id = 6;
+-- Перевірка вставлених записів
+SELECT server_id, name, max_capacity FROM Server WHERE server_id = 6;
+SELECT player_id, nickname, level, rating FROM Player WHERE player_id = 6;
+SELECT player_id, item_id, quantity, item_level FROM Player_Inventory WHERE player_id = 6;
+SELECT match_id, player_id, result, score FROM Match_Player WHERE player_id = 6;
 
 
--- ============================================================================
--- БЛОК 3. ОПЕРАТОРИ UPDATE (ОНОВЛЕННЯ ІСНУЮЧИХ ДАНИХ ІЗ ПЕРЕВІРКОЮ WHERE)
--- ============================================================================
+-- ===================== 3. UPDATE =====================
 
--- Запит 3.1. Підвищення рівня та рейтингу гравця 'Rostislav77' після перемоги в матчі
--- Крок 1: Попередня перевірка запису через SELECT
-SELECT player_id, nickname, level, rating
+-- 3.1 Оновлення рівня та рейтингу гравця Rostislav77 у транзакції
+SELECT nickname, level, rating
 FROM Player
-WHERE player_id = 1;
+WHERE nickname = 'Rostislav77';
 
--- Крок 2: Виконання UPDATE
+BEGIN;
 UPDATE Player
-SET level = level + 1,
-    rating = rating + 35
-WHERE player_id = 1;
+SET level = 26, rating = 1885
+WHERE nickname = 'Rostislav77';
 
--- Крок 3: Перевірка результату після UPDATE
-SELECT player_id, nickname, level, rating
+SELECT nickname, level, rating
 FROM Player
-WHERE player_id = 1;
+WHERE nickname = 'Rostislav77';
+COMMIT;
 
--- Запит 3.2. Прокачування рівня предмета (корабля 'Napoli', item_id = 1) в інвентарі гравця 1
--- Крок 1: Попередня перевірка
-SELECT player_id, item_id, quantity, item_level
-FROM Player_Inventory
-WHERE player_id = 1 AND item_id = 1;
-
--- Крок 2: Виконання UPDATE
-UPDATE Player_Inventory
-SET item_level = item_level + 2
-WHERE player_id = 1 AND item_id = 1;
-
--- Крок 3: Перевірка результату
-SELECT player_id, item_id, quantity, item_level
-FROM Player_Inventory
-WHERE player_id = 1 AND item_id = 1;
-
--- Запит 3.3. Розширення максимальної місткості тестового сервера в Києві ('UA-Kyiv-Test')
--- Крок 1: Попередня перевірка
-SELECT server_id, name, max_capacity
-FROM Server
-WHERE name = 'UA-Kyiv-Test';
-
--- Крок 2: Виконання UPDATE
+-- 3.2 Демонстрація ROLLBACK: тимчасова зміна місткості сервера та скасування
+BEGIN;
 UPDATE Server
 SET max_capacity = 8000
 WHERE name = 'UA-Kyiv-Test';
 
--- Крок 3: Перевірка результату
-SELECT server_id, name, max_capacity
+SELECT name, max_capacity
+FROM Server
+WHERE name = 'UA-Kyiv-Test';
+ROLLBACK;
+
+SELECT name, max_capacity
 FROM Server
 WHERE name = 'UA-Kyiv-Test';
 
--- Запит 3.4. Транзакційне нарахування здобутих у матчі ресурсів (Steel_Ingot, item_id = 5)
--- та коригування очок гравця в межах єдиної OLTP-транзакції
+
+-- ===================== 4. DELETE =====================
+
+-- Перевірка тестового гравця перед видаленням
+SELECT player_id, nickname
+FROM Player
+WHERE player_id = 6;
+
+-- Видалення тестових даних: спочатку дочірні таблиці, потім батьківські
 BEGIN;
+DELETE FROM Match_Player WHERE player_id = 6;
+DELETE FROM Player_Inventory WHERE player_id = 6;
+DELETE FROM Player WHERE player_id = 6;
+DELETE FROM Match WHERE match_id = 6;
+DELETE FROM Server WHERE server_id = 6;
 
-UPDATE Match_Player
-SET score = 3050,
-    resources_earned = 200
-WHERE match_id = 6 AND player_id = 1;
-
-UPDATE Player_Inventory
-SET quantity = quantity + 200
-WHERE player_id = 1 AND item_id = 5;
-
+-- Перевірка, що гравця видалено
+SELECT player_id, nickname
+FROM Player
+WHERE player_id = 6;
 COMMIT;
 
--- Перевірка балансу ресурсів гравця 1 та його статистики у матчі 6 після транзакції
-SELECT player_id, item_id, quantity
-FROM Player_Inventory
-WHERE player_id = 1 AND item_id = 5;
 
-SELECT match_id, player_id, score, resources_earned
-FROM Match_Player
-WHERE match_id = 6 AND player_id = 1;
+-- ===================== 5. Перевірка стану таблиць =====================
 
-
--- ============================================================================
--- БЛОК 4. ОПЕРАТОРИ DELETE (БЕЗПЕЧНЕ ВИДАЛЕННЯ ДАНИХ ІЗ ПЕРЕВІРКОЮ WHERE)
--- ============================================================================
-
--- Запит 4.1. Видалення помилкового/тестового запису участі гравця 5 у матчі 6
--- Крок 1: Попередня перевірка запису, який буде видалено
-SELECT match_id, player_id, result, score
-FROM Match_Player
-WHERE match_id = 6 AND player_id = 5;
-
--- Крок 2: Безпечне видалення за складеним первинним ключем
-DELETE FROM Match_Player
-WHERE match_id = 6 AND player_id = 5;
-
--- Крок 3: Перевірка, що запис зник, а інші учасники матчу 6 залишилися
-SELECT match_id, player_id, result, score
-FROM Match_Player
-WHERE match_id = 6;
-
--- Запит 4.2. Видалення витраченого ресурсу (item_id = 5) з інвентарю гравця 5
--- Крок 1: Попередня перевірка
-SELECT player_id, item_id, quantity
-FROM Player_Inventory
-WHERE player_id = 5 AND item_id = 5;
-
--- Крок 2: Виконання DELETE
-DELETE FROM Player_Inventory
-WHERE player_id = 5 AND item_id = 5;
-
--- Крок 3: Перевірка інвентарю гравця 5
-SELECT player_id, item_id, quantity, item_level
-FROM Player_Inventory
-WHERE player_id = 5;
-
--- Запит 4.3. Видалення тимчасового тестового облікового запису 'TempBot_99'
--- Крок 1: Попередня перевірка
-SELECT player_id, nickname, email
-FROM Player
-WHERE nickname = 'TempBot_99';
-
--- Крок 2: Виконання DELETE
-DELETE FROM Player
-WHERE nickname = 'TempBot_99';
-
--- Крок 3: Перевірка відсутності видаленого рядка
-SELECT player_id, nickname, email
-FROM Player
-WHERE nickname = 'TempBot_99';
-
-
--- ============================================================================
--- БЛОК 5. ФІНАЛЬНА ПЕРЕВІРКА СТАНУ ТАБЛИЦЬ (КОЖНА МІСТИТЬ >= 5 РЯДКІВ)
--- ============================================================================
 SELECT server_id, name, region, max_capacity FROM Server ORDER BY server_id;
-SELECT player_id, server_id, nickname, email, level, rating FROM Player ORDER BY player_id;
-SELECT item_id, name, category, characteristics FROM Item ORDER BY item_id;
-SELECT player_id, item_id, quantity, item_level, acquired_date FROM Player_Inventory ORDER BY player_id, item_id;
+SELECT player_id, nickname, level, rating FROM Player ORDER BY player_id;
+SELECT item_id, name, category FROM Item ORDER BY item_id;
+SELECT player_id, item_id, quantity, item_level FROM Player_Inventory ORDER BY player_id, item_id;
 SELECT match_id, server_id, match_date, duration FROM Match ORDER BY match_id;
-SELECT match_id, player_id, result, score, resources_earned, kills, deaths FROM Match_Player ORDER BY match_id, player_id;
+SELECT match_id, player_id, result, score FROM Match_Player ORDER BY match_id, player_id;
