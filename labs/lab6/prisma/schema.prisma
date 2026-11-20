@@ -37,6 +37,7 @@ model person {
   poem          poem[]
   poem_author   poem_author[]
   review        review[]
+  bio           String?       @db.VarChar(300)
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -52,6 +53,9 @@ model poem {
   poem_author     poem_author[]
   review          review[]
   poem_tag        poem_tag[]
+  views_count     Int               @default(0)
+  is_featured     Boolean           @default(false)
+  language        String            @default("uk") @db.VarChar(10)
 }
 
 model poem_author {
