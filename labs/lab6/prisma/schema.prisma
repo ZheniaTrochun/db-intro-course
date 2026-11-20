@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model collection {
+  collection_id     Int               @id @default(autoincrement())
+  person_id         Int
+  title             String            @db.VarChar(50)
+  visibility_status visibility_status @default(public)
+  created_at        DateTime          @default(now()) @db.Timestamp(6)
+  person            person            @relation(fields: [person_id], references: [person_id], onDelete: Cascade, onUpdate: NoAction)
+  collection_poem   collection_poem[]
+  description       String?           @db.VarChar(255)
+  updated_at        DateTime          @default(now()) @db.Timestamp(6)
+}
+
+model collection_poem {
+  collection_id Int
+  poem_id       Int
+  added_at      DateTime   @default(now()) @db.Timestamp(6)
+  collection    collection @relation(fields: [collection_id], references: [collection_id], onDelete: Cascade, onUpdate: NoAction)
+  poem          poem       @relation(fields: [poem_id], references: [poem_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([collection_id, poem_id])
+}
+
+model person {
+  person_id     Int           @id @default(autoincrement())
+  username      String        @unique @db.VarChar(35)
+  email         String        @unique @db.VarChar(45)
+  password_hash String        @db.VarChar(255)
+  registered_at DateTime      @default(now()) @db.Timestamp(6)
+  collection    collection[]
+  poem          poem[]
+  poem_author   poem_author[]
+  review        review[]
+  bio           String?       @db.VarChar(300)
+  bookmark bookmark[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model poem {
+  poem_id         Int               @id @default(autoincrement())
+  owner_id        Int
+  title           String            @db.VarChar(50)
+  content_poem    String
+  poem_status     poem_status       @default(notes)
+  published_at    DateTime?         @db.Timestamp(6)
+  collection_poem collection_poem[]
+  person          person            @relation(fields: [owner_id], references: [person_id], onDelete: Cascade, onUpdate: NoAction)
+  poem_author     poem_author[]
+  review          review[]
+  poem_tag        poem_tag[]
+  views_count     Int               @default(0)
+  is_featured     Boolean           @default(false)
+  language        String            @default("uk") @db.VarChar(10)
+  bookmark bookmark[]
+}
+
+model poem_author {
+  user_id           Int
+  poem_id           Int
+  contribution_type String @db.VarChar(50)
+  poem              poem   @relation(fields: [poem_id], references: [poem_id], onDelete: Cascade, onUpdate: NoAction)
+  person            person @relation(fields: [user_id], references: [person_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, poem_id])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model review {
+  user_id    Int
+  poem_id    Int
+  rating     Int
+  updated_at DateTime @default(now()) @db.Timestamp(6)
+  poem       poem     @relation(fields: [poem_id], references: [poem_id], onDelete: Cascade, onUpdate: NoAction)
+  person     person   @relation(fields: [user_id], references: [person_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, poem_id])
+}
+
+enum poem_status {
+  published
+  notes
+  reviewed
+}
+
+enum visibility_status {
+  public
+  private
+  deleted
+}
+
+model tag {
+  tag_id      Int        @id @default(autoincrement())
+  name        String     @unique @db.VarChar(50)
+  description String?    @db.VarChar(200)
+  created_at  DateTime   @default(now()) @db.Timestamp(6)
+  poem_tag    poem_tag[]
+}
+
+model poem_tag {
+  poem_id     Int
+  tag_id      Int
+  assigned_at DateTime @default(now()) @db.Timestamp(6)
+  poem        poem     @relation(fields: [poem_id], references: [poem_id], onDelete: Cascade, onUpdate: NoAction)
+  tag         tag      @relation(fields: [tag_id], references: [tag_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([poem_id, tag_id])
+}
+
+model bookmark {
+  bookmark_id Int      @id @default(autoincrement())
+  user_id     Int
+  poem_id     Int
+  note        String?  @db.VarChar(255)
+  is_favorite Boolean  @default(false)
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  person      person   @relation(fields: [user_id], references: [person_id], onDelete: Cascade, onUpdate: NoAction)
+  poem        poem     @relation(fields: [poem_id], references: [poem_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, poem_id])
+}
