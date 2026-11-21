@@ -1,0 +1,31 @@
+{
+  "name": "db-intro-course",
+  "version": "1.0.0",
+  "description": "Цей репозиторій містить ресурси та налаштування середовища для курсу по базам даних.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mariagosp/db-intro-course.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mariagosp/db-intro-course/issues"
+  },
+  "homepage": "https://github.com/Mariagosp/db-intro-course#readme",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "prisma": "^7.10.1",
+    "tsx": "^4.23.15"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "dotenv": "^18.0.10",
+    "pg": "^8.23.1"
+  }
+}

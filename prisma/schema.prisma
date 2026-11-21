@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model reservations {
+  reservation_id String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  item_id        String         @unique @db.Uuid
+  user_id        String         @db.Uuid
+  reserved_at    DateTime       @default(now()) @db.Timestamp(6)
+  wishlist_items wishlist_items @relation(fields: [item_id], references: [item_id], onDelete: Cascade, onUpdate: NoAction)
+  users          users          @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model users {
+  user_id       String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String         @db.VarChar(100)
+  email         String         @unique @db.VarChar(255)
+  password_hash String
+  reservations  reservations[]
+  wishlists     wishlists[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model wishlist_items {
+  item_id      String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  wishlist_id  String        @db.Uuid
+  name         String        @db.VarChar(150)
+  description  String?
+  price        Decimal       @db.Decimal(10, 2)
+  product_url  String?
+  is_completed Boolean       @default(false)
+  priority     Int           @default(0)
+  reservations reservations?
+  wishlists    wishlists     @relation(fields: [wishlist_id], references: [wishlist_id], onDelete: Cascade, onUpdate: NoAction)
+  comments     comments[]
+}
+
+model wishlists {
+  wishlist_id    String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id        String           @db.Uuid
+  name           String           @db.VarChar(100)
+  description    String?
+  is_public      Boolean          @default(true)
+  wishlist_items wishlist_items[]
+  users          users            @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model comments {
+  comment_id     String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  item_id        String         @db.Uuid
+  author_name    String         @db.VarChar(100)
+  rating         Int
+  text           String?
+  created_at     DateTime       @default(now()) @db.Timestamp(6)
+  wishlist_items wishlist_items @relation(fields: [item_id], references: [item_id], onDelete: Cascade, onUpdate: NoAction)
+}
