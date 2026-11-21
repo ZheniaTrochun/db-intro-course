@@ -8,3 +8,21 @@
 --          - кількістю кредитів (спадання), потім за ім'ям
 
 -- Рішення:
+WITH teacher_credits AS (
+    SELECT
+        pr.professor_id,
+        p.first_name || ' ' || p.last_name AS full_name,
+        SUM(c.credits)                     AS total_credits
+    FROM course_teacher ct
+    JOIN professor pr ON pr.professor_id = ct.professor_id
+    JOIN person p     ON p.person_id     = pr.person_id
+    JOIN course c     ON c.course_id     = ct.course_id
+    GROUP BY pr.professor_id, p.first_name, p.last_name
+)
+SELECT
+    full_name,
+    total_credits,
+    ROUND((SELECT AVG(total_credits) FROM teacher_credits), 2) AS avg_total_credits
+FROM teacher_credits
+ORDER BY total_credits DESC, full_name
+LIMIT 100;
