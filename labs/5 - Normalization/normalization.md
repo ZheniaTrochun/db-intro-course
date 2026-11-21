@@ -621,32 +621,6 @@ CREATE TABLE review (
 );
 ```
 
----
-
-## Оновлена ER-діаграма
-
-Колір заголовка таблиці: зелений — нова таблиця (`country`, `city`, `address`), жовтий — змінена під час нормалізації (`customer`, `orders`, `author`, `publisher`, `review`), блакитний — без змін.
-
-
-```mermaid
-erDiagram
-    country   ||--o{ author    : "country_id"
-    country   ||--o{ publisher : "country_id"
-    city      ||--o{ address   : "city_id"
-    address   ||--o{ customer  : "default_address_id"
-    address   ||--o{ orders    : "shipping_address_id"
-    customer  ||--o{ orders    : "customer_id"
-    customer  ||--o{ review    : "customer_id"
-    publisher ||--o{ book      : "publisher_id"
-    book      ||--o{ book_author   : "book_id"
-    author    ||--o{ book_author   : "author_id"
-    book      ||--o{ book_category : "book_id"
-    category  ||--o{ book_category : "category_id"
-    orders    ||--o{ order_item : "order_id"
-    book      ||--o{ order_item : "book_id"
-    order_item ||--o{ review    : "order_item_id"
-```
-
 ## Висновок
 
 У ході лабораторної роботи було проаналізовано схему бази даних книжкового магазину, визначено функціональні залежності та виявлено порушення 2НФ і 3НФ, що спричиняли надлишковість і аномалії даних. Схему було послідовно приведено до 1НФ, 2НФ і 3НФ шляхом декомпозиції таблиць, а також створено SQL-скрипти та оновлену ER-діаграму. У результаті кожен факт зберігається лише в одному місці, що підвищило цілісність даних, хоча й збільшило кількість з'єднань у запитах.
