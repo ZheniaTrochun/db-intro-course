@@ -7,3 +7,12 @@
 --          - повним іменем викладача
 
 -- Рішення:
+SELECT
+    p.first_name || ' ' || p.last_name AS professor_name,
+    pr.job_title                       AS job_title
+FROM professor pr
+JOIN person p              ON p.person_id    = pr.person_id
+LEFT JOIN student_group sg ON sg.curator_id  = pr.professor_id
+WHERE pr.professor_status = 'active'
+  AND sg.group_id IS NULL
+ORDER BY professor_name;

@@ -9,3 +9,13 @@
 --          - назвою курсу, потім за роллю викладача
 
 -- Рішення:
+SELECT
+    c.course_name                       AS course_name,
+    p.first_name || ' ' || p.last_name  AS professor_name,
+    ct.professor_role                   AS role
+FROM course c
+JOIN course_teacher ct ON ct.course_id    = c.course_id
+JOIN professor pr      ON pr.professor_id = ct.professor_id
+JOIN person p          ON p.person_id     = pr.person_id
+WHERE c.course_status = 'active'
+ORDER BY c.course_name, ct.professor_role;
