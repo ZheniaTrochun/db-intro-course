@@ -200,3 +200,20 @@ ALTER TABLE "match" DROP COLUMN "time_limit_minutes";
 │ 5       │ 3           │ 'Сергій Крижановський' │ 4           │ 'Євген Сталєв'         │
 └─────────┴─────────────┴────────────────────────┴─────────────┴────────────────────────┘
 ```
+
+### Listing Sponsors & Sponsored Tournaments (`src/list-sponsors.ts`)
+
+- **Command:** `npx tsx src/list-sponsors.ts`
+- **Summary:** Queries the newly added `sponsor` and `tournament_sponsor` tables together with `tournament` and the altered `club.is_active` column.
+
+```text
+┌─────────┬────────────┬─────────────────┬───────────────────────────────┬──────────────────────────────┬──────────────────────────────┬─────────────┬──────────────┐
+│ (index) │ sponsor_id │ sponsor_name    │ contact_email                 │ tournament                   │ club                         │ club_active │ contribution │
+├─────────┼────────────┼─────────────────┼───────────────────────────────┼──────────────────────────────┼──────────────────────────────┼─────────────┼──────────────┤
+│ 0       │ 1          │ 'Predator Cues' │ 'events@predatorcues.com'     │ 'Кубок Чемпіонів — Піраміда' │ 'Більярдний клуб "Піраміда"' │ true        │ 15000        │
+│ 1       │ 1          │ 'Predator Cues' │ 'events@predatorcues.com'     │ 'Командна Битва Титанів'     │ 'Більярдний клуб "Піраміда"' │ true        │ 20000        │
+│ 2       │ 2          │ 'Aramith'       │ 'partners@aramith.com'        │ 'Кубок Чемпіонів — Піраміда' │ 'Більярдний клуб "Піраміда"' │ true        │ 10000        │
+│ 3       │ 2          │ 'Aramith'       │ 'partners@aramith.com'        │ 'Одеський Турнір — Пул 9-ка' │ 'Brooklyn Billiards'         │ true        │ 5000         │
+│ 4       │ 3          │ 'Simonis Cloth' │ 'sponsorship@iwansimonis.com' │ 'Командна Битва Титанів'     │ 'Більярдний клуб "Піраміда"' │ true        │ 15000        │
+└─────────┴────────────┴─────────────────┴───────────────────────────────┴──────────────────────────────┴──────────────────────────────┴─────────────┴──────────────┘
+```
