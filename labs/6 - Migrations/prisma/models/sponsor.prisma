@@ -1,0 +1,8 @@
+model sponsor {
+  sponsor_id         Int                  @id @default(autoincrement())
+  sponsor_name       String               @unique(map: "uq_sponsor_name") @db.VarChar(150)
+  website_url        String?              @db.VarChar(255)
+  contact_email      String?              @db.VarChar(320)
+  created_at         DateTime             @default(now()) @db.Timestamptz(6)
+  tournament_sponsor tournament_sponsor[]
+}

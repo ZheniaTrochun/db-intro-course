@@ -18,6 +18,7 @@ model tournament {
   club                    club                      @relation(fields: [club_id], references: [club_id], onUpdate: NoAction)
   users                   users                     @relation(fields: [director_id], references: [user_id], onUpdate: NoAction)
   tournament_registration tournament_registration[]
+  tournament_sponsor      tournament_sponsor[]
 
   @@index([club_id], map: "idx_tournament_club_id")
   @@index([director_id], map: "idx_tournament_director_id")
