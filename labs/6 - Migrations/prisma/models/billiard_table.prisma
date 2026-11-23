@@ -1,0 +1,13 @@
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model billiard_table {
+  table_id     Int          @id @default(autoincrement())
+  club_id      Int
+  table_number Int          @db.SmallInt
+  table_type   table_type
+  table_status table_status
+  created_at   DateTime     @default(now()) @db.Timestamptz(6)
+  club         club         @relation(fields: [club_id], references: [club_id], onDelete: Cascade, onUpdate: NoAction)
+  match        match[]
+
+  @@unique([club_id, table_number], map: "uq_billiard_table_club_number")
+}

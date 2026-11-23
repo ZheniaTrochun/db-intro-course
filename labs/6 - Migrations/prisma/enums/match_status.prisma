@@ -1,0 +1,7 @@
+enum match_status {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  WALKOVER
+  CANCELLED
+}

@@ -1,0 +1,6 @@
+enum table_status {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  MAINTENANCE
+}

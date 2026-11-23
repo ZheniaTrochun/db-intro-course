@@ -1,0 +1,10 @@
+model team_member {
+  team_id   Int
+  player_id Int
+  joined_at DateTime @default(now()) @db.Timestamptz(6)
+  player    player   @relation(fields: [player_id], references: [player_id], onDelete: Cascade, onUpdate: NoAction)
+  team      team     @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([team_id, player_id])
+  @@index([player_id], map: "idx_team_member_player_id")
+}

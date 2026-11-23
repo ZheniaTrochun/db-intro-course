@@ -1,0 +1,11 @@
+model tournament_sponsor {
+  tournament_id       Int
+  sponsor_id          Int
+  contribution_amount Decimal    @default(0.00) @db.Decimal(10, 2)
+  sponsored_at        DateTime   @default(now()) @db.Timestamptz(6)
+  tournament          tournament @relation(fields: [tournament_id], references: [tournament_id], onDelete: Cascade, onUpdate: NoAction)
+  sponsor             sponsor    @relation(fields: [sponsor_id], references: [sponsor_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([tournament_id, sponsor_id])
+  @@index([sponsor_id], map: "idx_tournament_sponsor_sponsor_id")
+}
