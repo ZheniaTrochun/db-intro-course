@@ -3,6 +3,7 @@ model club {
   club_name      String           @db.VarChar(100)
   city           String           @db.VarChar(100)
   address        String           @db.VarChar(200)
+  is_active      Boolean          @default(true)
   created_at     DateTime         @default(now()) @db.Timestamptz(6)
   billiard_table billiard_table[]
   tournament     tournament[]

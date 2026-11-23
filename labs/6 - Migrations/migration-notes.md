@@ -92,3 +92,45 @@ CREATE INDEX "idx_tournament_sponsor_sponsor_id" ON "tournament_sponsor"("sponso
 ALTER TABLE "tournament_sponsor" ADD CONSTRAINT "tournament_sponsor_tournament_id_fkey" FOREIGN KEY ("tournament_id") REFERENCES "tournament"("tournament_id") ON DELETE CASCADE ON UPDATE NO ACTION;
 ALTER TABLE "tournament_sponsor" ADD CONSTRAINT "tournament_sponsor_sponsor_id_fkey" FOREIGN KEY ("sponsor_id") REFERENCES "sponsor"("sponsor_id") ON DELETE CASCADE ON UPDATE NO ACTION;
 ```
+
+---
+
+## 2. Add `is_active` Flag to `club` (`20261123142110_add_club_is_active`)
+
+- **Command:** `npx prisma migrate dev --name add-club-is-active --config prisma7.config.ts`
+- **What changed:** Added a non-nullable boolean column `is_active` (defaulting to `true`) to `club` so clubs can be deactivated without deleting historical tournament records.
+
+### Prisma Schema — Before (`prisma/models/club.prisma`)
+
+```prisma
+model club {
+  club_id        Int              @id @default(autoincrement())
+  club_name      String           @db.VarChar(100)
+  city           String           @db.VarChar(100)
+  address        String           @db.VarChar(200)
+  created_at     DateTime         @default(now()) @db.Timestamptz(6)
+  billiard_table billiard_table[]
+  tournament     tournament[]
+}
+```
+
+### Prisma Schema — After (`prisma/models/club.prisma`)
+
+```prisma
+model club {
+  club_id        Int              @id @default(autoincrement())
+  club_name      String           @db.VarChar(100)
+  city           String           @db.VarChar(100)
+  address        String           @db.VarChar(200)
+  is_active      Boolean          @default(true)
+  created_at     DateTime         @default(now()) @db.Timestamptz(6)
+  billiard_table billiard_table[]
+  tournament     tournament[]
+}
+```
+
+### Generated SQL (`20261123142110_add_club_is_active/migration.sql`)
+
+```sql
+ALTER TABLE "club" ADD COLUMN     "is_active" BOOLEAN NOT NULL DEFAULT true;
+```
