@@ -134,3 +134,47 @@ model club {
 ```sql
 ALTER TABLE "club" ADD COLUMN     "is_active" BOOLEAN NOT NULL DEFAULT true;
 ```
+
+---
+
+## 3. Drop `time_limit_minutes` from `match` (`20261123142151_drop_match_time_limit`)
+
+- **Command:** `npx prisma migrate dev --name drop-match-time-limit --config prisma7.config.ts`
+- **What changed:** Removed the nullable `time_limit_minutes` column from `match` since match progression is governed by `race_to_frames` / `race_to_points`.
+
+### Prisma Schema — Before (`prisma/models/match.prisma`)
+
+```prisma
+model match {
+  match_id           Int                 @id @default(autoincrement())
+  tournament_id      Int
+  table_id           Int?
+  stage              match_stage
+  race_to_frames     Int?                @db.SmallInt
+  race_to_points     Int?                @db.SmallInt
+  time_limit_minutes Int?                @db.SmallInt
+  match_status       match_status        @default(SCHEDULED)
+  // ...
+}
+```
+
+### Prisma Schema — After (`prisma/models/match.prisma`)
+
+```prisma
+model match {
+  match_id       Int                 @id @default(autoincrement())
+  tournament_id  Int
+  table_id       Int?
+  stage          match_stage
+  race_to_frames Int?                @db.SmallInt
+  race_to_points Int?                @db.SmallInt
+  match_status   match_status        @default(SCHEDULED)
+  // ...
+}
+```
+
+### Generated SQL (`20261123142151_drop_match_time_limit/migration.sql`)
+
+```sql
+ALTER TABLE "match" DROP COLUMN "time_limit_minutes";
+```
