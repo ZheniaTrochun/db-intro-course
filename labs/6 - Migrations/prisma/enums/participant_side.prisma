@@ -1,0 +1,6 @@
+enum participant_side {
+  SIDE_1
+  SIDE_2
+  SIDE_3
+  SIDE_4
+}

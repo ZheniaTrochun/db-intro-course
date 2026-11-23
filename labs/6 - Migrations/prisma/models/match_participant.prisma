@@ -1,0 +1,22 @@
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model match_participant {
+  match_participant_id Int              @id @default(autoincrement())
+  match_id             Int
+  player_id            Int?
+  team_id              Int?
+  frames_won           Int?             @db.SmallInt
+  points               Int?             @db.SmallInt
+  side                 participant_side
+  is_winner            Boolean          @default(false)
+  created_at           DateTime         @default(now()) @db.Timestamptz(6)
+  match                match            @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction)
+  player               player?          @relation(fields: [player_id], references: [player_id], onDelete: Restrict, onUpdate: NoAction)
+  team                 team?            @relation(fields: [team_id], references: [team_id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@unique([match_id], map: "uq_match_single_winner", where: raw("(is_winner = true)"))
+  @@unique([match_id, player_id], map: "uq_match_participant_player")
+  @@unique([match_id, side], map: "uq_match_participant_side")
+  @@unique([match_id, team_id], map: "uq_match_participant_team")
+  @@index([player_id], map: "idx_match_participant_player_id")
+  @@index([team_id], map: "idx_match_participant_team_id")
+}

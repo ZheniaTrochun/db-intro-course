@@ -1,0 +1,6 @@
+enum payment_status {
+  PENDING
+  PAID
+  WAIVED
+  REFUNDED
+}

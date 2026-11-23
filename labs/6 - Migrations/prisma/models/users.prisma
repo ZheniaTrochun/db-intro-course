@@ -1,0 +1,13 @@
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model users {
+  user_id       Int          @id @default(autoincrement())
+  first_name    String       @db.VarChar(100)
+  last_name     String       @db.VarChar(100)
+  email         String       @unique @db.VarChar(320)
+  password_hash String       @db.VarChar(255)
+  date_of_birth DateTime     @db.Date
+  created_at    DateTime     @default(now()) @db.Timestamptz(6)
+  deleted_at    DateTime?    @db.Timestamptz(6)
+  player        player?
+  tournament    tournament[]
+}

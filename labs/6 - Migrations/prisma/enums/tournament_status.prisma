@@ -1,0 +1,6 @@
+enum tournament_status {
+  ANNOUNCED
+  REGISTRATION_OPEN
+  ONGOING
+  FINISHED
+}
