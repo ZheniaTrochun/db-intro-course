@@ -1,14 +1,4 @@
-import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../generated/prisma/client";
-
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-  throw new Error("DATABASE_URL is not set");
-}
-
-const adapter = new PrismaPg({ connectionString });
-const prisma = new PrismaClient({ adapter });
+import { prisma } from "../src/prisma";
 
 const PASSWORD_HASH =
   "$2b$12$LJ3m4ys3Lk0TDcUOqMRqGeAEIM4fP0Fv3sSzfMxHU0v4munYE2mKe";

@@ -178,3 +178,25 @@ model match {
 ```sql
 ALTER TABLE "match" DROP COLUMN "time_limit_minutes";
 ```
+
+---
+
+## 4. Verification with Prisma Client (`src/player-pairs.ts`)
+
+- **Command:** `npx tsx src/player-pairs.ts`
+- **Summary:** Verified the migrated and seeded database using the shared Prisma Client (`src/prisma.ts`) by querying all unique unordered player pairs (`p1.player_id < p2.player_id`) for a tournament bracket.
+
+### Output
+
+```text
+┌─────────┬─────────────┬────────────────────────┬─────────────┬────────────────────────┐
+│ (index) │ player_1_id │ player_1_name          │ player_2_id │ player_2_name          │
+├─────────┼─────────────┼────────────────────────┼─────────────┼────────────────────────┤
+│ 0       │ 1           │ 'Дмитро Білозеров'     │ 2           │ 'Олександр Паламар'    │
+│ 1       │ 1           │ 'Дмитро Білозеров'     │ 3           │ 'Сергій Крижановський' │
+│ 2       │ 1           │ 'Дмитро Білозеров'     │ 4           │ 'Євген Сталєв'         │
+│ 3       │ 2           │ 'Олександр Паламар'    │ 3           │ 'Сергій Крижановський' │
+│ 4       │ 2           │ 'Олександр Паламар'    │ 4           │ 'Євген Сталєв'         │
+│ 5       │ 3           │ 'Сергій Крижановський' │ 4           │ 'Євген Сталєв'         │
+└─────────┴─────────────┴────────────────────────┴─────────────┴────────────────────────┘
+```
