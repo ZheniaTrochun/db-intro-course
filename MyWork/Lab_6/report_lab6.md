@@ -65,6 +65,20 @@ Prisma — Object-Relational Mapping (ORM) інструмент для Node.js/T
 
 ---
 
+## Порядок запуску і перевірки
+
+```bash
+npm install                    # залежності (prisma, @prisma/client)
+copy .env.example .env         # і вписати реальний DATABASE_URL
+npx prisma migrate dev         # застосувати три міграції: init → add_video_duration → add_video_category
+psql -U postgres -d videohub -f prisma/seed.sql   # тестові дані
+npx prisma studio              # GUI-перегляд результату
+```
+
+Очікуваний результат — схема з 6 моделей застосована до бази `videohub`, таблиці заповнені тестовими даними з `seed.sql`, дані видно у Prisma Studio (скріншоти у звіті).
+
+---
+
 ## Ініціалізація Prisma
 
 Створюємо Node.js-проєкт з Prisma:
