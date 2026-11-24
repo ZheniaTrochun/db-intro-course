@@ -47,6 +47,7 @@ model author {
   author_id   Int           @id @default(autoincrement())
   first_name  String        @db.VarChar(100)
   last_name   String        @db.VarChar(100)
+  bio         String?       @db.Text
   country_id  Int?
   country     country?      @relation(fields: [country_id], references: [country_id], onDelete: Restrict, onUpdate: NoAction, map: "fk_author_country")
   book_author book_author[]
