@@ -55,6 +55,18 @@
 
 ---
 
+## Порядок запуску і перевірки
+
+```bash
+psql -U postgres -d videohub -f queries.sql
+psql -U postgres -d videohub -f test.sql
+```
+
+1. `queries.sql` — основні CRUD-операції (SELECT → INSERT → UPDATE → DELETE). Виконується згори донизу: INSERT/UPDATE/DELETE змінюють стан, тому порядок усередині файлу має значення.
+2. `test.sql` — окрема перевірка `ON DELETE CASCADE` на тимчасових даних: створює тестового юзера з відео, видаляє юзера і показує, що відео пішло каскадом. Основні дані не чіпає.
+
+---
+
 ## SELECT (Read)
 
 **1. Вибір усіх даних з таблиці User:**
