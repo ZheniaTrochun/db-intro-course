@@ -1,0 +1,69 @@
+INSERT INTO customer (first_name, last_name, email, phone, shipping_address_default) 
+VALUES 
+    ('Олександр', 'Шевченко', 'olexandr.sh@gmail.com', '+380671112233', 'м. Київ, вул. Хрещатик, 15, кв. 4'),
+    ('Анна', 'Коваленко', 'anna.kov@ukr.net', '+380509998877', 'м. Львів, вул. Городоцька, 82, кв. 12'),
+    ('Дмитро', 'Бондаренко', 'dmitry.bond@outlook.com', '+380934445566', 'м. Одеса, вул. Дерибасівська, 10, кв. 2'),
+    ('Марія', 'Мельник', 'm.melnyk@gmail.com', '+380687771122', 'м. Дніпро, пр. Яворницького, 45, кв. 18');
+
+INSERT INTO publisher (name_publisher, country_publisher) 
+VALUES 
+    ('Видавництво Старого Лева', 'Україна'),
+    ('O''Reilly Media', 'США'),
+    ('Penguin Random House', 'США'),
+    ('Клуб Сімейного Дозвілля', 'Україна');
+
+INSERT INTO author (first_name, last_name, country) 
+VALUES 
+    ('Роберт', 'Мартін', 'США'),
+    ('Джордж', 'Орвелл', 'Велика Британія'),
+    ('Сергій', 'Жадан', 'Україна'),
+    ('Дж. К.', 'Роулінг', 'Велика Британія');
+
+INSERT INTO category (name_category) 
+VALUES 
+    ('Програмування'),
+    ('Фантастика та Утопія'),
+    ('Сучасна проза'),
+    ('Фентезі');
+
+INSERT INTO book (publisher_id, isbn, title, publication_year, price, stock_quantity) 
+VALUES 
+    (2, '9780132350884', 'Clean Code: A Handbook of Agile Software Craftsmanship', 2008, 1250.00, 15),
+    (3, '9780451524935', '1984', 1949, 350.00, 40),
+    (1, '9789662909494', 'Інтернат', 2017, 420.00, 25),
+    (4, '9786171218567', 'Гаррі Поттер і філософський камінь', 1997, 380.00, 30);
+
+INSERT INTO book_author (book_id, author_id) 
+VALUES 
+    (1, 1),
+    (2, 2),
+    (3, 3),
+    (4, 4);
+
+INSERT INTO book_category (book_id, category_id) 
+VALUES 
+    (1, 1),
+    (2, 2),
+    (3, 3),
+    (4, 4);
+
+INSERT INTO orders (customer_id, status, shipping_address, total_amount) 
+VALUES 
+    (1, 'Delivered', 'м. Київ, вул. Хрещатик, 15, кв. 4', 1600.00),
+    (2, 'Shipped', 'м. Львів, вул. Городоцька, 82, кв. 12', 420.00),
+    (3, 'Processing', 'м. Одеса, вул. Дерибасівська, 10, кв. 2', 380.00),
+    (1, 'Pending', 'м. Київ, вул. Хрещатик, 15, кв. 4', 350.00);
+
+INSERT INTO order_item (order_id, book_id, quantity, price_at_purchase) 
+VALUES 
+    (1, 1, 1, 1250.00),
+    (1, 2, 1, 350.00),
+    (2, 3, 1, 420.00),
+    (3, 4, 1, 380.00),
+    (4, 2, 1, 350.00);
+
+INSERT INTO review (customer_id, book_id, order_item_id, rating, comment) 
+VALUES 
+    (1, 1, 1, 5, 'Must-read для кожного розробника! Дуже якісна книга.'),
+    (1, 2, 2, 5, 'Класика, яка залишається актуальною й сьогодні.'),
+    (2, 3, 3, 4, 'Чудовий роман Жадана, дуже сильні емоції після прочитання.');
