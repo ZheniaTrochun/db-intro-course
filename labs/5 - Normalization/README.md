@@ -1,0 +1,21 @@
+- 1NF:
+  - lease_agreement
+  - applications
+  - property
+  - property_owner,
+  - tenant,
+  - realtor
+- 2NF:
+  - lease_agreement
+  - applications
+  - property
+  - property_owner,
+  - tenant,
+  - realtor
+- 3NF:
+  - lease_agreement
+  - applications
+  - property
+  - property_owner,
+  - tenant,
+  - realtor
