@@ -146,6 +146,61 @@ CREATE TABLE track_artists (
     track_artist_id BIGINT NOT NULL REFERENCES artists(artist_id) ON DELETE CASCADE,
     track_id BIGINT NOT NULL REFERENCES tracks(track_id) ON DELETE CASCADE,
     artist_role ARTIST_ROLE NOT NULL,
-    PRIMARY KEY(track_artist_id, track_id, artist_role)
+    PRIMARY KEY(track_artist_id, track_id)
 );
+CREATE UNIQUE INDEX unique_main_artist_per_track
+ON track_artists(track_id)
+WHERE artist_role = 'Main';
+```
+Також потрібно прибрати `track_artist_id` з таблиці `tracks`. Також, таблиця `track_features` більше не потрібна. <br>
+Тоді, наприклад, запит з отриманням усіх треків певного виконавця, може виглядати так:
+```sql
+SELECT track_id, track_name FROM tracks AS t
+JOIN track_artists AS ta
+    ON ta.track_id = t.track_id AND ta.artist_role = 'Main';
+```
+Але, по-перше, це порушує початкову модель даних, а саме зв'язок один-до-багатьох між `artists` та `tracks`.
+По-друге, усі запити, які враховували `track_artist_id` у таблиці `tracks` більше не працюватимуть.
+
+- Інший варіант, який, на мою думку, призводить до мінімальних змін та не порушує модель даних:
+Створюємо таблицю `albums_tracks`:
+```sql
+CREATE TABLE album_tracks (
+    track_id BIGINT NOT NULL,
+    album_id BIGINT NOT NULL,
+    artist_id BIGINT NOT NULL,
+    PRIMARY KEY (track_id, album_id),
+
+    CONSTRAINT at_most_one_album_track UNIQUE(track_id),
+
+    FOREIGN KEY (album_id, artist_id) REFERENCES albums(album_id, album_artist_id),
+    FOREIGN KEY (track_id, artist_id) REFERENCES tracks(track_id, track_artist_id)
+);
+```
+Також потрібно прибрати `track_album_id` з `tracks` і додати обмеження до `albums` і `tracks`:
+```sql
+ALTER TABLE tracks DROP COLUMN track_album_id;
+ALTER TABLE albums ADD CONSTRAINT unique_album_artist_id UNIQUE(album_id, album_artist_id);
+ALTER TABLE tracks ADD CONSTRAINT unique_track_artist_id UNIQUE(track_id, track_artist_id);
+```
+Обмеження `at_most_one_album_track` забезпечює зв'язок один-до-багатьох між `albums` та `tracks`. <br>
+Два зовнішніх ключа гарантують, що власник альбому є головним виконавцем треку.<br>
+Це рішення призводить до мінімальних змін бази даних.<br>
+Наприклад, запит для отримання усіх треків альбому:
+```sql
+SELECT
+    a.album_name,
+    t.track_name
+FROM albums AS a
+JOIN album_tracks AS alt
+    ON alt.album_id = a.album_id
+JOIN tracks AS t
+    ON alt.track_id = t.track_id;
+```
+Також запит, для отримання усіх треків-синглів:
+```sql
+SELECT t.track_name FROM track AS t
+LEFT JOIN album_tracks AS alt
+    ON alt.track_id = t.track_id
+WHERE alt.track_id IS NULL;
 ```
