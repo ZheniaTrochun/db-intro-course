@@ -9,3 +9,11 @@
 --          - роком запису на курс (зростання)
 
 -- Рішення:
+SELECT
+    EXTRACT(YEAR FROM created_at)::int AS enrolment_year,
+    COUNT(DISTINCT course_id) AS number_of_courses,
+    COUNT(*) AS number_of_enrolments,
+    COUNT(grade) AS number_of_graded_enrolments
+FROM enrolment
+GROUP BY EXTRACT(YEAR FROM created_at)
+ORDER BY enrolment_year ASC;
