@@ -204,3 +204,116 @@ LEFT JOIN album_tracks AS alt
     ON alt.track_id = t.track_id
 WHERE alt.track_id IS NULL;
 ```
+### 4.5. Повний скрипт виправлення
+```sql
+CREATE TABLE album_tracks (
+    track_id BIGINT NOT NULL,
+    album_id BIGINT NOT NULL,
+    artist_id BIGINT NOT NULL,
+    PRIMARY KEY (track_id, album_id),
+
+    CONSTRAINT at_most_one_album_track UNIQUE(track_id),
+
+    FOREIGN KEY (album_id, artist_id) REFERENCES albums(album_id, album_artist_id),
+    FOREIGN KEY (track_id, artist_id) REFERENCES tracks(track_id, track_artist_id)
+);
+ALTER TABLE tracks DROP COLUMN track_album_id;
+ALTER TABLE albums ADD CONSTRAINT unique_album_artist_id UNIQUE(album_id, album_artist_id);
+ALTER TABLE tracks ADD CONSTRAINT unique_track_artist_id UNIQUE(track_id, track_artist_id);
+```
+
+## 5. Оновлена ER діаграма
+```mermaid
+erDiagram
+    User {
+        bigint user_id PK
+        string user_email
+        string user_password_hash
+        timestamp registered_at
+    }
+
+    Artist {
+        bigint artist_id PK
+        bigint artist_user_id FK
+        string artist_name
+        string artist_bio
+    }
+
+    Track {
+        bigint track_id PK
+        bigint track_artist_id FK
+        string track_name
+        int track_duration_milliseconds
+        string track_audio_url
+        timestamp released_at
+    }
+
+    Album {
+        bigint album_id PK
+        bigint album_artist_id FK
+        string album_name "NOT NULL"
+        timestamp released_at "NOT NULL"
+    }
+
+    AlbumTrack {
+        bigint track_id  PK
+        bigint album_id  PK
+        bigint artist_id
+    }
+
+    TrackFeature {
+        bigint artist_id PK, FK
+        bigint track_id PK, FK
+    }
+
+    Playlist {
+        bigint playlist_id PK
+        bigint playlist_user_id FK
+        string playlist_name
+        string playlist_view
+        timestamp created_at
+    }
+
+    PlaylistTrack {
+        bigint playlist_id PK, FK
+        bigint track_id PK, FK
+        int position
+        timestamp added_at
+    }
+
+    ArtistMonthlyStats {
+        bigint stats_artist_id PK,FK
+        date stats_month PK
+        int stats_play_count
+    }
+
+
+    %% User -> Artist
+    User ||--o| Artist : "has profile"
+
+    %% User -> Playlist
+    User ||--o{ Playlist : "owns"
+
+    %% Artist -> Track (primary/owner artist)
+    Artist ||--o{ Track : "owns"
+
+    %% Artist <-> Track (featured artists)
+    Artist ||--o{ TrackFeature : "features"
+    Track ||--o{ TrackFeature : "has featured"
+
+    %% Artist -> Album
+    Artist ||--o{ Album : "owns"
+
+    %% Album -> AlbumTrack
+    Album ||--o{ AlbumTrack : "contains"
+
+    %% Track -> AlbumTrack
+    Track ||--o| AlbumTrack : "belongs to"
+
+    %% Playlist <-> Track
+    Playlist ||--o{ PlaylistTrack : "contains"
+    Track ||--o{ PlaylistTrack : "included in"
+
+    %% Artist -> Monthly Stats
+    Artist ||--o{ ArtistMonthlyStats : "has statistics"
+```
