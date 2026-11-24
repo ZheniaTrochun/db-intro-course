@@ -1,0 +1,72 @@
+@startuml ER Diagram — VideoHub
+
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+  HeaderBackgroundColor #4A90D9
+  HeaderFontColor #FFFFFF
+}
+
+entity "User" as user {
+  * id : UUID <<PK>>
+  --
+  * email : VARCHAR <<UNIQUE>>
+  * username : VARCHAR <<UNIQUE>>
+  password : VARCHAR <<NULLABLE>>
+  google_id : VARCHAR <<UNIQUE, NULLABLE>>
+  avatar : VARCHAR <<NULLABLE>>
+  banner : VARCHAR <<NULLABLE>>
+  description : TEXT <<NULLABLE>>
+  * created_at : TIMESTAMPTZ
+}
+
+entity "Video" as video {
+  * id : UUID <<PK>>
+  --
+  * title : VARCHAR
+  description : TEXT <<NULLABLE>>
+  * url : VARCHAR
+  thumbnail : VARCHAR <<NULLABLE>>
+  views : INTEGER <<DEFAULT 0>>
+  * created_at : TIMESTAMPTZ
+  * author_id : UUID <<FK>>
+}
+
+entity "Comment" as comment {
+  * id : UUID <<PK>>
+  --
+  * text : TEXT
+  * created_at : TIMESTAMPTZ
+  * user_id : UUID <<FK>>
+  * video_id : UUID <<FK>>
+}
+
+entity "Like" as like {
+  * id : UUID <<PK>>
+  --
+  * user_id : UUID <<FK>>
+  * video_id : UUID <<FK>>
+  * created_at : TIMESTAMPTZ
+  <<UNIQUE(user_id, video_id)>>
+}
+
+entity "Subscription" as sub {
+  * id : UUID <<PK>>
+  --
+  * subscriber_id : UUID <<FK>>
+  * channel_id : UUID <<FK>>
+  * created_at : TIMESTAMPTZ
+  <<UNIQUE(subscriber_id, channel_id)>>
+}
+
+' Relationships
+user ||--o{ video : "author_id\n1:N"
+user ||--o{ comment : "user_id\n1:N"
+video ||--o{ comment : "video_id\n1:N"
+user ||--o{ like : "user_id\n1:N"
+video ||--o{ like : "video_id\n1:N"
+user ||--o{ sub : "subscriber_id\n1:N"
+user ||--o{ sub : "channel_id\n1:N"
+
+@enduml
