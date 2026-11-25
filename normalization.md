@@ -159,7 +159,7 @@ CREATE TABLE tracks (
     ...
 );
 ```
-За бізнес логікою, в альбомі певного виконавця має бути тільки треки, у яких головний виконавець я автором цього альбому. Також трек може не належати жодному альбому (single).
+За бізнес логікою, в альбомі певного виконавця має бути тільки треки, у яких головний виконавець є автором цього альбому. Також трек може не належати жодному альбому (single).
 З цього випливає, що `track_album_id` може бути `NULL`, а якщо не `NULL` то `album_artist_id` з таблиці `albums` має співпадати з `track_artist_id`.<br>
 Виходить така ситуація, що якщо `track_album_id` не `NULL` то `track_artist_id` залежить від `album_artist_id`, але `album_artist_id` - це неключовий атрибут.
 Це може призвести до аномалій вставки та видалення і, відповідно, є порушенням 3NF.
@@ -187,12 +187,15 @@ WHERE artist_role = 'Main';
 ```sql
 SELECT track_id, track_name FROM tracks AS t
 JOIN track_artists AS ta
-    ON ta.track_id = t.track_id AND ta.artist_role = 'Main';
+    ON ta.track_id = t.track_id
+WHERE ta.track_artist_id = 1 AND ta.artist_role = 'Main';
 ```
 Але, по-перше, це порушує початкову модель даних, а саме зв'язок один-до-багатьох між `artists` та `tracks`.
 По-друге, усі запити, які враховували `track_artist_id` у таблиці `tracks` більше не працюватимуть.
+По-третє, не вирішує проблему. Аномалії вставки, оновлення та видалення все ще можуть бути.
+Може існувати трек, який посилається на альбом, власник якого не є головним виконавцем треку (у таблиці `track_artists` може бути невідповіність).
 
-- Інший варіант, який, на мою думку, призводить до мінімальних змін та не порушує модель даних:
+- Остаточний варіант, який на мою думку є правильним:
 Створюємо таблицю `albums_tracks`:
 ```sql
 CREATE TABLE album_tracks (
@@ -207,7 +210,7 @@ CREATE TABLE album_tracks (
     FOREIGN KEY (track_id, artist_id) REFERENCES tracks(track_id, track_artist_id)
 );
 ```
-Також потрібно прибрати `track_album_id` з `tracks` і додати обмеження до `albums` і `tracks`:
+Також, перед цим потрібно прибрати `track_album_id` з `tracks` і додати обмеження до `albums` і `tracks`:
 ```sql
 ALTER TABLE tracks DROP COLUMN track_album_id;
 ALTER TABLE albums ADD CONSTRAINT unique_album_artist_id UNIQUE(album_id, album_artist_id);
