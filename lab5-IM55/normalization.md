@@ -4,17 +4,17 @@
 
 ## 1. Початкова схема та функціональні залежності
 
-| Таблиця       | Атрибути                                            | Ключі                | ФЗ                                                                        |
-| ------------- | --------------------------------------------------- | -------------------- | ------------------------------------------------------------------------- |
-| author        | id, first_name, last_name                           | id                   | id -> first_name, last_name                                               |
-| customer      | id, first_name, last_name, email, phone             | id, email, phone     | id -> first_name, last_name, email, phone;<br>email -> id;<br>phone -> id |
-| category      | id, category_name                                   | id, category_name    | id -> category_name;<br>category_name -> id                               |
-| address       | id, customer_id, country, city, street, postal_code | id                   | id -> customer_id, country, city, street, postal_code                     |
-| book          | id, author_id, title, published_year, price         | {id}                 | id -> author_id, title, published_year, price                             |
-| book_category | book_id, category_id                                | book_id, category_id | нетривіальних ФЗ немає                                                    |
-| orders        | id, customer_id, address_id, date, status           | id                   | id -> address_id, date, status;<br>address_id -> customer_id              |
-| order_item    | order_id, book_id, quantity, unit_price             | order_id, book_id    | order_id, book_id -> quantity, unit_price                                 |
-| payment       | id, order_id, amount, date, method, status          | id, order_id         | id -> order_id, amount, date, method, status;<br>order_id -> id           |
+| Таблиця       | Атрибути                                            | Ключі                  | ФЗ                                                                        |
+| ------------- | --------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------- |
+| author        | id, first_name, last_name                           | id                     | id -> first_name, last_name                                               |
+| customer      | id, first_name, last_name, email, phone             | id, email, phone       | id -> first_name, last_name, email, phone;<br>email -> id;<br>phone -> id |
+| category      | id, category_name                                   | id, category_name      | id -> category_name;<br>category_name -> id                               |
+| address       | id, customer_id, country, city, street, postal_code | id                     | id -> customer_id, country, city, street, postal_code                     |
+| book          | id, author_id, title, published_year, price         | id                     | id -> author_id, title, published_year, price                             |
+| book_category | book_id, category_id                                | (book_id, category_id) | нетривіальних ФЗ немає                                                    |
+| orders        | id, customer_id, address_id, date, status           | id                     | id -> address_id, date, status;<br>address_id -> customer_id              |
+| order_item    | order_id, book_id, quantity, unit_price             | (order_id, book_id)    | order_id, book_id -> quantity, unit_price                                 |
+| payment       | id, order_id, amount, date, method, status          | id, order_id           | id -> order_id, amount, date, method, status;<br>order_id -> id           |
 
 ## 2. Нормальні форми початкової схеми
 
@@ -39,13 +39,48 @@
 ## 4. Нормалізація
 
 **Крок 1 - 1NF**
-Усі атрибути атомарні, повторюваних груп немає: кілька книг замовлення винесено в `order_item`, кілька категорій книги - в `book_category`. Змін немає, схема після кроку така сама, як у розділі 1.
+
+Перевіряємо атомарність: у кожній клітинці має бути одне значення і не має бути повторюваних груп. У схемі так і є: кілька книг одного замовлення вже винесено в окрему таблицю `order_item`, а кілька категорій однієї книги - в `book_category`. Змін не потрібно.
+
+Схема після кроку 1 (у 1NF):
+
+| Таблиця       | Атрибути                                            | PK                     | FK                                             |
+| ------------- | --------------------------------------------------- | ---------------------- | ---------------------------------------------- |
+| author        | id, first_name, last_name                           | id                     | -                                              |
+| customer      | id, first_name, last_name, email, phone             | id                     | -                                              |
+| category      | id, category_name                                   | id                     | -                                              |
+| address       | id, customer_id, country, city, street, postal_code | id                     | customer_id -> customer                        |
+| book          | id, author_id, title, published_year, price         | id                     | author_id -> author                            |
+| book_category | book_id, category_id                                | (book_id, category_id) | book_id -> book, category_id -> category       |
+| orders        | id, customer_id, address_id, date, status           | id                     | customer_id -> customer, address_id -> address |
+| order_item    | order_id, book_id, quantity, unit_price             | (order_id, book_id)    | order_id -> orders, book_id -> book            |
+| payment       | id, order_id, amount, date, method, status          | id                     | order_id -> orders                             |
 
 **Крок 2 - 2NF**
-Складений ключ мають лише `order_item` і `book_category`. В `order_item` `quantity` і `unit_price` залежать від обох частин ключа, а в `book_category` неключових атрибутів немає. Часткових залежностей немає, змін немає, схема така сама, як у розділі 1.
+
+2NF стосується лише таблиць зі складеним ключем, бо тільки там атрибут може залежати від частини ключа. Таких таблиць дві:
+
+- `order_item (order_id, book_id)`: `quantity` і `unit_price` залежать від обох частин ключа. Від одного `book_id` ціну не визначити, бо одна книга в різних замовленнях може мати різну ціну, а від одного `order_id` - бо в замовленні може бути кілька книг;
+- `book_category (book_id, category_id)`: неключових атрибутів немає, тому часткової залежності бути не може.
+  В інших таблицях ключ простий (`id`), тож часткових залежностей у них теж немає. Змін не потрібно.
+
+Схема після кроку 2 (у 2NF) збігається зі схемою після кроку 1:
+
+| Таблиця       | Атрибути                                            | PK                     | FK                                             |
+| ------------- | --------------------------------------------------- | ---------------------- | ---------------------------------------------- |
+| author        | id, first_name, last_name                           | id                     | -                                              |
+| customer      | id, first_name, last_name, email, phone             | id                     | -                                              |
+| category      | id, category_name                                   | id                     | -                                              |
+| address       | id, customer_id, country, city, street, postal_code | id                     | customer_id -> customer                        |
+| book          | id, author_id, title, published_year, price         | id                     | author_id -> author                            |
+| book_category | book_id, category_id                                | (book_id, category_id) | book_id -> book, category_id -> category       |
+| orders        | id, customer_id, address_id, date, status           | id                     | customer_id -> customer, address_id -> address |
+| order_item    | order_id, book_id, quantity, unit_price             | (order_id, book_id)    | order_id -> orders, book_id -> book            |
+| payment       | id, order_id, amount, date, method, status          | id                     | order_id -> orders                             |
 
 **Крок 3 - 3NF**
-Прибираємо транзитивну залежність в `orders`.
+
+Шукаємо транзитивні залежності, тобто залежність неключового атрибута від іншого неключового. Вона є лише в `orders`: `id -> address_id -> customer_id`. Прибираємо її, видаливши `customer_id`:
 
 |       | Таблиця                                                                          | Ключі                             |
 | ----- | -------------------------------------------------------------------------------- | --------------------------------- |
@@ -56,7 +91,21 @@
 ALTER TABLE orders DROP COLUMN customer_id;
 ```
 
-Нову таблицю створювати не потрібно: залежність "адреса -> клієнт" уже зберігається в `address` (`id -> customer_id`). Клієнта замовлення тепер знаходимо через адресу: `orders -> address -> customer`. Після зміни ФЗ `orders` - лише `id -> address_id, date, status`, тому таблиця в 3NF, а записати замовлення на чужу адресу більше неможливо. Решта таблиць лишаються без змін.
+Нову таблицю створювати не потрібно: залежність "адреса -> клієнт" уже зберігається в `address` (`id -> customer_id`). Клієнта замовлення тепер знаходимо через адресу: `orders -> address -> customer`. Після зміни ФЗ `orders` - лише `id -> address_id, date, status`, тому таблиця в 3NF, а записати замовлення на чужу адресу більше неможливо.
+
+Схема після кроку 3 (у 3NF, змінений рядок виділено):
+
+| Таблиця       | Атрибути                                            | PK                     | FK                                       |
+| ------------- | --------------------------------------------------- | ---------------------- | ---------------------------------------- |
+| author        | id, first_name, last_name                           | id                     | -                                        |
+| customer      | id, first_name, last_name, email, phone             | id                     | -                                        |
+| category      | id, category_name                                   | id                     | -                                        |
+| address       | id, customer_id, country, city, street, postal_code | id                     | customer_id -> customer                  |
+| book          | id, author_id, title, published_year, price         | id                     | author_id -> author                      |
+| book_category | book_id, category_id                                | (book_id, category_id) | book_id -> book, category_id -> category |
+| **orders**    | **id, address_id, date, status**                    | **id**                 | **address_id -> address**                |
+| order_item    | order_id, book_id, quantity, unit_price             | (order_id, book_id)    | order_id -> orders, book_id -> book      |
+| payment       | id, order_id, amount, date, method, status          | id                     | order_id -> orders                       |
 
 ## 5. Фінальна схема в 3NF
 
