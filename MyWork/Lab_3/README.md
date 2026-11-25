@@ -6,7 +6,8 @@ CRUD-операції в стилі **OLTP** — повсякденна робо
 
 ### Файли
 
-- `queries.sql` — 12 запитів: 4 SELECT, 3 INSERT, 2 UPDATE, 2 DELETE + перевірки
+- `queries.sql` — 11 запитів: 4 SELECT, 3 INSERT, 2 UPDATE, 2 DELETE + перевірки до/після
+- `test.sql` — окрема перевірка `ON DELETE CASCADE` на тимчасових даних
 - `tasks.md` — завдання лабораторної
 - `report_lab3.md` / `report_lab3.pdf` — звіт
 - `screenshots/` — скріншоти виконання в pgAdmin
@@ -19,7 +20,8 @@ CRUD-операції в стилі **OLTP** — повсякденна робо
 
 ### Files
 
-- `queries.sql` — 12 queries: 4 SELECT, 3 INSERT, 2 UPDATE, 2 DELETE + verifications
+- `queries.sql` — 11 queries: 4 SELECT, 3 INSERT, 2 UPDATE, 2 DELETE + before/after verifications
+- `test.sql` — separate `ON DELETE CASCADE` check on temporary data
 - `tasks.md` — lab assignment
 - `report_lab3.md` / `report_lab3.pdf` — report
 - `screenshots/` — execution screenshots from pgAdmin
