@@ -19,9 +19,3 @@
 - schema.sql — створює таблиці підсумкової схеми.
 - categories.sql — додає категорії «Ракетки» та «М’ячі».
 - normalize-existing.sql — показує порушення нормальних форм та їх виправлення. Наприкінці ROLLBACK скасовує навчальні зміни.
-
-## Як запустити в pgAdmin
-
-1. У порожній базі виконай schema.sql.
-2. Виконай categories.sql, а потім seed.sql із ЛР 2.
-3. Для демонстрації запусти normalize-existing.sql цілком від BEGIN до ROLLBACK.
