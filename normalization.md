@@ -1,7 +1,7 @@
 # Нормалізація
 
-## 1. Поточні таблиці в базі даних
-
+## 1. Аналіз поточної бази даних
+### 1.1. Список таблиць
 `users`
 ```sql
 CREATE TABLE users (
@@ -80,6 +80,36 @@ CREATE TABLE playlist_tracks (
     CONSTRAINT unique_track_position UNIQUE(playlist_id, track_position) DEFERRABLE INITIALLY DEFERRED
 );
 ```
+### 1.2. Функціональні залежності
+- Для таблиці `users`:
+  - `user_id` -> `user_email`, `user_password_hash`, `registered_at`
+  - `user_email` -> `user_id`, `user_password_hash`, `registered_at`
+- Для таблиці `artists`:
+  - `artist_id` -> `artist_user_id`, `artist_name`, `artist_bio`
+  - `artist_id` -> `artist_user_id` -> будь-який атрибут у `users` (транзитивна залежність)
+- Для таблиці `albums`:
+  - `album_id` -> `album_artist_id`, `album_name`, `released_at`
+  - `album_id` -> `album_artist_id` -> будь-який атрибут у `artists` (транзитивна залежність)
+- Для таблиці `tracks`:
+  - `track_id` -> `track_artist_id`, `track_album_id`, `track_name`, `track_duration_milliseconds`, `track_audio_url`, `released_at`
+  - `track_audio_url` -> `track_id`, `track_artist_id`, `track_album_id`, `track_name`, `track_duration_milliseconds`, `released_at`
+  - `track_id` -> `track_artist_id` -> будь-який атрибут у `artists` (транзитивна залежність)
+  - `track_id` -> `track_album_id` -> будь-який атрибут у `albums` (транзитивна залежність)
+- Для таблиці `playlists`:
+  - `playlist_id` -> `playlist_user_id`, `playlist_name`, `playlist_view`, `created_at`
+  - `playlist_id` -> `playlist_user_id` -> будь-який атрибут у `users` (транзитивна залежність)
+- Для таблиці `artist_monthly_stats`:
+  - `stats_artist_id`, `stats_month` -> `stats_play_count`
+  - `stats_artist_id`, `stats_month` -> `stats_artist_id` -> будь-який атрибут у `artists` (транзитивна залежність)
+- Для таблиці `track_features`:
+  - `artist_id`, `track_id` -> `artist_id` -> будь-який атрибут у `artists` (транзитивна залежність)
+  - `artist_id`, `track_id` -> `track_id` -> будь-який атрибут у `tracks` (транзитивна залежність)
+- Для таблиці `playlist_tracks`:
+  - `playlist_id`, `track_id` -> `track_position`, `added_at`
+  - `playlist_id`, `track_position` -> `track_id`, `added_at`
+  - `playlist_id`, `track_id` -> `playlist_id` -> будь-який атрибут у `playlists` (транзитивна залежність)
+  - `playlist_id`, `track_id` -> `track_id` -> будь-який атрибут у `tracks` (транзитивна залежність)
+
 ## 2. Перевірка 1NF
 ### 2.1. Вимоги 1NF
 - Кожен атрибут має атомарне значення
@@ -113,11 +143,11 @@ CREATE TABLE playlist_tracks (
 ## 4. Перевірка 3NF
 ### 4.1. Вимоги 3NF
 - База даних вже перебуває у 2NF.
-- Немає бути транзитивних залежностей. Інакше кажучи: немає жодного неключового атрибута, який залежить від іншого неключового атрибута.
+- Немає жодного неключового атрибута, який залежить від іншого неключового атрибута.
 
 ### 4.2. Перевірка 3NF
 - База даних вже перебуває у 2NF.
-- В цілому, всі залежності між таблицями не є транзитивними, окрім зв'язку `tracks` - `albums`.
+- В цілому, всі залежності між таблицями задовольняють 3NF, окрім зв'язку `tracks` - `albums`. Інші транзитивні залежності не порушують правило: "немає жодного неключового атрибута, який залежить від іншого неключового атрибута".
 
 ### 4.3. Детальний огляд зв'язку `tracks` - `albums`
 Таблиця `tracks`:
@@ -199,13 +229,17 @@ JOIN tracks AS t
 ```
 Також запит, для отримання усіх треків-синглів:
 ```sql
-SELECT t.track_name FROM track AS t
+SELECT t.track_name FROM tracks AS t
 LEFT JOIN album_tracks AS alt
     ON alt.track_id = t.track_id
 WHERE alt.track_id IS NULL;
 ```
 ### 4.5. Повний скрипт виправлення
 ```sql
+ALTER TABLE tracks DROP COLUMN track_album_id;
+ALTER TABLE albums ADD CONSTRAINT unique_album_artist_id UNIQUE(album_id, album_artist_id);
+ALTER TABLE tracks ADD CONSTRAINT unique_track_artist_id UNIQUE(track_id, track_artist_id);
+
 CREATE TABLE album_tracks (
     track_id BIGINT NOT NULL,
     album_id BIGINT NOT NULL,
@@ -217,9 +251,6 @@ CREATE TABLE album_tracks (
     FOREIGN KEY (album_id, artist_id) REFERENCES albums(album_id, album_artist_id),
     FOREIGN KEY (track_id, artist_id) REFERENCES tracks(track_id, track_artist_id)
 );
-ALTER TABLE tracks DROP COLUMN track_album_id;
-ALTER TABLE albums ADD CONSTRAINT unique_album_artist_id UNIQUE(album_id, album_artist_id);
-ALTER TABLE tracks ADD CONSTRAINT unique_track_artist_id UNIQUE(track_id, track_artist_id);
 ```
 
 ## 5. Оновлена ER діаграма
