@@ -1,0 +1,294 @@
+# Лабораторна робота №6
+
+## Початкова схема
+
+```
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model game {
+  game_id    Int          @id @default(autoincrement())
+  game_name  String       @unique(map: "uq_game_name")
+  genre      game_genre   @default(other)
+  game_team  game_team[]
+  tournament tournament[]
+}
+
+model game_match {
+  game_match_id     Int                 @id @default(autoincrement())
+  tournament_id     Int
+  status            match_status        @default(planned)
+  match_date        DateTime            @db.Timestamptz(6)
+  tournament        tournament          @relation(fields: [tournament_id], references: [tournament_id], onDelete: Cascade, map: "fk_tournament")
+  match_participant match_participant[]
+}
+
+model game_team {
+  game_team_id             Int                        @id @default(autoincrement())
+  game_id                  Int
+  team_id                  Int
+  coach_name               String?
+  game                     game                       @relation(fields: [game_id], references: [game_id], map: "fk_game_id")
+  team                     team                       @relation(fields: [team_id], references: [team_id], map: "fk_team_id")
+  match_participant        match_participant[]
+  team_player              team_player[]
+  tournament_participation tournament_participation[]
+}
+
+model match_participant {
+  game_match_id Int
+  game_team_id  Int
+  is_winner     Boolean?
+  game_match    game_match @relation(fields: [game_match_id], references: [game_match_id], onDelete: Cascade, map: "fk_game_match")
+  game_team     game_team  @relation(fields: [game_team_id], references: [game_team_id], map: "fk_game_team")
+
+  @@id([game_match_id, game_team_id], map: "pk_game_match_game_team")
+}
+
+model orginizer {
+  orginizer_id   Int          @id @default(autoincrement())
+  orginizer_name String       @unique(map: "uq_orginizer_name")
+  tournament     tournament[]
+}
+
+model player {
+  player_id     Int           @id @default(autoincrement())
+  nickname      String        @unique(map: "uq_nickname")
+  first_name    String
+  last_name     String
+  country       country_enum
+  date_of_birth DateTime      @db.Date
+  team_player   team_player[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model prize {
+  tournament_id Int
+  place         Int
+  prize         String
+  tournament    tournament @relation(fields: [tournament_id], references: [tournament_id], onDelete: Cascade, map: "fk_tournament_id")
+
+  @@id([tournament_id, place], map: "pk")
+}
+
+model team {
+  team_id   Int          @id @default(autoincrement())
+  team_name String       @unique(map: "uq_team_name")
+  country   country_enum
+  game_team game_team[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model team_player {
+  player_id    Int
+  game_team_id Int
+  join_date    DateTime  @db.Date
+  leave_date   DateTime? @db.Date
+  team_role    role_enum
+  game_team    game_team @relation(fields: [game_team_id], references: [game_team_id], map: "fk_game_team_id")
+  player       player    @relation(fields: [player_id], references: [player_id], map: "fk_player_id")
+
+  @@id([player_id, game_team_id, join_date], map: "pk_team_player")
+  @@unique([player_id, game_team_id, leave_date], map: "uq_no_double_participation")
+}
+
+model tournament {
+  tournament_id            Int                        @id @default(autoincrement())
+  game_id                  Int
+  orginizer_id             Int
+  tournament_name          String
+  start_date               DateTime                   @db.Timestamptz(6)
+  status                   tournament_status          @default(planned)
+  game_match               game_match[]
+  prize                    prize[]
+  game                     game                       @relation(fields: [game_id], references: [game_id], map: "fk_game")
+  orginizer                orginizer                  @relation(fields: [orginizer_id], references: [orginizer_id], map: "fk_orginizer")
+  tournament_participation tournament_participation[]
+}
+
+model tournament_participation {
+  game_team_id  Int?
+  tournament_id Int
+  place         Int
+  game_team     game_team? @relation(fields: [game_team_id], references: [game_team_id], onDelete: Restrict, map: "fk_game_team_id")
+  tournament    tournament @relation(fields: [tournament_id], references: [tournament_id], onDelete: Cascade, map: "fk_tournament_id")
+
+  @@id([tournament_id, place], map: "pk_tournament_participation")
+}
+
+enum country_enum {
+  USA
+  China
+  Ukraine
+  Sweden
+  Brazil
+  Other
+}
+
+enum game_genre {
+  FPS
+  strategy
+  RTS
+  card_game @map("card game")
+  MOBA
+  other
+}
+
+enum match_status {
+  planned
+  in_progress @map("in progress")
+  finished
+  cancelled
+}
+
+enum role_enum {
+  Captain
+  Player
+}
+
+enum tournament_status {
+  planned
+  in_works   @map("in works")
+  happeninng
+  done
+  cancelled
+}
+```
+
+## Зміна 1: додавання таблиці спонсорів
+
+Було:
+
+```
+model tournament {
+  tournament_id            Int                        @id @default(autoincrement())
+  game_id                  Int
+  orginizer_id             Int
+  tournament_name          String
+  start_date               DateTime                   @db.Timestamptz(6)
+  status                   tournament_status          @default(planned)
+  game_match               game_match[]
+  prize                    prize[]
+  game                     game                       @relation(fields: [game_id], references: [game_id], map: "fk_game")
+  orginizer                orginizer                  @relation(fields: [orginizer_id], references: [orginizer_id], map: "fk_orginizer")
+  tournament_participation tournament_participation[]
+}
+```
+
+Стало:
+
+```
+model sponsor {
+  sponsor_id    Int        @id @default(autoincrement())
+  sponsor_name  String     @db.VarChar(100)
+  budget        Decimal?   @db.Decimal(12, 2)
+  tournament_id Int
+  tournament    tournament @relation(fields: [tournament_id], references: [tournament_id], onDelete: Cascade)
+}
+
+model tournament {
+  tournament_id            Int                        @id @default(autoincrement())
+  game_id                  Int
+  orginizer_id             Int
+  tournament_name          String
+  start_date               DateTime                   @db.Timestamptz(6)
+  status                   tournament_status          @default(planned)
+  game_match               game_match[]
+  prize                    prize[]
+  game                     game                       @relation(fields: [game_id], references: [game_id], map: "fk_game")
+  orginizer                orginizer                  @relation(fields: [orginizer_id], references: [orginizer_id], map: "fk_orginizer")
+  tournament_participation tournament_participation[]
+  sponsor sponsor[]
+}
+```
+
+**Пояснення:** додано нову таблицю `sponsor` (назва, бюджет і зовнішній ключ `tournament_id`). Зв'язок з `tournament` один до багатьох. Поле `sponsor sponsor[]` у `tournament` - зворотний бік зв'язку для Prisma, нового стовпця воно не створює.
+
+**Результат:**
+
+![image1](images/img1.jpg)
+
+![image4](images/img4.jpg)
+
+![image5](images/img5.jpg)
+
+
+
+## Зміна 2: видалення поля coach_name з game_team
+
+Було:
+
+```
+model game_team {
+  game_team_id             Int                        @id @default(autoincrement())
+  game_id                  Int
+  team_id                  Int
+  coach_name               String?
+  game                     game                       @relation(fields: [game_id], references: [game_id], map: "fk_game_id")
+  team                     team                       @relation(fields: [team_id], references: [team_id], map: "fk_team_id")
+  match_participant        match_participant[]
+  team_player              team_player[]
+  tournament_participation tournament_participation[]
+}
+```
+
+Стало:
+
+```
+model game_team {
+  game_team_id             Int                        @id @default(autoincrement())
+  game_id                  Int
+  team_id                  Int
+  game                     game                       @relation(fields: [game_id], references: [game_id], map: "fk_game_id")
+  team                     team                       @relation(fields: [team_id], references: [team_id], map: "fk_team_id")
+  match_participant        match_participant[]
+  team_player              team_player[]
+  tournament_participation tournament_participation[]
+}
+```
+
+**Пояснення:** з моделі `game_team` прибрано текстове поле `coach_name`, тобто відповідний стовпець видаляється з таблиці разом з усіма значеннями в ньому. Усі зв'язки моделі залишилися без змін, тому на інші таблиці ця зміна не впливає.
+
+**Результат:**
+
+![image2](images/img2.jpg)
+
+
+
+## Зміна 3: перейменування поля genre на game_genre
+
+Було:
+
+```
+model game {
+  game_id    Int          @id @default(autoincrement())
+  game_name  String       @unique(map: "uq_game_name")
+  genre      game_genre   @default(other)
+  game_team  game_team[]
+  tournament tournament[]
+}
+```
+
+Стало:
+
+```
+model game {
+  game_id    Int          @id @default(autoincrement())
+  game_name  String       @unique(map: "uq_game_name")
+  game_genre      game_genre   @default(other)
+  game_team  game_team[]
+  tournament tournament[]
+}
+```
+
+**Пояснення:** поле `genre` перейменовано на `game_genre`, тип і значення за замовчуванням не змінилися. Prisma трактує таку зміну як видалення й створення стовпця, що прибрало б наявні дані, тому скрипт міграції було відредаговано вручну на перейменування стовпця.
+
+**Результат:**
+
+![image3](images/img3.jpg)
