@@ -1,0 +1,353 @@
+# Нормалізація
+
+## 1. Аналіз поточної бази даних
+### 1.1. Список таблиць
+`users`
+```sql
+CREATE TABLE users (
+    user_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_email VARCHAR(100) NOT NULL UNIQUE CHECK (user_email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
+    user_password_hash VARCHAR(100) NOT NULL,
+    registered_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+`artists`
+```sql
+CREATE TABLE artists (
+    artist_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    artist_user_id BIGINT NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+    artist_name VARCHAR(100) NOT NULL CHECK (btrim(artist_name) <> ''),
+    artist_bio VARCHAR(500)
+);
+```
+`albums`
+```sql
+CREATE TABLE albums (
+    album_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    album_artist_id BIGINT NOT NULL REFERENCES artists(artist_id) ON DELETE CASCADE,
+    album_name VARCHAR(100) NOT NULL CHECK (btrim(album_name) <> ''),
+    released_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+`tracks`
+```sql
+CREATE TABLE tracks (
+    track_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    track_artist_id BIGINT NOT NULL REFERENCES artists(artist_id) ON DELETE CASCADE,
+    track_album_id BIGINT REFERENCES albums(album_id) ON DELETE SET NULL,
+    track_name VARCHAR(100) NOT NULL CHECK (btrim(track_name) <> ''),
+    track_duration_milliseconds INTEGER NOT NULL CHECK (track_duration_milliseconds >= 1 AND track_duration_milliseconds <= 900000),
+    track_audio_url VARCHAR(100) NOT NULL UNIQUE,
+    released_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+`playlists`
+```sql
+CREATE TABLE playlists (
+    playlist_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    playlist_user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    playlist_name VARCHAR(100) NOT NULL CHECK (btrim(playlist_name) <> '') DEFAULT 'New Playlist',
+    playlist_view PLAYLIST_VIEW_ENUM NOT NULL DEFAULT 'private',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+`artist_monthly_stats`
+```sql
+CREATE TABLE artist_monthly_stats (
+    stats_artist_id BIGINT NOT NULL REFERENCES artists(artist_id) ON DELETE CASCADE,
+    stats_month DATE NOT NULL CHECK (EXTRACT(DAY FROM stats_month) = 1),
+    stats_play_count INTEGER NOT NULL CHECK (stats_play_count >= 0),
+    PRIMARY KEY (stats_artist_id, stats_month)
+);
+```
+`track_features`
+```sql
+CREATE TABLE track_features (
+    artist_id BIGINT NOT NULL REFERENCES artists(artist_id) ON DELETE CASCADE,
+    track_id BIGINT NOT NULL REFERENCES tracks(track_id) ON DELETE CASCADE,
+    PRIMARY KEY (artist_id, track_id)
+);
+```
+`playlist_tracks`
+```sql
+CREATE TABLE playlist_tracks (
+    playlist_id BIGINT NOT NULL REFERENCES playlists(playlist_id) ON DELETE CASCADE,
+    track_id BIGINT NOT NULL REFERENCES tracks(track_id) ON DELETE CASCADE,
+    track_position INTEGER NOT NULL CHECK (track_position >= 1),
+    added_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (playlist_id, track_id),
+    
+    CONSTRAINT unique_track_position UNIQUE(playlist_id, track_position) DEFERRABLE INITIALLY DEFERRED
+);
+```
+### 1.2. Функціональні залежності
+- Для таблиці `users`:
+  - `user_id` -> `user_email`, `user_password_hash`, `registered_at`
+  - `user_email` -> `user_id`, `user_password_hash`, `registered_at`
+- Для таблиці `artists`:
+  - `artist_id` -> `artist_user_id`, `artist_name`, `artist_bio`
+  - `artist_id` -> `artist_user_id` -> будь-який атрибут у `users` (транзитивна залежність)
+- Для таблиці `albums`:
+  - `album_id` -> `album_artist_id`, `album_name`, `released_at`
+  - `album_id` -> `album_artist_id` -> будь-який атрибут у `artists` (транзитивна залежність)
+- Для таблиці `tracks`:
+  - `track_id` -> `track_artist_id`, `track_album_id`, `track_name`, `track_duration_milliseconds`, `track_audio_url`, `released_at`
+  - `track_audio_url` -> `track_id`, `track_artist_id`, `track_album_id`, `track_name`, `track_duration_milliseconds`, `released_at`
+  - `track_id` -> `track_artist_id` -> будь-який атрибут у `artists` (транзитивна залежність)
+  - `track_id` -> `track_album_id` -> будь-який атрибут у `albums` (транзитивна залежність)
+- Для таблиці `playlists`:
+  - `playlist_id` -> `playlist_user_id`, `playlist_name`, `playlist_view`, `created_at`
+  - `playlist_id` -> `playlist_user_id` -> будь-який атрибут у `users` (транзитивна залежність)
+- Для таблиці `artist_monthly_stats`:
+  - `stats_artist_id`, `stats_month` -> `stats_play_count`
+  - `stats_artist_id`, `stats_month` -> `stats_artist_id` -> будь-який атрибут у `artists` (транзитивна залежність)
+- Для таблиці `track_features`:
+  - `artist_id`, `track_id` -> `artist_id` -> будь-який атрибут у `artists` (транзитивна залежність)
+  - `artist_id`, `track_id` -> `track_id` -> будь-який атрибут у `tracks` (транзитивна залежність)
+- Для таблиці `playlist_tracks`:
+  - `playlist_id`, `track_id` -> `track_position`, `added_at`
+  - `playlist_id`, `track_position` -> `track_id`, `added_at`
+  - `playlist_id`, `track_id` -> `playlist_id` -> будь-який атрибут у `playlists` (транзитивна залежність)
+  - `playlist_id`, `track_id` -> `track_id` -> будь-який атрибут у `tracks` (транзитивна залежність)
+
+## 2. Перевірка 1NF
+### 2.1. Вимоги 1NF
+- Кожен атрибут має атомарне значення
+- Немає повторюваних груп атрибутів
+- Кожна таблиця має первинний ключ
+
+### 2.2. Перевірка
+- Кожен атрибут кожної таблиці дійсно є атомарним.
+- У кожній таблиці немає повторюваних груп атрибутів.
+- Кожна таблиця має первинний ключ (складенний для таблиць `artist_monthly_stats`, `track_features`, `playlist_tracks`).
+
+### 2.3 Висновок
+База даних вже перебуває у 1NF.
+
+## 3. Перевірка 2NF
+### 3.1. Вимоги 2NF
+- База даних вже перебуває у 1NF.
+- Кожен неключовий атрибут залежить від усього кандидатного ключа (не від його частини).
+
+### 3.2. Перевірка
+- База даних вже перебуває у 1NF.
+- В таблицях без складенного первинного ключа, усі атрибути залежать від усього первинного ключа (`BIGINT` ідентифікатор).
+- Подивимось на таблиці, які мають складенний первинний ключ:
+  - `artist_monthly_stats` має `PRIMARY KEY (stats_artist_id, stats_month)`. Єдиний неключовий атрибут `stats_play_count` залежить і від певного виконавця, і від певного місяця.
+  - `track_features` має `PRIMARY KEY (artist_id, track_id)`. Таблиця є асоціативною сутністю та не несе додаткових неключових атрибутів.
+  - `playlist_tracks` має `PRIMARY KEY (playlist_id, track_id)`. Таблиця є асоціативною сутністю та має два неключових атрибути: `track_position` та `added_at`. Позиція треку та час його додавання повністю залежить від певного плейліста та певного треку.
+
+### 3.3. Висновок
+База даних вже перебуває у 2NF.
+
+## 4. Перевірка 3NF
+### 4.1. Вимоги 3NF
+- База даних вже перебуває у 2NF.
+- Немає жодного неключового атрибута, який залежить від іншого неключового атрибута.
+
+### 4.2. Перевірка 3NF
+- База даних вже перебуває у 2NF.
+- В цілому, всі залежності між таблицями задовольняють 3NF, окрім зв'язку `tracks` - `albums`. Інші транзитивні залежності не порушують правило: "немає жодного неключового атрибута, який залежить від іншого неключового атрибута".
+
+### 4.3. Детальний огляд зв'язку `tracks` - `albums`
+Таблиця `tracks`:
+```sql
+CREATE TABLE tracks (
+    track_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    track_artist_id BIGINT NOT NULL REFERENCES artists(artist_id) ON DELETE CASCADE,
+    track_album_id BIGINT REFERENCES albums(album_id) ON DELETE SET NULL,
+    ...
+);
+```
+За бізнес логікою, в альбомі певного виконавця має бути тільки треки, у яких головний виконавець є автором цього альбому. Також трек може не належати жодному альбому (single).
+З цього випливає, що `track_album_id` може бути `NULL`, а якщо не `NULL` то `album_artist_id` з таблиці `albums` має співпадати з `track_artist_id`.<br>
+Виходить така ситуація, що якщо `track_album_id` не `NULL` то `track_artist_id` залежить від `album_artist_id`, але `album_artist_id` - це неключовий атрибут.
+Це може призвести до аномалій вставки та видалення і, відповідно, є порушенням 3NF.
+
+### 4.4. Потенційні рішення проблеми
+- Перше, що можна було б зробити, це видалити `track_artist_id` з таблиці `tracks`, але тоді, якщо трек є синглом, втрачається інформація про виконавця. Не підходить.
+- Потенційним рішенням може бути створення асоціативної таблиці `track_artists`:
+```sql
+CREATE TYPE ARTIST_ROLE AS ENUM (
+    'Main',
+    'Feature'
+);
+CREATE TABLE track_artists (
+    track_artist_id BIGINT NOT NULL REFERENCES artists(artist_id) ON DELETE CASCADE,
+    track_id BIGINT NOT NULL REFERENCES tracks(track_id) ON DELETE CASCADE,
+    artist_role ARTIST_ROLE NOT NULL,
+    PRIMARY KEY(track_artist_id, track_id)
+);
+CREATE UNIQUE INDEX unique_main_artist_per_track
+ON track_artists(track_id)
+WHERE artist_role = 'Main';
+```
+Також потрібно прибрати `track_artist_id` з таблиці `tracks`. Також, таблиця `track_features` більше не потрібна. <br>
+Тоді, наприклад, запит з отриманням усіх треків певного виконавця, може виглядати так:
+```sql
+SELECT track_id, track_name FROM tracks AS t
+JOIN track_artists AS ta
+    ON ta.track_id = t.track_id
+WHERE ta.track_artist_id = 1 AND ta.artist_role = 'Main';
+```
+Але, по-перше, це порушує початкову модель даних, а саме зв'язок один-до-багатьох між `artists` та `tracks`.
+По-друге, усі запити, які враховували `track_artist_id` у таблиці `tracks` більше не працюватимуть.
+По-третє, не вирішує проблему. Аномалії вставки, оновлення та видалення все ще можуть бути.
+Може існувати трек, який посилається на альбом, власник якого не є головним виконавцем треку (у таблиці `track_artists` може бути невідповіність).
+
+- Остаточний варіант, який на мою думку є правильним:
+Створюємо таблицю `albums_tracks`:
+```sql
+CREATE TABLE album_tracks (
+    track_id BIGINT NOT NULL,
+    album_id BIGINT NOT NULL,
+    artist_id BIGINT NOT NULL,
+    PRIMARY KEY (track_id, album_id),
+
+    CONSTRAINT at_most_one_album_track UNIQUE(track_id),
+
+    FOREIGN KEY (album_id, artist_id) REFERENCES albums(album_id, album_artist_id),
+    FOREIGN KEY (track_id, artist_id) REFERENCES tracks(track_id, track_artist_id)
+);
+```
+Також, перед цим потрібно прибрати `track_album_id` з `tracks` і додати обмеження до `albums` і `tracks`:
+```sql
+ALTER TABLE tracks DROP COLUMN track_album_id;
+ALTER TABLE albums ADD CONSTRAINT unique_album_artist_id UNIQUE(album_id, album_artist_id);
+ALTER TABLE tracks ADD CONSTRAINT unique_track_artist_id UNIQUE(track_id, track_artist_id);
+```
+Обмеження `at_most_one_album_track` забезпечює зв'язок один-до-багатьох між `albums` та `tracks`. <br>
+Два зовнішніх ключа гарантують, що власник альбому є головним виконавцем треку.<br>
+Це рішення призводить до мінімальних змін бази даних.<br>
+Наприклад, запит для отримання усіх треків альбому:
+```sql
+SELECT
+    a.album_name,
+    t.track_name
+FROM albums AS a
+JOIN album_tracks AS alt
+    ON alt.album_id = a.album_id
+JOIN tracks AS t
+    ON alt.track_id = t.track_id;
+```
+Також запит, для отримання усіх треків-синглів:
+```sql
+SELECT t.track_name FROM tracks AS t
+LEFT JOIN album_tracks AS alt
+    ON alt.track_id = t.track_id
+WHERE alt.track_id IS NULL;
+```
+### 4.5. Повний скрипт виправлення
+```sql
+ALTER TABLE tracks DROP COLUMN track_album_id;
+ALTER TABLE albums ADD CONSTRAINT unique_album_artist_id UNIQUE(album_id, album_artist_id);
+ALTER TABLE tracks ADD CONSTRAINT unique_track_artist_id UNIQUE(track_id, track_artist_id);
+
+CREATE TABLE album_tracks (
+    track_id BIGINT NOT NULL,
+    album_id BIGINT NOT NULL,
+    artist_id BIGINT NOT NULL,
+    PRIMARY KEY (track_id, album_id),
+
+    CONSTRAINT at_most_one_album_track UNIQUE(track_id),
+
+    FOREIGN KEY (album_id, artist_id) REFERENCES albums(album_id, album_artist_id),
+    FOREIGN KEY (track_id, artist_id) REFERENCES tracks(track_id, track_artist_id)
+);
+```
+
+## 5. Оновлена ER діаграма
+```mermaid
+erDiagram
+    User {
+        bigint user_id PK
+        string user_email
+        string user_password_hash
+        timestamp registered_at
+    }
+
+    Artist {
+        bigint artist_id PK
+        bigint artist_user_id FK
+        string artist_name
+        string artist_bio
+    }
+
+    Track {
+        bigint track_id PK
+        bigint track_artist_id FK
+        string track_name
+        int track_duration_milliseconds
+        string track_audio_url
+        timestamp released_at
+    }
+
+    Album {
+        bigint album_id PK
+        bigint album_artist_id FK
+        string album_name "NOT NULL"
+        timestamp released_at "NOT NULL"
+    }
+
+    AlbumTrack {
+        bigint track_id  PK
+        bigint album_id  PK
+        bigint artist_id
+    }
+
+    TrackFeature {
+        bigint artist_id PK, FK
+        bigint track_id PK, FK
+    }
+
+    Playlist {
+        bigint playlist_id PK
+        bigint playlist_user_id FK
+        string playlist_name
+        string playlist_view
+        timestamp created_at
+    }
+
+    PlaylistTrack {
+        bigint playlist_id PK, FK
+        bigint track_id PK, FK
+        int position
+        timestamp added_at
+    }
+
+    ArtistMonthlyStats {
+        bigint stats_artist_id PK,FK
+        date stats_month PK
+        int stats_play_count
+    }
+
+
+    %% User -> Artist
+    User ||--o| Artist : "has profile"
+
+    %% User -> Playlist
+    User ||--o{ Playlist : "owns"
+
+    %% Artist -> Track (primary/owner artist)
+    Artist ||--o{ Track : "owns"
+
+    %% Artist <-> Track (featured artists)
+    Artist ||--o{ TrackFeature : "features"
+    Track ||--o{ TrackFeature : "has featured"
+
+    %% Artist -> Album
+    Artist ||--o{ Album : "owns"
+
+    %% Album -> AlbumTrack
+    Album ||--o{ AlbumTrack : "contains"
+
+    %% Track -> AlbumTrack
+    Track ||--o| AlbumTrack : "belongs to"
+
+    %% Playlist <-> Track
+    Playlist ||--o{ PlaylistTrack : "contains"
+    Track ||--o{ PlaylistTrack : "included in"
+
+    %% Artist -> Monthly Stats
+    Artist ||--o{ ArtistMonthlyStats : "has statistics"
+```
