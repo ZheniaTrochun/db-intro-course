@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model order_item {
+  order_item_id     Int      @id @default(autoincrement())
+  order_id          Int
+  book_id           Int
+  quantity          Int      @db.SmallInt
+  price_at_purchase Decimal  @db.Decimal(10, 2)
+  book              book     @relation(fields: [book_id], references: [book_id], onUpdate: NoAction)
+  orders            orders   @relation(fields: [order_id], references: [order_id], onDelete: Cascade, onUpdate: NoAction)
+  review            review[]
+
+  @@unique([order_id, book_id], map: "uq_order_book")
+}
+
+model orders {
+  order_id            Int          @id @default(autoincrement())
+  customer_id         Int
+  order_date          DateTime     @default(now()) @db.Timestamptz(6)
+  status              order_status @default(Pending)
+  shipping_address_id Int
+  order_item          order_item[]
+  customer            customer     @relation(fields: [customer_id], references: [customer_id], onDelete: NoAction, onUpdate: NoAction)
+  address             address      @relation(fields: [shipping_address_id], references: [address_id], onUpdate: NoAction)
+}
+
+model address {
+  address_id Int        @id @default(autoincrement())
+  city_id    Int
+  street     String     @db.VarChar(150)
+  building   String     @db.VarChar(20)
+  city       city       @relation(fields: [city_id], references: [city_id], onUpdate: NoAction)
+  customer   customer[]
+  orders     orders[]
+}
+
+model author {
+  author_id   Int           @id @default(autoincrement())
+  first_name  String        @db.VarChar(100)
+  last_name   String        @db.VarChar(100)
+  bio         String?       @db.Text
+  country_id  Int?
+  country     country?      @relation(fields: [country_id], references: [country_id], onDelete: Restrict, onUpdate: NoAction, map: "fk_author_country")
+  book_author book_author[]
+
+  @@index([country_id], map: "idx_author_country")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model book {
+  book_id          Int             @id @default(autoincrement())
+  publisher_id     Int
+  isbn             String          @unique @db.VarChar(20)
+  title            String          @db.VarChar(255)
+  publication_year Int             @db.SmallInt
+  price            Decimal         @db.Decimal(10, 2)
+  stock_quantity   Int             @default(0) @db.SmallInt
+  publisher        publisher       @relation(fields: [publisher_id], references: [publisher_id], onUpdate: NoAction)
+  book_author      book_author[]
+  book_category    book_category[]
+  order_item       order_item[]
+  bookAwards       book_award[]
+}
+
+model book_award {
+  award_id   Int    @id @default(autoincrement())
+  book_id    Int
+  award_name String @db.VarChar(150)
+  award_year Int    @db.SmallInt
+  book       book   @relation(fields: [book_id], references: [book_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model book_author {
+  book_id   Int
+  author_id Int
+  author    author @relation(fields: [author_id], references: [author_id], onDelete: Cascade, onUpdate: NoAction)
+  book      book   @relation(fields: [book_id], references: [book_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([book_id, author_id])
+}
+
+model book_category {
+  book_id     Int
+  category_id Int
+  book        book     @relation(fields: [book_id], references: [book_id], onDelete: Cascade, onUpdate: NoAction)
+  category    category @relation(fields: [category_id], references: [category_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([book_id, category_id])
+}
+
+model category {
+  category_id   Int             @id @default(autoincrement())
+  name_category String          @unique @db.VarChar(50)
+  book_category book_category[]
+}
+
+model city {
+  city_id   Int       @id @default(autoincrement())
+  city_name String    @unique @db.VarChar(100)
+  address   address[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model country {
+  country_id   Int         @id @default(autoincrement())
+  iso_code     String      @unique @db.Char(2)
+  name_country String      @unique @db.VarChar(100)
+  author       author[]
+  publisher    publisher[]
+}
+
+model customer {
+  customer_id        Int      @id @default(autoincrement())
+  first_name         String   @db.VarChar(100)
+  last_name          String   @db.VarChar(100)
+  email              String   @unique @db.VarChar(100)
+  phone              String   @unique @db.VarChar(20)
+  registration_date  DateTime @default(now()) @db.Timestamptz(6)
+  default_address_id Int?
+  address            address? @relation(fields: [default_address_id], references: [address_id], onUpdate: NoAction)
+  orders             orders[]
+  review             review[]
+}
+
+model publisher {
+  publisher_id   Int      @id @default(autoincrement())
+  name_publisher String   @unique @db.VarChar(100)
+  country_id     Int?
+  book           book[]
+  country        country? @relation(fields: [country_id], references: [country_id], onDelete: Restrict, onUpdate: NoAction, map: "fk_publisher_country")
+
+  @@index([country_id], map: "idx_publisher_country")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model review {
+  review_id     Int        @id @default(autoincrement())
+  customer_id   Int
+  order_item_id Int
+  rating        Int        @db.SmallInt
+  comment       String?
+  review_date   DateTime   @default(now()) @db.Timestamptz(6)
+  customer      customer   @relation(fields: [customer_id], references: [customer_id], onDelete: Cascade, onUpdate: NoAction)
+  order_item    order_item @relation(fields: [order_item_id], references: [order_item_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([customer_id, order_item_id], map: "uq_customer_order_item")
+}
+
+enum order_status {
+  Pending
+  Processing
+  Shipped
+  Delivered
+  Cancelled
+}

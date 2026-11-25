@@ -1,0 +1,80 @@
+CREATE TYPE order_status AS ENUM ('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled');
+
+CREATE TABLE customer (
+    customer_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20) UNIQUE NOT NULL,
+    registration_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    shipping_address_default VARCHAR(255)
+);
+
+CREATE TABLE publisher (
+    publisher_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name_publisher VARCHAR(100) UNIQUE NOT NULL,
+    country_publisher VARCHAR(50)
+);
+
+CREATE TABLE author (
+    author_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    country VARCHAR(50)
+);
+
+CREATE TABLE category (
+    category_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name_category VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE book (
+    book_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    publisher_id INT NOT NULL REFERENCES publisher(publisher_id) ON DELETE RESTRICT,
+    isbn VARCHAR(20) UNIQUE NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    publication_year SMALLINT NOT NULL CHECK (publication_year BETWEEN -2000 AND 2100),
+    price NUMERIC(10,2) NOT NULL CHECK (price > 0),
+    stock_quantity SMALLINT NOT NULL DEFAULT 0 CHECK (stock_quantity >= 0)
+);
+
+CREATE TABLE book_author (
+    book_id INT NOT NULL REFERENCES book(book_id) ON DELETE CASCADE,
+    author_id INT NOT NULL REFERENCES author(author_id) ON DELETE CASCADE,
+    PRIMARY KEY (book_id, author_id)
+);
+
+CREATE TABLE book_category (
+    book_id INT NOT NULL REFERENCES book(book_id) ON DELETE CASCADE,
+    category_id INT NOT NULL REFERENCES category(category_id) ON DELETE CASCADE,
+    PRIMARY KEY (book_id, category_id)
+);
+
+CREATE TABLE orders (
+    order_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    customer_id INT NOT NULL REFERENCES customer(customer_id) ON DELETE RESTRICT,
+    order_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status order_status NOT NULL DEFAULT 'Pending',
+    shipping_address VARCHAR(255) NOT NULL,
+    total_amount NUMERIC(10,2) NOT NULL DEFAULT 0.00 CHECK (total_amount >= 0)
+);
+
+CREATE TABLE order_item (
+    order_item_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    order_id INT NOT NULL REFERENCES orders(order_id) ON DELETE CASCADE,
+    book_id INT NOT NULL REFERENCES book(book_id) ON DELETE RESTRICT,
+    quantity SMALLINT NOT NULL CHECK (quantity > 0),
+    price_at_purchase NUMERIC(10,2) NOT NULL CHECK (price_at_purchase >= 0),
+    CONSTRAINT uq_order_book UNIQUE (order_id, book_id)
+);
+
+CREATE TABLE review (
+    review_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    customer_id INT NOT NULL REFERENCES customer(customer_id) ON DELETE CASCADE,
+    book_id INT NOT NULL REFERENCES book(book_id) ON DELETE CASCADE,
+    order_item_id INT REFERENCES order_item(order_item_id) ON DELETE SET NULL,
+    rating SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    review_date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_customer_book_review UNIQUE (customer_id, book_id)
+);
