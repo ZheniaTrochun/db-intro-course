@@ -1,0 +1,285 @@
+DROP VIEW IF EXISTS v_lease_details;
+DROP TABLE IF EXISTS
+    new_lease_agreement,
+    new_application,
+    new_application_status,
+    new_property,
+    new_city,
+    new_property_owner,
+    new_tenant,
+    new_realtor,
+    lease_agreement,
+    application,
+    application_status,
+    property,
+    city,
+    property_owner,
+    tenant,
+    realtor
+CASCADE;
+
+---------------------------------------------------------------------
+-- попередній варіант таблиці з lab2 доданий для демонстрації виконання коду
+---------------------------------------------------------------------
+
+CREATE TABLE PROPERTY_OWNER (
+    owner_id INT generated always as identity PRIMARY KEY,
+    full_name VARCHAR(100) not null unique,
+    phone_number VARCHAR(20) not null unique,
+    passport_data VARCHAR(20) not null unique
+);
+
+CREATE TABLE PROPERTY (
+    property_id INT generated always as identity PRIMARY KEY,
+    owner_id INT not null,
+    adress VARCHAR(80) not null unique,
+    FOREIGN KEY (owner_id) REFERENCES PROPERTY_OWNER(owner_id)
+);
+
+CREATE TABLE TENANT (
+    tenant_id INT generated always as identity PRIMARY KEY,
+    full_name VARCHAR(100) not null,
+    phone_number VARCHAR(20) not null unique
+);
+
+CREATE TABLE REALTOR (
+    realtor_id INT generated always as identity PRIMARY KEY,
+    full_name VARCHAR(100) not null,
+    phone_number VARCHAR(20) not null unique,
+    commission_rate DECIMAL(4, 2) not null CHECK (commission_rate >= 0)
+);
+
+CREATE TABLE APPLICATION (
+    application_id INT generated always as identity PRIMARY KEY,
+    tenant_id INT not null,
+    property_id INT not null,
+    submission_date DATE not null,
+    status VARCHAR(20) not null CHECK (status IN ('в обробці', 'схвалено', 'відхилено')),
+    FOREIGN KEY (tenant_id) REFERENCES TENANT(tenant_id),
+    FOREIGN KEY (property_id) REFERENCES PROPERTY(property_id)
+);
+
+CREATE TABLE LEASE_AGREEMENT (
+    lease_id INT generated always as identity PRIMARY KEY,
+    property_id INT not null,
+    tenant_id INT not null,
+    realtor_id INT,
+    start_date DATE not null,
+    end_date DATE not null CHECK (end_date > start_date),
+    rental_amount DECIMAL(12, 2) not null CHECK (rental_amount > 0),
+    agency_commission DECIMAL(12, 2) CHECK (agency_commission >= 0),
+    FOREIGN KEY (property_id) REFERENCES PROPERTY(property_id),
+    FOREIGN KEY (tenant_id) REFERENCES TENANT(tenant_id),
+    FOREIGN KEY (realtor_id) REFERENCES REALTOR(realtor_id),
+    constraint ch_ex_rieltor check(
+        (
+            realtor_id is not null
+            and agency_commission is not null
+        )
+        or (
+            realtor_id is null
+            and agency_commission is null
+        )
+    )
+);
+
+INSERT INTO property_owner (full_name, phone_number, passport_data)
+VALUES
+    ('Іваненко Іван Іванович', '+380971234567', 'АМ123456'),
+    ('Петренко Олена Василівна', '+380509876543', '001234567'),
+    ('Коваленко Андрій Сергійович', '+380631112233', 'КБ987654');
+
+INSERT INTO property (owner_id, adress)
+VALUES
+    (1, 'м. Київ, вул. Хрещатик, буд. 10, кв. 5'),
+    (1, 'м. Київ, вул. Лесі Українки, буд. 14, кв. 80'),
+    (2, 'м. Львів, вул. Городоцька, буд. 25, кв. 12'),
+    (3, 'м. Одеса, вул. Дерибасівська, буд. 1, кв. 3');
+
+INSERT INTO TENANT (full_name, phone_number)
+VALUES
+    ('Сидоренко Максим Петрович', '+380674445566'),
+    ('Гончар Анна Ігорівна', '+380505556677'),
+    ('Мельник Дмитро Олегович', '+380931239876');
+
+INSERT INTO REALTOR (full_name, phone_number, commission_rate)
+VALUES
+    ('Дмитренко Олег Олегович', '+380637778899', 5.00),
+    ('Ковальчук Світлана Миколаївна', '+380978889900', 4.50),
+    ('Павлюк Марина Сергіївна', '+380501112233', 4.00);
+
+INSERT INTO APPLICATION (tenant_id, property_id, submission_date, status)
+VALUES
+    (1, 1, '2026-09-01', 'схвалено'),
+    (2, 2, '2026-09-03', 'схвалено'),
+    (3, 3, '2026-09-05', 'в обробці'),
+    (1, 4, '2026-09-07', 'схвалено');
+
+INSERT INTO LEASE_AGREEMENT (
+    property_id, tenant_id, realtor_id, start_date, end_date, rental_amount, agency_commission
+)
+VALUES
+    (1, 1, 1, '2026-10-01', '2027-09-30', 15000.00, 750.00),
+    (2, 2, 2, '2026-10-05', '2027-04-05', 12000.00, 540.00),
+    (4, 1, 3, '2026-11-01', '2027-10-31', 18000.00, 720.00);
+
+---------------------------------------------------------------------
+-- частина коду що відповідає лабораторній
+---------------------------------------------------------------------
+BEGIN;
+
+-- 1. Створюємо нові довідники
+CREATE TABLE city (
+    city_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    city_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE application_status (
+    status_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    status_name VARCHAR(20) NOT NULL UNIQUE
+);
+
+INSERT INTO application_status (status_name)
+VALUES ('в обробці'), ('схвалено'), ('відхилено');
+
+-- 2. Змінюємо PROPERTY_OWNER -> new_property_owner
+ALTER TABLE PROPERTY_OWNER
+    ADD COLUMN last_name VARCHAR(40),
+    ADD COLUMN first_name VARCHAR(40),
+    ADD COLUMN middle_name VARCHAR(40);
+
+UPDATE PROPERTY_OWNER
+SET
+    last_name = split_part(trim(full_name), ' ', 1),
+    first_name = split_part(trim(full_name), ' ', 2),
+    middle_name = split_part(trim(full_name), ' ', 3);
+
+ALTER TABLE PROPERTY_OWNER
+    ALTER COLUMN last_name SET NOT NULL,
+    ALTER COLUMN first_name SET NOT NULL,
+    ALTER COLUMN middle_name SET NOT NULL,
+    DROP COLUMN full_name,
+    ADD CONSTRAINT uq_property_owner_fio UNIQUE (last_name, first_name, middle_name);
+
+ALTER TABLE PROPERTY_OWNER RENAME TO new_property_owner;
+
+-- 3. Змінюємо PROPERTY -> new_property
+ALTER TABLE PROPERTY
+    ADD COLUMN city_id INT,
+    ADD COLUMN street VARCHAR(80),
+    ADD COLUMN building_number VARCHAR(15),
+    ADD COLUMN apartment_number VARCHAR(15);
+
+INSERT INTO city (city_name)
+SELECT DISTINCT regexp_replace(trim(split_part(adress, ',', 1)), '^м\.\s*', '')
+FROM PROPERTY
+WHERE regexp_replace(trim(split_part(adress, ',', 1)), '^м\.\s*', '') <> ''
+ON CONFLICT (city_name) DO NOTHING;
+
+UPDATE PROPERTY p
+SET
+    city_id = c.city_id,
+    street = trim(split_part(p.adress, ',', 2)),
+    building_number = trim(split_part(p.adress, ',', 3)),
+    apartment_number = NULLIF(trim(split_part(p.adress, ',', 4)), '')
+FROM city c
+WHERE regexp_replace(trim(split_part(p.adress, ',', 1)), '^м\.\s*', '') = c.city_name;
+
+ALTER TABLE PROPERTY
+    ALTER COLUMN city_id SET NOT NULL,
+    ALTER COLUMN street SET NOT NULL,
+    ALTER COLUMN building_number SET NOT NULL,
+    DROP COLUMN adress,
+    ADD CONSTRAINT fk_property_city FOREIGN KEY (city_id) REFERENCES city(city_id),
+    ADD CONSTRAINT uq_property_address UNIQUE (city_id, street, building_number, apartment_number);
+
+ALTER TABLE PROPERTY RENAME TO new_property;
+
+-- 4. Змінюємо TENANT -> new_tenant
+ALTER TABLE TENANT
+    ADD COLUMN last_name VARCHAR(40),
+    ADD COLUMN first_name VARCHAR(40),
+    ADD COLUMN middle_name VARCHAR(40);
+
+UPDATE TENANT
+SET
+    last_name = split_part(trim(full_name), ' ', 1),
+    first_name = split_part(trim(full_name), ' ', 2),
+    middle_name = split_part(trim(full_name), ' ', 3);
+
+ALTER TABLE TENANT
+    ALTER COLUMN last_name SET NOT NULL,
+    ALTER COLUMN first_name SET NOT NULL,
+    ALTER COLUMN middle_name SET NOT NULL,
+    DROP COLUMN full_name,
+    ADD CONSTRAINT uq_tenant_fio UNIQUE (last_name, first_name, middle_name);
+
+ALTER TABLE TENANT RENAME TO new_tenant;
+
+-- 5. Змінюємо REALTOR -> new_realtor
+ALTER TABLE REALTOR
+    ADD COLUMN last_name VARCHAR(40),
+    ADD COLUMN first_name VARCHAR(40),
+    ADD COLUMN middle_name VARCHAR(40);
+
+UPDATE REALTOR
+SET
+    last_name = split_part(trim(full_name), ' ', 1),
+    first_name = split_part(trim(full_name), ' ', 2),
+    middle_name = split_part(trim(full_name), ' ', 3);
+
+ALTER TABLE REALTOR
+    ALTER COLUMN last_name SET NOT NULL,
+    ALTER COLUMN first_name SET NOT NULL,
+    ALTER COLUMN middle_name SET NOT NULL,
+    DROP COLUMN full_name,
+    ADD CONSTRAINT uq_realtor_fio UNIQUE (last_name, first_name, middle_name);
+
+ALTER TABLE REALTOR RENAME TO new_realtor;
+
+-- 6. Змінюємо APPLICATION -> new_application
+ALTER TABLE APPLICATION
+    ADD COLUMN status_id INT;
+
+UPDATE APPLICATION a
+SET status_id = s.status_id
+FROM application_status s
+WHERE a.status = s.status_name;
+
+ALTER TABLE APPLICATION
+    ALTER COLUMN status_id SET NOT NULL,
+    DROP COLUMN status,
+    ADD CONSTRAINT fk_application_status FOREIGN KEY (status_id) REFERENCES application_status(status_id);
+
+ALTER TABLE APPLICATION RENAME TO new_application;
+
+-- 7. Змінюємо LEASE_AGREEMENT -> new_lease_agreement
+ALTER TABLE LEASE_AGREEMENT
+    DROP CONSTRAINT IF EXISTS ch_ex_rieltor,
+    DROP COLUMN agency_commission;
+
+ALTER TABLE LEASE_AGREEMENT RENAME TO new_lease_agreement;
+
+COMMIT;
+
+---------------------------------------------------------------------
+-- ПЕРЕВІРКА РОБОТИ ТА ОБЧИСЛЕННЯ КОМІСІЇ (VIEW)
+---------------------------------------------------------------------
+
+CREATE OR REPLACE VIEW v_lease_details AS
+SELECT
+    la.lease_id,
+    c.city_name || ', ' || p.street || ', буд. ' || p.building_number || COALESCE(', кв. ' || p.apartment_number, '') AS full_address,
+    t.last_name || ' ' || t.first_name AS tenant_name,
+    r.last_name || ' ' || r.first_name AS realtor_name,
+    la.start_date,
+    la.end_date,
+    la.rental_amount,
+    ROUND(la.rental_amount * r.commission_rate / 100.0, 2) AS calculated_commission
+FROM new_lease_agreement la
+JOIN new_property p ON la.property_id = p.property_id
+JOIN city c ON p.city_id = c.city_id
+JOIN new_tenant t ON la.tenant_id = t.tenant_id
+LEFT JOIN new_realtor r ON la.realtor_id = r.realtor_id;
+
+SELECT * FROM v_lease_details;
