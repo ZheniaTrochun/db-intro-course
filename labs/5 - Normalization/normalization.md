@@ -8,6 +8,10 @@
 Дмитрієнко Вікторія Андріївна,
 Бескровна Олександра Вікторівна.
 
+## Мета й результат
+
+Перевірити схему інтернет-магазину з ЛР №2 і привести її до 3НФ. У початковій таблиці `orders` покупець визначався адресою доставки й водночас зберігався окремо. Після нормалізації покупця отримуємо через `orders.address_id → address.address_id → address.customer_id → customer.customer_id`. Зберігаються всі вісім таблиць і всі початкові тестові дані.
+
 ## Початкова схема та функціональні залежності
 
 За основу взято ER-модель ЛР №1 і реалізацію ЛР №2. Залежності визначаємо за ключами, обмеженнями та правилами магазину. Збіг значень у тестових даних сам по собі не є залежністю.
@@ -27,56 +31,17 @@
 
 `(address_id, customer_id)` у `address` — надключ, але не кандидатний ключ, бо самого `address_id` достатньо. У `payment` статус визначає, чи має час оплати бути заповненим, але не визначає конкретний час: успішні платежі можуть мати різні `paid_at`.
 
-## Етапи нормалізації
+### Атрибути та ключі на етапах 1НФ і 2НФ
 
-1. **Перевірка 1НФ.** З усіх стовпців кожен зберігає одне значення. Адреси клієнта, позиції замовлення та платежі вже представлені окремими рядками. На етапі 1НФ таблиці, атрибути та ключі залишаються такими, як у початковій схемі.
-2. **Перевірка 2НФ.** Часткових залежностей немає. В `order_item` кількість і ціна продажу залежать від усієї пари `(order_id, product_id)`: ціна продажу може відрізнятися між замовленнями. У `review` потрібна вся пара `(customer_id, product_id)` або `review_id`. Решта таблиць має лише прості кандидатні ключі. На етапі 2НФ таблиці, атрибути та ключі не змінюються.
-3. **Перехід до 3НФ.** Початкова схема в цілому перебуває у 2НФ: в `orders` є транзитивна залежність `order_id → address_id → customer_id`. Кожна адреса має одного власника, а складений зовнішній ключ гарантує збіг власника з покупцем. Адреса може використовуватися в кількох замовленнях, тож `address_id` не є надключем `orders`. Усуваємо дублювання, залишаючи `customer_id` у `address`.
+Початкова схема вже відповідає 1НФ і 2НФ. Тому наведений перелік однаковий для обох етапів. PK — первинний ключ, FK — зовнішній ключ, UQ — обмеження унікальності.
 
-| Таблиця | До нормалізації (1НФ і 2НФ) | Після нормалізації (3НФ) |
+| Таблиця | Атрибути | Ключі та посилання |
 |---|---|---|
-| `orders` | `order_id` (PK), `customer_id` (FK → `customer`), `address_id`, `order_date`, `status`; складений FK `(address_id, customer_id)` → `address` | `order_id` (PK), `address_id` (FK → `address`), `order_date`, `status` |
-| `address` | `address_id` (PK), `customer_id` (FK → `customer`), `city`, `street`, `building`, `postal_code`; `UNIQUE (address_id, customer_id)` | Ті самі атрибути, PK і FK. Складене `UNIQUE` прибрано, бо новий FK посилається лише на `address_id`. |
-
-**Аномалія вставки й оновлення.** У початковій схемі під час вставки замовлення треба було повторно ввести покупця, хоча його визначає адреса. При зміні адреси на адресу іншого клієнта два значення довелося б оновити разом: інакше складений FK відхилив би запис. У новій схемі власника отримуємо через адресу. Окремої аномалії видалення в цьому випадку немає: видалення замовлення не видаляє адресу.
-
-Старе поле `orders.customer_id` відновлюється з’єднанням з `address` за `address_id` без втрати даних. У `orders` залишається `order_id → address_id, order_date, status`. Решта шести таблиць не змінюється; усі таблиці відповідають 3НФ за визначеними залежностями.
-
-За правилами ЛР №1 використану адресу не перезаписуємо: зміна оформлюється новим записом. Це стосується і її власника, оскільки після нормалізації зміна власника використаної адреси змінила б покупця всіх пов’язаних замовлень. Зовнішні ключі перевіряють існування записів, але цього правила про незмінність не забезпечують.
-
-## Перехід зі схеми ЛР №2
-
-```sql
-BEGIN;
-
-ALTER TABLE orders
-    DROP CONSTRAINT fk_orders_address_customer,
-    DROP CONSTRAINT fk_orders_customer,
-    DROP COLUMN customer_id,
-    ADD CONSTRAINT fk_orders_address
-        FOREIGN KEY (address_id) REFERENCES address (address_id);
-
-ALTER TABLE address
-    DROP CONSTRAINT uq_address_customer;
-
-COMMIT;
-```
-
-## Створення та перевірка
-
-У порожній базі в pgAdmin виконуємо [schema.sql](./schema.sql), потім [seed.sql](./seed.sql). Блок `ALTER TABLE` потрібен лише для переходу з чинної схеми ЛР №2. [ER-діаграма](./er-diagram.png) показує всі фінальні таблиці й зв’язки.
-
-Сценарії ЛР №3 для клієнтів, категорій і товарів запускаються без змін. У запитах №4 і №5 ЛР №4 замінюємо приєднання клієнта через `o.customer_id` на:
-
-```sql
-INNER JOIN address AS a ON a.address_id = o.address_id
-INNER JOIN customer AS c ON c.customer_id = a.customer_id
-```
-
-Решта восьми запитів ЛР №4 працює без змін. На початкових даних №4 повертає замовлення №1, №2 і №3 із сумами 2800, 2900 і 3000 грн, №5 — п’ять замовлень із даними покупців. Для перевірки FK можна окремо виконати в pgAdmin таку вставку: вона має повернути помилку `23503`, бо адреси 99999 немає в тестових даних.
-
-```sql
-INSERT INTO orders (address_id) VALUES (99999);
-```
-
-Перевірка на рушії PostgreSQL (PGlite): нова схема й тестові дані завантажилися, блок `ALTER TABLE` привів початкову базу до тієї самої структури за стовпцями й даними. Результати сценаріїв ЛР №3 та всіх десяти запитів ЛР №4 збіглися після двох зазначених замін. База відхилила вставку замовлення з неіснуючою адресою та видалення використаної адреси.
+| `customer` | `customer_id, first_name, last_name, email, phone, registered_at` | PK: `customer_id`; UQ: `email` |
+| `address` | `address_id, customer_id, city, street, building, postal_code` | PK: `address_id`; FK: `customer_id → customer`; UQ: `(address_id, customer_id)` |
+| `category` | `category_id, name, description` | PK: `category_id`; UQ: `name` |
+| `product` | `product_id, category_id, name, description, price, stock_qty` | PK: `product_id`; FK: `category_id → category` |
+| `orders` | `order_id, customer_id, address_id, order_date, status` | PK: `order_id`; FK: `customer_id → customer`, `(address_id, customer_id) → address` |
+| `order_item` | `order_id, product_id, quantity, unit_price` | PK: `(order_id, product_id)`; FK: `order_id → orders`, `product_id → product` |
+| `payment` | `payment_id, order_id, amount, method, paid_at, status` | PK: `payment_id`; FK: `order_id → orders` |
+| `review` | `review_id, customer_id, product_id, rating, comment, created_at` | PK: `review_id`; FK: `customer_id → customer`, `product_id → product`; UQ: `(customer_id, product_id)` |
