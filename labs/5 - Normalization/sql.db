@@ -1,0 +1,149 @@
+DROP TABLE IF EXISTS lease_agreement,
+application,
+application_status,
+property,
+city,
+property_owner,
+tenant,
+realtor CASCADE;
+
+CREATE TABLE city (
+    city_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    city_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE property_owner (
+    owner_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    last_name VARCHAR(40) NOT NULL,
+    first_name VARCHAR(40) NOT NULL,
+    middle_name VARCHAR(40),
+    phone_number VARCHAR(20) NOT NULL UNIQUE,
+    passport_data VARCHAR(20) NOT NULL UNIQUE
+);
+
+CREATE TABLE property (
+    property_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    owner_id INT NOT NULL REFERENCES property_owner(owner_id),
+    city_id INT NOT NULL REFERENCES city(city_id),
+    street VARCHAR(80) NOT NULL,
+    building_number VARCHAR(15) NOT NULL,
+    apartment_number VARCHAR(15),
+    UNIQUE (city_id, street, building_number, apartment_number)
+);
+
+CREATE TABLE tenant (
+    tenant_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    last_name VARCHAR(40) NOT NULL,
+    first_name VARCHAR(40) NOT NULL,
+    middle_name VARCHAR(40),
+    phone_number VARCHAR(20) NOT NULL UNIQUE
+);
+
+
+    realtor_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    last_name VARCHAR(40) NOT NULL,
+    first_name VARCHAR(40) NOT NULL,
+    middle_name VARCHAR(40),
+    phone_number VARCHAR(20) NOT NULL UNIQUE,
+    commission_rate DECIMAL(4, 2) NOT NULL CHECK (commission_rate >= 0)
+);
+
+
+CREATE TABLE application_status (
+    status_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    status_name VARCHAR(20) NOT NULL UNIQUE
+);
+
+
+CREATE TABLE application (
+    application_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    tenant_id INT NOT NULL REFERENCES tenant(tenant_id),
+    property_id INT NOT NULL REFERENCES property(property_id),
+    submission_date DATE NOT NULL,
+    status_id INT NOT NULL REFERENCES application_status(status_id)
+);
+
+CREATE TABLE lease_agreement (
+    lease_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    property_id INT NOT NULL REFERENCES property(property_id),
+    tenant_id INT NOT NULL REFERENCES tenant(tenant_id),
+    realtor_id INT REFERENCES realtor(realtor_id),
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL CHECK (end_date > start_date),
+    rental_amount DECIMAL(12, 2) NOT NULL CHECK (rental_amount > 0)
+);
+
+---------------------------------------------------------------------
+-- ЗАПОВНЕННЯ ОНОВЛЕНИМИ ТЕСТОВИМИ ДАНИМИ
+---------------------------------------------------------------------
+
+INSERT INTO city (city_name)
+VALUES ('Київ'), ('Львів'), ('Одеса');
+
+INSERT INTO property_owner (last_name, first_name, middle_name, phone_number, passport_data)
+VALUES 
+    ('Іваненко', 'Іван', 'Іванович', '+380971234567', 'АМ123456'),
+    ('Петренко', 'Олена', 'Василівна', '+380509876543', '001234567'),
+    ('Коваленко', 'Андрій', 'Сергійович', '+380631112233', 'КБ987654');
+
+INSERT INTO property (owner_id, city_id, street, building_number, apartment_number)
+VALUES 
+    (1, 1, 'вул. Хрещатик', '10', '5'),
+    (1, 1, 'вул. Лесі Українки', '14', '80'),
+    (2, 2, 'вул. Городоцька', '25', '12'),
+    (3, 3, 'вул. Дерибасівська', '1', '3');
+
+INSERT INTO tenant (last_name, first_name, middle_name, phone_number)
+VALUES 
+    ('Сидоренко', 'Максим', 'Петрович', '+380674445566'),
+    ('Гончар', 'Анна', 'Ігорівна', '+380505556677'),
+    ('Мельник', 'Дмитро', 'Олегович', '+380931239876');
+
+INSERT INTO realtor (last_name, first_name, middle_name, phone_number, commission_rate)
+VALUES 
+    ('Дмитренко', 'Олег', 'Олегович', '+380637778899', 5.00),
+    ('Ковальчук', 'Світлана', 'Миколаївна', '+380978889900', 4.50),
+    ('Павлюк', 'Марина', 'Сергіївна', '+380501112233', 4.00);
+
+INSERT INTO application_status (status_name)
+VALUES ('в обробці'), ('схвалено'), ('відхилено');
+
+INSERT INTO application (tenant_id, property_id, submission_date, status_id)
+VALUES 
+    (1, 1, '2026-09-01', 2), -- схвалено
+    (2, 2, '2026-09-03', 2), -- схвалено
+    (3, 3, '2026-09-05', 1), -- в обробці
+    (1, 4, '2026-09-07', 2); -- схвалено
+
+INSERT INTO lease_agreement (property_id, tenant_id, realtor_id, start_date, end_date, rental_amount)
+VALUES 
+    (1, 1, 1, '2026-10-01', '2027-09-30', 15000.00),
+    (2, 2, 2, '2026-10-05', '2027-04-05', 12000.00),
+    (4, 1, 3, '2026-11-01', '2027-10-31', 18000.00);
+
+---------------------------------------------------------------------
+-- ПЕРЕВІРКА РОБОТИ ТА ОБЧИСЛЕННЯ КОМІСІЇ (VIEW)
+---------------------------------------------------------------------
+
+-- Створюємо представлення (VIEW) для зручного перегляду договорів із порахованою комісією
+CREATE OR REPLACE VIEW v_lease_details AS
+SELECT 
+    la.lease_id,
+    c.city_name || ', ' || p.street || ', буд. ' || p.building_number || COALESCE(', кв. ' || p.apartment_number, '') AS full_address,
+    t.last_name || ' ' || t.first_name AS tenant_name,
+    r.last_name || ' ' || r.first_name AS realtor_name,
+    la.start_date,
+    la.end_date,
+    la.rental_amount,
+    ROUND(la.rental_amount * r.commission_rate / 100.0, 2) AS calculated_commission
+FROM lease_agreement la
+JOIN property p ON la.property_id = p.property_id
+JOIN city c ON p.city_id = c.city_id
+JOIN tenant t ON la.tenant_id = t.tenant_id
+LEFT JOIN realtor r ON la.realtor_id = r.realtor_id;
+
+-- Перевіряємо результат
+SELECT * FROM v_lease_details;
+
+
+

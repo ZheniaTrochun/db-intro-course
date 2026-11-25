@@ -1,20 +1,18 @@
 - ## 1NF:
-  - `property`-
-  - `property_owner`-
-  - `tenant`-
-  - `realtor`-
-  - `lease_agreement`-
-  - `applications`-
 
-- ## 2NF:
-  - `property`-
-  - `property_owner`-
-  - `tenant`-
-  - `realtor`-
-  - `lease_agreement`-
-  - `applications`-
+- `property` — виконано після розбиття `adress` на `city_id`, `street`, `building_number`, `apartment_number` (кожен атрибут містить одне атомарне значення)[cite: 2, 5].
+- `property_owner` — виконано після розбиття `full_name` на `last_name`, `first_name`, `middle_name`[cite: 2].
+- `tenant` — виконано після розбиття `full_name` на `last_name`, `first_name`, `middle_name`[cite: 2].
+- `realtor` — виконано після розбиття `full_name` на `last_name`, `first_name`, `middle_name`[cite: 2].
+- `application` — виконано (усі атрибути атомарні, повторюваних груп немає)[cite: 2, 5].
+- `lease_agreement` — виконано (усі атрибути атомарні, повторюваних груп немає)[cite: 2, 5].
+- `city`, `application_status` — виконано[cite: 2, 5].
 
-- ## 3NF:
+* ## 2NF:
+
+  Усі таблиці перебувають у **1NF** і мають **прості первинні ключі** (`*_id`), тому часткові функціональні залежності від частини складеного ключа відсутні для всіх таблиць (`property`, `property_owner`, `tenant`, `realtor`, `application`, `lease_agreement`, `city`, `application_status`)[cite: 2].
+
+* ## 3NF:
   - `property`- Вимоги порушено :
     - Можливе порушення після розбиття адреси: Якщо виділити city (місто) та street (вулицю), або якщо індекс/район залежить від міста/вулиці, виникає транзитивна залежність property_id -> city_id -> city_name або дублювання назв міст (аномалія оновлення при перейменуванні міста).
 
@@ -29,7 +27,7 @@
   - `applications`- Вимоги порушено :
     - Текстове поле status ('в обробці', 'схвалено', 'відхилено') повторюється в кожному рядку. Винесення статусів у окрему таблицю-довідник APPLICATION_STATUS(status_id, status_name) усуває дублювання рядкових літералів та аномалії при перейменуванні статусу.
 
-- ## Виправлення:
+* ## Виправлення:
   - `property`:
     1. Розбити adress на атомарні стовпці: city, street, building_number, apartment_number;
     2.
