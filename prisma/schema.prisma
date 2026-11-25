@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model app {
+  app_id         Int            @id @default(autoincrement())
+  publisher_id   Int
+  parent_game_id Int?
+  title          String         @unique @db.VarChar(150)
+  app_type       app_type
+  description    String?        @db.VarChar(4000)
+  price          Decimal        @db.Decimal(10, 2)
+  release_date   DateTime       @db.Date
+  is_available   Boolean        @default(true)
+  rating         Decimal        @default(0)
+  app            app?           @relation("appToapp", fields: [parent_game_id], references: [app_id], onDelete: NoAction, onUpdate: NoAction)
+  other_app      app[]          @relation("appToapp")
+  publisher      publisher      @relation(fields: [publisher_id], references: [publisher_id], onDelete: NoAction, onUpdate: NoAction)
+  app_category   app_category[]
+  review         review[]
+  user_library   user_library[]
+  wishlist       wishlist[]
+  achievements   achievement[]
+}
+
+model app_category {
+  category_id Int
+  app_id      Int
+  app         app      @relation(fields: [app_id], references: [app_id], onDelete: Cascade, onUpdate: NoAction)
+  category    category @relation(fields: [category_id], references: [category_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([category_id, app_id])
+}
+
+model category {
+  category_id   Int            @id @default(autoincrement())
+  category_name String         @unique @db.VarChar(50)
+  app_category  app_category[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model order {
+  order_id       BigInt         @id @default(autoincrement())
+  user_id        BigInt
+  receiver_id    BigInt
+  order_date     DateTime       @default(now()) @db.Timestamptz(6)
+  total_amount   Decimal        @db.Decimal(10, 2)
+  payment_method payment_method
+  status         payment_status @default(completed)
+  order_item     order_item[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model order_item {
+  order_id          BigInt
+  app_id            Int
+  price_at_purchase Decimal @db.Decimal(10, 2)
+  order             order   @relation(fields: [order_id], references: [order_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([order_id, app_id])
+}
+
+model publisher {
+  publisher_id   Int     @id @default(autoincrement())
+  publisher_name String  @unique @db.VarChar(100)
+  website        String? @db.VarChar(2048)
+  support_email  String  @db.VarChar(100)
+  app            app[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model review {
+  review_id          BigInt            @id @default(autoincrement())
+  user_id            BigInt
+  app_id             Int
+  is_recommended     Boolean
+  playtime_at_review Int
+  content            String?           @db.VarChar(5000)
+  created_at         DateTime          @default(now()) @db.Timestamptz(6)
+  app                app               @relation(fields: [app_id], references: [app_id], onDelete: Cascade, onUpdate: NoAction)
+  user               user              @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  reviewComments     review_comments[]
+
+  @@unique([user_id, app_id], map: "unique_user_review")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model user {
+  user_id        BigInt            @id @default(autoincrement())
+  username       String            @db.VarChar(50)
+  email          String            @unique @db.VarChar(100)
+  password_hash  String            @db.VarChar(128)
+  wallet_balance Decimal           @default(0.00) @db.Decimal(10, 2)
+  created_at     DateTime          @default(now()) @db.Timestamptz(6)
+  review         review[]
+  user_library   user_library[]
+  wishlist       wishlist[]
+  reviewComments review_comments[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model user_library {
+  user_id        BigInt
+  app_id         Int
+  playtime_hours Int      @default(0)
+  added_date     DateTime @default(now()) @db.Timestamptz(6)
+  app            app      @relation(fields: [app_id], references: [app_id], onDelete: Cascade, onUpdate: NoAction)
+  user           user     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, app_id])
+}
+
+model wishlist {
+  user_id    BigInt
+  app_id     Int
+  added_date DateTime @default(now()) @db.Timestamptz(6)
+  app        app      @relation(fields: [app_id], references: [app_id], onDelete: Cascade, onUpdate: NoAction)
+  user       user     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, app_id])
+}
+
+model achievement {
+  achievement_id Int     @id @default(autoincrement())
+  app_id         Int
+  name           String  @db.VarChar(100)
+  description    String? @db.VarChar(500)
+  points         Int     @default(10)
+  app            app     @relation(fields: [app_id], references: [app_id], onDelete: Cascade)
+
+  @@unique([app_id, name])
+}
+
+model review_comments {
+  comment_id BigInt   @id @default(autoincrement())
+  review_id  BigInt
+  user_id    BigInt
+  content    String   @db.VarChar(1000)
+  created_at DateTime @default(now())
+
+  review review @relation(fields: [review_id], references: [review_id], onDelete: Cascade)
+  user   user   @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}
+
+enum app_type {
+  game
+  dlc
+}
+
+enum payment_method {
+  credit_card    @map("credit card")
+  google_pay     @map("google pay")
+  apple_pay      @map("apple pay")
+  paypal
+  digital_wallet @map("digital wallet")
+}
+
+enum payment_status {
+  pending
+  canceled
+  completed
+}
