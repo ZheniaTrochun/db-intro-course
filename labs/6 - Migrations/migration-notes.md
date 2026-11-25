@@ -1,6 +1,6 @@
 # Лабораторна робота №6: Міграції схем за допомогою Prisma ORM
 
-## Частина 1 (Студент 1) — Додавання нової таблиці зі зв'язком `@relation`
+## Частина 1 (Студент 1) - Додавання нової таблиці зі зв'язком `@relation`
 
 **Назва міграції:** `20261124202512_add_book_award_table`  
 **База даних:** PostgreSQL (`postgres`, схема `public`)
@@ -88,7 +88,7 @@ ALTER TABLE "book_award" ADD CONSTRAINT "book_award_book_id_fkey" FOREIGN KEY ("
 
 ---
 
-## Частина 2 (Студент 2) — Додавання нового поля до існуючої таблиці
+## Частина 2 (Студент 2) - Додавання нового поля до існуючої таблиці
 
 **Назва міграції:** `20261124220807_add_bio_to_author`  
 **База даних:** PostgreSQL (`postgres`, схема `public`)
@@ -145,3 +145,59 @@ ALTER TABLE "author" ADD COLUMN "bio" TEXT;
 У веб-інтерфейсі `npx prisma studio` у таблиці `author` з'явилась нова колонка `bio`. Додано тестовий запис (`first_name = "Сергій"`, `last_name = "Жадан"`, `bio = "Український письменник, поет і музикант."`), який успішно збережено та прочитано.
 
 ![Перевірка поля bio у Prisma Studio](./migrations_student2.png)
+
+---
+
+## Частина 3 (Студент 3) - Видалення поля з існуючої таблиці
+
+**Назва міграції:** `20261125111445_remove_apartment_from_address`
+**База даних:** PostgreSQL (`postgres`, схема `public`)
+
+### 1. Опис зміни
+З існуючої моделі **`address`** видалено необов'язкове поле **`apartment`** (тип `VARCHAR(20)`), оскільки номер будинку та квартири можуть зберігатися разом у полі `building` або не використовуватися для приватних будинків і відділень доставки. Поле є nullable (`String?`) і не бере участі у зовнішніх ключах чи обмеженнях, тому операція `DROP COLUMN` є швидкою та безпечною зміною схеми.
+
+---
+
+### 2. Зміни у файлі `prisma/schema.prisma` («До» та «Після»)
+
+**До міграції:**
+```prisma
+model address {
+  address_id Int        @id @default(autoincrement())
+  city_id    Int
+  street     String     @db.VarChar(150)
+  building   String     @db.VarChar(20)
+  apartment  String?    @db.VarChar(20)
+  city       city       @relation(fields: [city_id], references: [city_id], onUpdate: NoAction)
+  customer   customer[]
+  orders     orders[]
+}
+```
+
+**Після міграції:**
+```prisma
+model address {
+  address_id Int        @id @default(autoincrement())
+  city_id    Int
+  street     String     @db.VarChar(150)
+  building   String     @db.VarChar(20)
+  city       city       @relation(fields: [city_id], references: [city_id], onUpdate: NoAction)
+  customer   customer[]
+  orders     orders[]
+}
+```
+
+---
+
+### 3. Згенерований SQL-скрипт міграції
+
+```sql
+ALTER TABLE "address" DROP COLUMN "apartment";
+```
+
+---
+
+### 4. Перевірка роботи через Prisma Studio
+Для перевірки оновленої структури таблиці `address` було запущено `npx prisma studio`. У веб-інтерфейсі підтверджено, що стовпець `apartment` успішно видалено, а зв'язки з таблицями `city`, `customer` та `orders` працюють коректно.
+
+![Перевірка таблиці address у Prisma Studio](./migrations_student3.png)

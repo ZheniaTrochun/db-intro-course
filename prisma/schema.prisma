@@ -37,7 +37,6 @@ model address {
   city_id    Int
   street     String     @db.VarChar(150)
   building   String     @db.VarChar(20)
-  apartment  String?    @db.VarChar(20)
   city       city       @relation(fields: [city_id], references: [city_id], onUpdate: NoAction)
   customer   customer[]
   orders     orders[]
