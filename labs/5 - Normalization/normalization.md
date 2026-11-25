@@ -86,3 +86,82 @@ COMMIT;
 [ER-діаграма](./er-diagram.png) показує фізичну схему після нормалізації. У `orders` є один FK для адреси: `orders.address_id → address.address_id`. Власника знаходимо через `address.customer_id → customer.customer_id`. Прямого зв’язку `orders → customer` більше немає. Решта атрибутів і ключів відповідають списку для 1НФ і 2НФ, крім двох змін, описаних у таблиці «До / після».
 
 У [schema.sql](./schema.sql) є повні команди `CREATE TABLE` з типами, PK, FK, `UNIQUE` і `CHECK`. У [seed.sql](./seed.sql) вставки для `orders` містять лише `address_id, order_date, status`; `order_id` генерує PostgreSQL. На діаграмі позначка UQ¹ у `review` означає унікальність пари `(customer_id, product_id)`. Дві позначки PK у `order_item` разом утворюють один складений ключ.
+
+## Порядок запуску в pgAdmin
+
+1. Створіть порожню базу і відкрийте для неї **Query Tool**.
+2. Відкрийте [schema.sql](./schema.sql) і виконайте весь файл. Він створює вісім таблиць.
+3. У тій самій базі відкрийте [seed.sql](./seed.sql) і виконайте весь файл. Скрипт розрахований на порожні таблиці й початкові значення автоматичних ID.
+4. Виконайте перевірки нижче по одній. Блок `ALTER TABLE` вище призначений для **окремої копії бази ЛР №2**, де стара схема вже існує. У новій базі після `schema.sql` його не виконуємо. Якщо застосували `ALTER TABLE` до заповненої копії ЛР №2, повторно вставляти тестові дані не потрібно.
+
+### Перевірка 1. Усі тестові дані завантажено
+
+```sql
+SELECT 'customer' AS table_name, COUNT(*) AS row_count FROM customer
+UNION ALL SELECT 'address', COUNT(*) FROM address
+UNION ALL SELECT 'category', COUNT(*) FROM category
+UNION ALL SELECT 'product', COUNT(*) FROM product
+UNION ALL SELECT 'orders', COUNT(*) FROM orders
+UNION ALL SELECT 'order_item', COUNT(*) FROM order_item
+UNION ALL SELECT 'payment', COUNT(*) FROM payment
+UNION ALL SELECT 'review', COUNT(*) FROM review
+ORDER BY table_name;
+```
+
+| table_name | row_count |
+|---|---:|
+| address | 6 |
+| category | 5 |
+| customer | 5 |
+| order_item | 8 |
+| orders | 5 |
+| payment | 8 |
+| product | 7 |
+| review | 5 |
+
+### Перевірка 2. Покупця замовлення можна відновити через адресу
+
+```sql
+SELECT o.order_id, o.address_id, c.customer_id, c.first_name, c.last_name
+FROM orders AS o
+JOIN address AS a ON a.address_id = o.address_id
+JOIN customer AS c ON c.customer_id = a.customer_id
+ORDER BY o.order_id;
+```
+
+| order_id | address_id | customer_id | first_name | last_name |
+|---:|---:|---:|---|---|
+| 1 | 2 | 1 | Анна | Коваль |
+| 2 | 3 | 2 | Богдан | Мельник |
+| 3 | 4 | 3 | Ірина | Бондар |
+| 4 | 5 | 4 | Дмитро | Шевченко |
+| 5 | 6 | 5 | Олена | Ткаченко |
+
+### Перевірка 3. Зовнішній ключ відхиляє неіснуючу адресу
+
+Після успішних перевірок запустіть окремо:
+
+```sql
+UPDATE orders
+SET address_id = 99999
+WHERE order_id = 1;
+```
+
+Очікуємо помилку `23503` для `fk_orders_address`: у тестових даних адреси 99999 немає, тому адреса замовлення №1 залишається 2. Якщо в Query Tool вимкнено Auto-commit і транзакція після помилки перервана, виконайте `ROLLBACK;` окремим запитом.
+
+### Сумісність із ЛР №3 і №4
+
+Сценарії з `dml.sql` ЛР №3 для клієнтів, категорій і товарів працюють без змін. У запитах №4 і №5 із `olap.sql` ЛР №4 замініть прямий `JOIN customer` через `o.customer_id` таким фрагментом:
+
+```sql
+INNER JOIN address AS a ON a.address_id = o.address_id
+INNER JOIN customer AS c ON c.customer_id = a.customer_id
+```
+
+№4 має повернути замовлення 1, 2 і 3 з вартістю 2800, 2900 і 3000 грн; №5 — п’ять замовлень із даними тих самих покупців. Решта восьми запитів працює без змін. Для основної перевірки ЛР №5 достатньо файлів цього PR і запитів із цього звіту.
+
+Перевірено на рушії PostgreSQL (PGlite): кількості рядків та дані покупців збіглися з наведеними таблицями, перевірка FK повернула `23503`, а всі десять запитів ЛР №4 дали ті самі результати після двох зазначених замін. Блок переходу зі схеми ЛР №2 також зберіг відповідність замовлень їхнім покупцям.
+
+## Висновок
+
+Початкова схема відповідала 2НФ. Усунення залежності `address_id → customer_id` із таблиці `orders` привело схему до 3НФ за наведеними залежностями. Усі замовлення після переходу зберігають своїх покупців, яких можна отримати через адресу.
