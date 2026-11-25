@@ -1,0 +1,234 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model monster_type {
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(128)
+  description    String?          @db.VarChar(500)
+  monster_drop   monster_drop[]
+  monster_entity monster_entity[]
+}
+
+model stats {
+  id             Int              @id @default(autoincrement())
+  strength       Int
+  dexterity      Int
+  intelligence   Int
+  defense        Int
+  agility        Int
+  character      character[]
+  monster_entity monster_entity[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model world_entity {
+  id             Int              @id @default(autoincrement())
+  zone_id        Int
+  position_x     Decimal          @db.Decimal
+  position_y     Decimal          @db.Decimal
+  position_z     Decimal          @db.Decimal
+  max_hp         Int
+  level          Int
+  character      character[]
+  monster_entity monster_entity[]
+  npc            npc[]
+  zone           zone             @relation(fields: [zone_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model zone {
+  id                Int            @id @default(autoincrement())
+  level_requirement Int?
+  zone_name         String?        @db.VarChar(100)
+  world_entity      world_entity[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model character {
+  id              Int               @id @default(autoincrement())
+  worldentity_id  Int
+  user_id         Int
+  stats_id        Int
+  name            String            @db.VarChar(100)
+  experience      Int               @default(0)
+  current_hp      Int
+  current_mana    Int
+  max_mana        Int
+  skin_color_hex  String            @db.Char(7)
+  sex             sex
+  race            race
+  class           Renamedclass
+  stats           stats             @relation(fields: [stats_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users             @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  world_entity    world_entity      @relation(fields: [worldentity_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  character_spell character_spell[]
+  inventory       inventory[]
+  monster_entity  monster_entity[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model character_spell {
+  character_id Int
+  spell_id     Int
+  quantity     Int       @default(0)
+  character    character @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  spell        spell     @relation(fields: [spell_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([character_id, spell_id])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model enchantment {
+  item_id    Int    @id
+  ench_level Int
+  effect     String @db.VarChar(255)
+  item       item   @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model inventory {
+  id           Int       @id @default(autoincrement())
+  character_id Int
+  gold         Int       @default(0)
+  capacity     Int       @default(20)
+  character    character @relation(fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  item         item[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model item {
+  id             Int           @id @default(autoincrement())
+  item_tmpl_id   Int
+  inv_id         Int
+  inventory_slot Int           @db.SmallInt
+  quantity       Int           @default(1) @db.SmallInt
+  damage         Int?
+  attack_speed   Decimal?      @db.Decimal
+  protect        Int?
+  up_health      Int?
+  enchantment    enchantment?
+  inventory      inventory     @relation(fields: [inv_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  item_template  item_template @relation(fields: [item_tmpl_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model item_template {
+  id                Int                 @id @default(autoincrement())
+  name              String              @db.VarChar(128)
+  description       String              @db.VarChar(128)
+  max_stack         Int                 @default(1) @db.SmallInt
+  rarity            Int                 @default(0) @db.SmallInt
+  type              item_type
+  item              item[]
+  monster_drop      monster_drop[]
+  npc_item_relation npc_item_relation[]
+}
+
+model monster_drop {
+  monster_id    Int
+  item_id       Int
+  item_template item_template @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  monster_type  monster_type  @relation(fields: [monster_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([monster_id, item_id])
+}
+
+model monster_entity {
+  id           Int           @id @default(autoincrement())
+  entity_id    Int
+  state        monster_state @default(wander)
+  stats_id     Int
+  type_id      Int
+  target_id    Int?
+  world_entity world_entity  @relation(fields: [entity_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stats        stats         @relation(fields: [stats_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  character    character?    @relation(fields: [target_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  monster_type monster_type  @relation(fields: [type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model npc {
+  id                Int                 @id @default(autoincrement())
+  entity_id         Int
+  name              String              @db.VarChar(128)
+  world_entity      world_entity        @relation(fields: [entity_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  npc_item_relation npc_item_relation[]
+}
+
+model npc_item_relation {
+  npc_id        Int
+  item_id       Int
+  sell_price    Int?
+  buy_price     Int?
+  item_template item_template @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  npc           npc           @relation(fields: [npc_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([npc_id, item_id])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model spell {
+  id              Int               @id @default(autoincrement())
+  name            String            @unique @db.VarChar(128)
+  description     String            @db.VarChar(512)
+  mana_cost       Int               @default(0)
+  character_spell character_spell[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model user_ban {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  ban_until  DateTime @db.Timestamptz(6)
+  ban_reason String   @db.VarChar(420)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model users {
+  id            Int         @id @default(autoincrement())
+  username      String      @db.VarChar(100)
+  email         String      @unique @db.VarChar(255)
+  password_hash String      @db.VarChar(128)
+  character     character[]
+  user_ban      user_ban[]
+}
+
+enum Renamedclass {
+  cleric
+  fighter
+  rogue
+  wizard
+
+  @@map("class")
+}
+
+enum monster_state {
+  wander
+  attack
+}
+
+enum race {
+  human
+  orc
+  elf
+  dwarf
+  khajiit
+}
+
+enum sex {
+  male
+  female
+  croissant
+  non_binary @map("non-binary")
+}
+
+enum item_type {
+  weapon
+  food
+  armor
+  tool
+}

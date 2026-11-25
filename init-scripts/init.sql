@@ -1,3 +1,6 @@
+-- Apply schema and seed data atomically, so an error cannot leave a partial database.
+BEGIN;
+
 create type monster_state as enum('wander','attack');
 
 create type race as enum('human','orc','elf','dwarf','khajiit');
@@ -65,16 +68,16 @@ create table world_entity(
     level int not null CHECK (level >= 0)
 );
 
--- insert into world_entity (zone_id, position_x, position_y, position_z, max_hp, level) values
---     (1, 138.3, 2903.556, 248.4872, 50, 3),  --taken
---     (1, 389.4, 18937.7831, 738.3781, 100,5), --taken
---     (2, 310.10, 381.39, 39.531, 200, 8),  --taken
---     (3, 3920.42, 492.42, 8942.8924, 500, 20), --taken
---     (3, 39318.42, 32.47, 89.24, 1000, 30),
---     (4, 389.8329, 3829.3892, 38.92, 250, 16), --taken
---     (5, 290.42,19.38, 3.392, 1, 1),
---     (6, 8941.41, 49.47, 4.4920, 1000, 40),
---     (7, 3967.67, 381.8913, 8931.781, 2000, 50); --taken
+insert into world_entity (zone_id, position_x, position_y, position_z, max_hp, level) values
+    (1, 138.3, 2903.556, 248.4872, 50, 3),
+    (1, 389.4, 18937.7831, 738.3781, 100, 5),
+    (2, 310.10, 381.39, 39.531, 200, 8),
+    (3, 3920.42, 492.42, 8942.8924, 500, 20),
+    (3, 39318.42, 32.47, 89.24, 1000, 30),
+    (4, 389.8329, 3829.3892, 38.92, 250, 16),
+    (5, 290.42, 19.38, 3.392, 1, 1),
+    (6, 8941.41, 49.47, 4.4920, 1000, 40),
+    (7, 3967.67, 381.8913, 8931.781, 2000, 50);
 
 
 create table users(
@@ -82,7 +85,7 @@ create table users(
 
   username varchar(100) not null,
   email varchar(255) not null unique CHECK (email LIKE '_%@_%._%'),
-  password_hash varchar(128) not null CHECK (trim(password_hash) <> ''),
+  password_hash varchar(128) not null CHECK (trim(password_hash) <> '')
 );
 
 create table user_ban(
@@ -91,14 +94,14 @@ create table user_ban(
   
   ban_until timestamp with time zone not null,
   ban_reason varchar(420) not null check (trim(ban_reason) <> '')
-)
+);
 
--- insert into users (username, email, password_hash) values
--- 		('RodrickTheGreatest', 'verynormalemail@gmil.com', 'hashedpassword1'),
--- 		('xXx_DragonSlayer_xXx', 'dragonslayer@example.com', 'hashedpassword2'),
--- 		('overlord123', 'overlord123@example.com', 'hashedpassword3'),
--- 		('ShadowAssassin', 'shadowassassin@example.com', 'hashedpassword4'),
--- 		('PropagandaIsUseless', 'sombraforever@gmail.com', 'hashedpassword5');
+insert into users (username, email, password_hash) values
+		('RodrickTheGreatest', 'verynormalemail@gmil.com', 'hashedpassword1'),
+		('xXx_DragonSlayer_xXx', 'dragonslayer@example.com', 'hashedpassword2'),
+		('overlord123', 'overlord123@example.com', 'hashedpassword3'),
+		('ShadowAssassin', 'shadowassassin@example.com', 'hashedpassword4'),
+		('PropagandaIsUseless', 'sombraforever@gmail.com', 'hashedpassword5');
 
 create table character(
 	id int generated always as identity primary key,
@@ -191,7 +194,7 @@ create table item(
     damage int check (damage >= 0),
     attack_speed numeric check (attack_speed > 0),
     protect int check (protect >= 0),
-    up_health int check (up_health >= 0);
+    up_health int check (up_health >= 0)
 );
 
 create table enchantment (
@@ -200,10 +203,10 @@ create table enchantment (
     effect varchar(255) not null
 );
 
--- insert into item (item_tmpl_id, inv_id, inventory_slot, quantity) values
--- 	(1, 1, 1, 1),
--- 	(2, 2, 2, 2),
--- 	(3, 3, 3, 34);
+insert into item (item_tmpl_id, inv_id, inventory_slot, quantity) values
+	(1, 1, 1, 1),
+	(2, 2, 2, 2),
+	(3, 3, 3, 1);
 
 create table npc_item_relation(
     npc_id int not null references npc(id),
@@ -260,3 +263,5 @@ insert into character_spell (character_id, spell_id, quantity) values
 	(3, 2, 4);
 
 ----ENDREGION ITEMS/TOOLS ----
+
+COMMIT;

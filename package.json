@@ -1,0 +1,24 @@
+{
+  "name": "db-intro-course-pivo",
+  "version": "1.0.0",
+  "description": "Цей репозиторій містить ресурси та налаштування середовища для курсу по базам даних.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GarniyHlopchik/db-intro-course-PIVO.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/GarniyHlopchik/db-intro-course-PIVO/issues"
+  },
+  "homepage": "https://github.com/GarniyHlopchik/db-intro-course-PIVO#readme",
+  "devDependencies": {
+    "prisma": "^6.12.0"
+  }
+}
