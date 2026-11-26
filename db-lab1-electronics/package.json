@@ -1,0 +1,12 @@
+{
+  "name": "db-lab1-electronics",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "node tools/render.cjs"
+  },
+  "devDependencies": {
+    "@viz-js/viz": "^3.25.0",
+    "sharp": "^0.35.5"
+  }
+}
