@@ -32,7 +32,7 @@
 - `deal_products` (15 записів) — деталізація позицій в угодах (зв'язок M:N між `deals` і `products` із фіксацією `quantity` та `actual_price`).
 - `tasks` (6 записів) — оперативні завдання менеджерів з опціональною прив'язкою до угоди (`deal_id` $\rightarrow$ `deals.id`, допускає `NULL`).
 
-> **Примітка:** У файлі [`olap_queries.sql`](olap_queries.sql) перед деякими аналітичними запитами також містяться допоміжні вибірки `SELECT * FROM ...` для візуального ознайомлення з сирими даними таблиць у клієнті (pgAdmin / `psql`). Нижче наведено всі 16 основних OLAP-запитів та результати їхнього виконання.
+> **Примітка:** У файлі [`olap_queries.sql`](olap_queries.sql) перед деякими аналітичними запитами також містяться допоміжні вибірки `SELECT * FROM ...` для візуального ознайомлення з сирими даними таблиць у клієнті (pgAdmin / `psql`). Нижче наведено всі 22 основні OLAP-запити та результати їхнього виконання.
 
 ---
 
@@ -70,7 +70,7 @@ ORDER BY total_revenue DESC;
 * **Чому обрано такий підхід:** `LEFT JOIN` зберігає у звіті співробітників без угод (**Андрій Ковальчук**), `COUNT(d.id)` повертає `0` замість `1`, а `COALESCE(..., 0)` замінює `NULL` від порожньої суми на `0` для читабельності та коректного сортування `DESC`.
 * **SQL-запит:**
 ```sql
-SELECT u.full_name, u.role, COUNT(d.id) AS total_deals, COALESCE(SUM(d.total_amount), 0) AS total_revenue
+SELECT u.full_name, u.role, COALESCE(COUNT(d.id), 0) AS total_deals, COALESCE(SUM(d.total_amount), 0) AS total_revenue
 FROM users u
 LEFT JOIN deals d ON u.id = d.manager_id
 GROUP BY u.id, u.full_name, u.role
@@ -408,15 +408,174 @@ ORDER BY d.id;
 
 ---
 
+### 3.4. Запити Гладченка Віталія
+
+#### Запит 17: Статистика по статусах угод (`deals` — `COUNT`, `SUM`, `AVG`, `COALESCE`, `GROUP BY`)
+* **Що робить запит:** Групує всі угоди за етапом воронки (`status`), підраховує їхню кількість, загальну суму та округлений середній чек із підстановкою `0` замість `NULL` через `COALESCE`.
+* **SQL-запит:**
+```sql
+SELECT
+    status,
+    COUNT(*) AS deals_count,
+    COALESCE(SUM(total_amount), 0) AS total_sum,
+    ROUND(COALESCE(AVG(total_amount), 0), 2) AS avg_amount
+FROM deals
+GROUP BY status
+ORDER BY total_sum DESC;
+```
+* **Результат виконання:**
+```text
+   status    | deals_count | total_sum | avg_amount 
+-------------+-------------+-----------+------------
+ negotiation |           3 | 124000.00 |   41333.33
+ contract    |           1 |  71000.00 |   71000.00
+ won         |           1 |  55000.00 |   55000.00
+ new         |           1 |  41500.00 |   41500.00
+ lost        |           1 |  25000.00 |   25000.00
+(5 rows)
+```
+
+---
+
+#### Запит 18: Продажі по кожному менеджеру (`users` + `deals` — `LEFT JOIN`, `COALESCE`, `GROUP BY`)
+* **Що робить запит:** Виводить усіх співробітників, кількість їхніх угод і суму продажів (завдяки `LEFT JOIN` та `COALESCE` у звіті зберігається менеджер **Андрій Ковальчук** із `0` угод).
+* **SQL-запит:**
+```sql
+SELECT
+    u.full_name,
+    COUNT(d.id) AS deals_count,
+    COALESCE(SUM(d.total_amount), 0) AS total_sales
+FROM users u
+LEFT JOIN deals d ON u.id = d.manager_id
+GROUP BY u.id, u.full_name
+ORDER BY total_sales DESC;
+```
+* **Результат виконання:**
+```text
+     full_name     | deals_count | total_sales 
+-------------------+-------------+-------------
+ Віталій Гладченко |           3 |   137500.00
+ Симоненко Поліна  |           2 |    89000.00
+ Рубан Олексій     |           1 |    55000.00
+ Грищенко Ілля     |           1 |    35000.00
+ Андрій Ковальчук  |           0 |           0
+(5 rows)
+```
+
+---
+
+#### Запит 19: Клієнти з сумою угод вище порогу (`clients` + `deals` — `INNER JOIN`, `GROUP BY`, `HAVING`)
+* **Що робить запит:** Об'єднує клієнтів із їхніми угодами, підсумовує суму по кожній компанії та через `HAVING` залишає лише тих, чия сума перевищує `50000`.
+* **SQL-запит:**
+```sql
+SELECT
+    c.company_name,
+    COUNT(d.id) AS deals_count,
+    SUM(d.total_amount) AS total_sum
+FROM clients c
+INNER JOIN deals d ON c.id = d.client_id
+GROUP BY c.id, c.company_name
+HAVING SUM(d.total_amount) > 50000
+ORDER BY total_sum DESC;
+```
+* **Результат виконання:**
+```text
+        company_name         | deals_count | total_sum 
+-----------------------------+-------------+-----------
+ ПрАТ «Київстар Дігітал»     |           2 | 117000.00
+ ТОВ «Нова Пошта Технолоджі» |           1 |  55000.00
+(2 rows)
+```
+
+---
+
+#### Запит 20: Угоди і задачі разом (`deals` + `tasks` — `FULL OUTER JOIN`)
+* **Що робить запит:** Показує повне зіставлення угод і задач: угоди без задач, угоди з задачами та автономні задачі без прив'язки до угоди (`deal_id IS NULL`).
+* **SQL-запит:**
+```sql
+SELECT
+    d.id AS deal_id,
+    d.status AS deal_status,
+    t.task_type,
+    t.status AS task_status
+FROM deals d
+FULL OUTER JOIN tasks t ON d.id = t.deal_id
+ORDER BY d.id NULLS LAST, t.id;
+```
+* **Результат виконання:**
+```text
+ deal_id | deal_status | task_type | task_status 
+---------+-------------+-----------+-------------
+       1 | won         |           | 
+       2 | contract    | meeting   | pending
+       3 | negotiation | call      | completed
+       4 | negotiation | call      | pending
+       5 | lost        | email     | completed
+       6 | new         |           | 
+      10 | negotiation | email     | pending
+         |             | meeting   | pending
+(8 rows)
+```
+
+---
+
+#### Запит 21: Угоди з сумою більшою за середню (`deals` — підзапит у `WHERE`)
+* **Що робить запит:** Відбирає угоди, сума яких вища за середній чек по всій таблиці `deals`, із сортуванням за спаданням суми.
+* **SQL-запит:**
+```sql
+SELECT
+    id,
+    status,
+    total_amount
+FROM deals
+WHERE total_amount > (SELECT AVG(total_amount) FROM deals)
+ORDER BY total_amount DESC;
+```
+* **Результат виконання:**
+```text
+ id |   status    | total_amount 
+----+-------------+--------------
+  2 | contract    |     71000.00
+  1 | won         |     55000.00
+ 10 | negotiation |     46000.00
+(3 rows)
+```
+
+---
+
+#### Запит 22: Менеджери та кількість їхніх угод (`users` — корельований підзапит у `SELECT`)
+* **Що робить запит:** Для кожного співробітника з `users` рахує кількість його угод за допомогою вкладеного корельованого підзапиту без використання `GROUP BY`.
+* **SQL-запит:**
+```sql
+SELECT
+    u.full_name,
+    (SELECT COUNT(*) FROM deals d WHERE d.manager_id = u.id) AS deals_count
+FROM users u
+ORDER BY deals_count DESC;
+```
+* **Результат виконання:**
+```text
+     full_name     | deals_count 
+-------------------+-------------
+ Віталій Гладченко |           3
+ Симоненко Поліна  |           2
+ Рубан Олексій     |           1
+ Грищенко Ілля     |           1
+ Андрій Ковальчук  |           0
+(5 rows)
+```
+
+---
+
 ## 4. Матриця відповідності вимогам завдання
 
 Нижче наведено зведення використаних у [`olap_queries.sql`](olap_queries.sql) SQL-конструкцій відповідно до інструкцій лабораторної роботи №4 (`lab_4.md`):
 
 | Вимога методичних вказівок | Статус у `olap_queries.sql` | Де реалізовано |
 |---|---|---|
-| Мінімум **4 запити** з агрегатними функціями (`SUM`, `AVG`, `COUNT`, `MIN`, `MAX`, `GROUP BY`) | **Виконано** (використано `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`, `HAVING`) | Запити 1–8, 11, 13–15 |
-| Мінімум **3 запити** з різними типами `JOIN` (`INNER`, `LEFT`, `RIGHT`, `FULL`, `CROSS`) | **Виконано** (використано 4 типи: `INNER JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `FULL OUTER JOIN`) | Запити 1, 3, 7, 14 (`INNER`), Запити 2, 8, 15 (`LEFT`), Запит 9 (`RIGHT`), Запити 4, 16 (`FULL OUTER`) |
-| Мінімум **3 запити** з підзапитами (у `SELECT`, `WHERE` або `HAVING`) | **Виконано** (6 запитів із підзапитами у `WHERE`, `HAVING` та `SELECT`) | Запити 10, 16 (`WHERE`), Запити 11, 13 (`HAVING`), Запити 12, 15 (`SELECT`) |
+| Мінімум **4 запити** з агрегатними функціями (`SUM`, `AVG`, `COUNT`, `MIN`, `MAX`, `GROUP BY`) | **Виконано** (використано `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`, `HAVING`) | Запити 1–8, 11, 13–15, 17–19 |
+| Мінімум **3 запити** з різними типами `JOIN` (`INNER`, `LEFT`, `RIGHT`, `FULL`, `CROSS`) | **Виконано** (використано 4 типи: `INNER JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `FULL OUTER JOIN`) | Запити 1, 3, 7, 14, 19 (`INNER`), Запити 2, 8, 15, 18 (`LEFT`), Запит 9 (`RIGHT`), Запити 4, 16, 20 (`FULL OUTER`) |
+| Мінімум **3 запити** з підзапитами (у `SELECT`, `WHERE` або `HAVING`) | **Виконано** (8 запитів із підзапитами у `WHERE`, `HAVING` та `SELECT`) | Запити 10, 16, 21 (`WHERE`), Запити 11, 13 (`HAVING`), Запити 12, 15, 22 (`SELECT`) |
 
 ---
 
@@ -428,9 +587,9 @@ ORDER BY d.id;
 ---
 
 ## 6. Висновки
-У межах лабораторної роботи №4 на базі даних OpenCRM у PostgreSQL 17.5 реалізовано та протестовано 16 аналітичних OLAP-запитів, що повністю покривають усі вимоги методичних вказівок `lab_4.md`:
+У межах лабораторної роботи №4 на базі даних OpenCRM у PostgreSQL 17.5 реалізовано та протестовано 22 аналітичні OLAP-запити від усіх учасників команди, що повністю покривають вимоги методичних вказівок `lab_4.md`:
 1. Застосовано повний набір агрегатних функцій (`COUNT`, `SUM`, `AVG`, `MIN`, `MAX`) разом із `GROUP BY`, `HAVING` та `COALESCE`.
 2. Використано 4 різні типи з'єднань таблиць (`INNER JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `FULL OUTER JOIN`) для аналізу клієнтів, менеджерів, каталогу товарів та покриття угод завданнями.
-3. Реалізовано 6 запитів із підзапитами у `WHERE`, `HAVING` та `SELECT` (зокрема корельовані підзапити для уникнення дублювання при агрегації).
+3. Реалізовано 8 запитів із підзапитами у `WHERE`, `HAVING` та `SELECT` (зокрема корельовані підзапити для уникнення дублювання при агрегації).
 
 Усі наведені в цьому звіті запити перевірені в середовищі PostgreSQL `17.5-alpine` без жодної синтаксичної чи логічної помилки, а їхні результати повністю узгоджуються з фактичним станом даних у системі OpenCRM.

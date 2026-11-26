@@ -18,7 +18,7 @@ ORDER BY total_revenue DESC;
 -- 2: Сума угод по кожному менеджеру.
 SELECT * FROM users;
 
-SELECT u.full_name, u.role, COUNT(d.id) AS total_deals, COALESCE(SUM(d.total_amount), 0) AS total_revenue
+SELECT u.full_name, u.role, COALESCE(COUNT(d.id), 0) AS total_deals, COALESCE(SUM(d.total_amount), 0) AS total_revenue
 FROM users u
 LEFT JOIN deals d ON u.id = d.manager_id
 GROUP BY u.id, u.full_name, u.role
@@ -135,3 +135,65 @@ FROM deals d
 FULL OUTER JOIN tasks t ON d.id = t.deal_id
 WHERE d.total_amount > (SELECT AVG(total_amount) FROM deals) OR t.deal_id IS NULL
 ORDER BY d.id;
+
+
+-- =====================================================================
+-- ЧАСТИНА 4. Гладченко Віталій Васильович (група ІМ-54)
+-- =====================================================================
+
+-- 1. Статистика по статусах угод (deals — COUNT, SUM, AVG, GROUP BY)
+SELECT
+    status,
+    COUNT(*) AS deals_count,
+    COALESCE(SUM(total_amount), 0) AS total_sum,
+    ROUND(COALESCE(AVG(total_amount), 0), 2) AS avg_amount
+FROM deals
+GROUP BY status
+ORDER BY total_sum DESC;
+
+-- 2. Продажі по кожному менеджеру (users + deals — LEFT JOIN, GROUP BY)
+SELECT
+    u.full_name,
+    COUNT(d.id) AS deals_count,
+    COALESCE(SUM(d.total_amount), 0) AS total_sales
+FROM users u
+LEFT JOIN deals d ON u.id = d.manager_id
+GROUP BY u.id, u.full_name
+ORDER BY total_sales DESC;
+
+-- 3. Клієнти з сумою угод вище порогу (clients + deals — INNER JOIN, GROUP BY, HAVING)
+SELECT
+    c.company_name,
+    COUNT(d.id) AS deals_count,
+    SUM(d.total_amount) AS total_sum
+FROM clients c
+INNER JOIN deals d ON c.id = d.client_id
+GROUP BY c.id, c.company_name
+HAVING SUM(d.total_amount) > 50000
+ORDER BY total_sum DESC;
+
+-- 4. Угоди і задачі разом (deals + tasks — FULL OUTER JOIN)
+SELECT
+    d.id AS deal_id,
+    d.status AS deal_status,
+    t.task_type,
+    t.status AS task_status
+FROM deals d
+FULL OUTER JOIN tasks t ON d.id = t.deal_id
+ORDER BY d.id NULLS LAST, t.id;
+
+-- 5. Угоди з сумою більшою за середню (deals — підзапит у WHERE)
+SELECT
+    id,
+    status,
+    total_amount
+FROM deals
+WHERE total_amount > (SELECT AVG(total_amount) FROM deals)
+ORDER BY total_amount DESC;
+
+-- 6. Менеджери та кількість їхніх угод (users — підзапит у SELECT)
+SELECT
+    u.full_name,
+    (SELECT COUNT(*) FROM deals d WHERE d.manager_id = u.id) AS deals_count
+FROM users u
+ORDER BY deals_count DESC;
