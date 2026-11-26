@@ -203,3 +203,54 @@ RETURNING deal_id, product_id;
 -- 7. Фінальна перевірка складу угоди №3 (SELECT)
 SELECT * FROM deal_products
 WHERE deal_id = 3;
+
+
+-- =====================================================================
+-- ЧАСТИНА 4. Гладченко Віталій Васильович (група ІМ-54)
+-- =====================================================================
+
+-- Сценарій 1: Операції з угодами (deals)
+-- 1. Додавання угоди (INSERT): створює нову угоду для клієнта 1 та менеджера 2 зі статусом 'new'
+INSERT INTO deals (client_id, manager_id, status, total_amount)
+VALUES (1, 2, 'new', 15000.00)
+RETURNING id, client_id, manager_id, status, total_amount;
+
+-- 2. Перегляд угоди (SELECT): знаходить угоди для клієнта 1 та менеджера 2
+SELECT id, client_id, manager_id, status, total_amount
+FROM deals
+WHERE client_id = 1 AND manager_id = 2;
+
+-- 3. Оновлення угоди (UPDATE): змінює суму, статус на 'negotiation' і час оновлення
+UPDATE deals
+SET total_amount = 22000.00,
+    status = 'negotiation',
+    updated_at = CURRENT_TIMESTAMP
+WHERE client_id = 1 AND manager_id = 2 AND status = 'new'
+RETURNING id, status, total_amount;
+
+-- 4. Видалення угоди (DELETE): видаляє тестову угоду та повертає видалений запис
+DELETE FROM deals
+WHERE client_id = 1 AND manager_id = 2 AND status = 'negotiation'
+RETURNING id, status, total_amount;
+
+-- Сценарій 2: Операції із задачами (tasks)
+-- 5. Додавання задачі (INSERT): призначає менеджеру 2 нову задачу типу 'email' до угоди 2
+INSERT INTO tasks (deal_id, assigned_to, task_type, due_date, status)
+VALUES (2, 2, 'email', '2026-12-01 12:00:00+02', 'pending')
+RETURNING id, deal_id, assigned_to, task_type, status;
+
+-- 6. Перевірка задач (SELECT): вибирає всі активності, прив'язані до угоди 2
+SELECT id, deal_id, assigned_to, task_type, due_date, status
+FROM tasks
+WHERE deal_id = 2;
+
+-- 7. Зміна статусу задачі (UPDATE): позначає додану задачу як виконану ('completed')
+UPDATE tasks
+SET status = 'completed'
+WHERE deal_id = 2 AND assigned_to = 2 AND task_type = 'email'
+RETURNING id, deal_id, task_type, status;
+
+-- 8. Видалення задачі (DELETE): прибирає тестову задачу та повертає підтвердження
+DELETE FROM tasks
+WHERE deal_id = 2 AND assigned_to = 2 AND task_type = 'email'
+RETURNING id, deal_id, task_type, status;

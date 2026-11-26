@@ -14,7 +14,7 @@
 
 ## 2. Файли роботи
 - [oltp_queries.sql](./oltp_queries.sql) — повний набір із 15 перевірених OLTP-запитів із коментарями та поясненнями кожного кроку.
-- [oltp_queries2.sql](./oltp_queries2.sql) — додаткові індивідуальні OLTP-сценарії учасників команди (повні CRUD-цикли для `users`, `clients`, `products` та `deal_products`).
+- [oltp_queries2.sql](./oltp_queries2.sql) — додаткові індивідуальні OLTP-сценарії учасників команди (повні CRUD-цикли для `users`, `clients`, `products`, `deal_products`, `deals` та `tasks`).
 
 ## 3. Огляд реалізованих запитів
 
