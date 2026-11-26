@@ -16,6 +16,7 @@ erDiagram
   Tournament_Application |o--o{ Encounter : "переможець"
   Encounter |o--o{ Encounter : "наступна"
   Encounter ||--o{ Match : "складається з"
+  Encounter |o--o{ Encounter_Participant : "містить"
   Tournament_Application |o--o{ Match : "переможець"
   Match ||--o{ Player_Statistic : "містить"
   User ||--o{ Player_Statistic : "має"
@@ -89,11 +90,14 @@ erDiagram
     uuid id PK
     uuid tournament_id FK
     string stage
-    uuid tournament_application_id_1 FK
-    uuid tournament_application_id_2 FK
     uuid winner_tournament_application_id FK
     uuid next_encounter_id FK
     encounter_status status
+  }
+  Encounter_Participant {
+    uuid encounter_id PK, FK
+    uuid tournament_application_id PK, FK
+    bool isWinner
   }
   Match {
     uuid id PK

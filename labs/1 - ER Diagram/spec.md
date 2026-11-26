@@ -72,7 +72,6 @@ uuid team_id FK PK NOT NULL - ідентифікатор команди
 tournament_participant_status status NOT NULL DEFAULT "pending" - статус заявки
 
 Tournament_Application_Member:
-uuid tournament_id FK PK NOT NULL - ідентифікатор турніра
 uuid tournament_application_id FK NOT NULL - ідентифікатор заявки
 uuid user_id FK PK NOT NULL - ідентифікатор юзера
 

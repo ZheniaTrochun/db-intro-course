@@ -83,23 +83,25 @@ create table tournament_application (
 );
 
 create table tournament_application_member (
-    tournament_id uuid references tournament(id) on delete cascade not null,
     tournament_application_id uuid references tournament_application(id) on delete cascade not null,
     user_id uuid references "user"(id) on delete cascade not null,
-    primary key (tournament_id, user_id)
+    primary key (tournament_application_id, user_id)
 );
 
 create table encounter (
     id uuid primary key default gen_random_uuid(),
     tournament_id uuid references tournament(id) on delete cascade not null,
     stage varchar(15) not null,
-    tournament_application_id_1 uuid references tournament_application(id) on delete set null,
-    tournament_application_id_2 uuid references tournament_application(id) on delete set null,
-    winner_tournament_application_id uuid references tournament_application(id) on delete set null,
     next_encounter_id uuid references encounter(id) on delete set null,
     max_matches smallint not null,
-    status encounter_status not null default 'scheduled'
-    CONSTRAINT duplication_check check(tournament_application_id_1 != tournament_application_id_2)
+    status encounter_status not null default 'scheduled'   
+);
+
+create table encounter_participant (
+    encounter_id uuid references encounter(id) on delete cascade not null,
+    tournament_application_id uuid references tournament_application(id) on delete cascade not null,
+    is_winner boolean not null default false,
+    primary key (encounter_id, tournament_application_id)
 );
 
 create table "match" (
