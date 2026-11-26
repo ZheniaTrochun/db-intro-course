@@ -1,5 +1,5 @@
 -- SELECT ----------------------------------------------------------------------------------------------------
--- Venue page: one VENUE by id with CITY name (only needed columns)
+-- Venue page: one VENUE by id with CITY name
 select name,
     address
 from venue
@@ -93,7 +93,145 @@ values (
     );
 -- New FAVORITE row
 insert into favorite (user_id, venue_id)
-values (2, 3);
+values (2, 3), (3, 3);
+-- New VENUE_STAFF row
+INSERT INTO VENUE_STAFF (
+    venue_id,
+    user_id,
+    role,
+    added_by
+)
+VALUES (
+    2,
+    3,
+    'manager',
+    1
+);
+
+-- New REVIEW row (rating 1-10)
+INSERT INTO REVIEW (
+    venue_id,
+    user_id,
+    rating,
+    text,
+    visited_on
+)
+VALUES (
+    2,
+    3,
+    9,
+    'Класна шаурмечна поруч із метро. Велика порція, соковите мясо і свіжі овочі. Готують швидко, однозначно прийду ще.',
+    '2026-11-25'
+);
+-- New REVIEW row
+INSERT INTO REVIEW (
+    venue_id,
+    user_id,
+    rating,
+    text,
+    visited_on
+)
+VALUES (
+    2,
+    2,
+    5,
+    'Лаваш був холодний, а соусу майже не було. Сподіваюся, наступного разу буде краще.',
+    '2026-11-20'
+);
+-- Official comment from venue staff
+INSERT INTO REVIEW_COMMENT (
+    review_id,
+    user_id,
+    text,
+    is_official
+)
+VALUES (
+    CURRVAL(pg_get_serial_sequence('review', 'review_id')),
+    8,
+    'Перепрошуємо за незручності! Ми вже поговорили з кухнею, чекаємо вас знову.',
+    TRUE
+);
+-- Reply to the official comment
+INSERT INTO REVIEW_COMMENT (
+    review_id,
+    user_id,
+    parent_comment_id,
+    text
+)
+VALUES (
+    CURRVAL(pg_get_serial_sequence('review', 'review_id')),
+    2,
+    CURRVAL(pg_get_serial_sequence('review_comment', 'review_comment_id')),
+    'Дякую за відповідь, обов’язково дам закладу ще один шанс.'
+);
+-- Top-level comment from another user
+INSERT INTO REVIEW_COMMENT (
+    review_id,
+    user_id,
+    text
+)
+VALUES (
+    CURRVAL(pg_get_serial_sequence('review', 'review_id')),
+    1,
+    'У мене минулого тижня був схожий досвід.'
+);
+-- Photos attached to the review
+INSERT INTO PHOTO (
+    review_id,
+    uploaded_by,
+    url
+)
+VALUES (
+    CURRVAL(pg_get_serial_sequence('review', 'review_id')),
+    2,
+    'https://images.example.com/review-cold-lavash-1.jpg'
+),
+(
+    CURRVAL(pg_get_serial_sequence('review', 'review_id')),
+    2,
+    'https://images.example.com/review-cold-lavash-2.jpg'
+);
+-- New USERS row (for testing ON DELETE SET NULL)
+INSERT INTO USERS (
+    email,
+    pass_hash,
+    display_name
+)
+VALUES (
+    'roman@example.com',
+    'totallyrealhash1234',
+    'Роман'
+);
+-- Reviews by the new user
+INSERT INTO REVIEW (
+    venue_id,
+    user_id,
+    rating,
+    text,
+    visited_on
+)
+VALUES (
+    1,
+    (
+        SELECT user_id
+        FROM USERS
+        WHERE email = 'roman@example.com'
+    ),
+    8,
+    'Шаурма соковита, порція велика. Трохи довго чекав на замовлення.',
+    '2026-11-15'
+),
+(
+    3,
+    (
+        SELECT user_id
+        FROM USERS
+        WHERE email = 'roman@example.com'
+    ),
+    6,
+    'Непогана шаурма біля моря, але ціни трохи завищені.',
+    '2026-11-22'
+);
 -- UPDATE ------------------------------------------------------------------------------------------
 -- Moderator approves a venue
 update venue
@@ -127,4 +265,21 @@ set status = 'ended',
     ends_at = now(),
     review_note = 'Закінчилась акція, бо заклад закрився'
 where promotion_id = 1;
-----------------------------------------------------------------------------------------------------
+-- DELETE ---------------------------------------------------------------------
+-- Remove a FAVORITE
+DELETE FROM FAVORITE
+WHERE user_id = 3
+    AND venue_id = 3;
+-- Remove a VENUE_STAFF row
+DELETE FROM VENUE_STAFF
+WHERE venue_id = 2
+    AND user_id = 3;
+-- Delete a review (ON DELETE CASCADE on comments and photos)
+DELETE FROM REVIEW
+WHERE review_id = 8;
+-- Delete a user (ON DELETE SET NULL on reviews)
+DELETE FROM USERS
+WHERE user_id = 10;
+-- Delete a review
+DELETE FROM REVIEW
+WHERE review_id = 7;
