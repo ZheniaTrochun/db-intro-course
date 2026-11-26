@@ -268,11 +268,11 @@ ALTER TABLE "npc_item_relation" ADD CONSTRAINT "npc_item_relation_npc_id_fkey" F
 -- AddForeignKey
 ALTER TABLE "user_ban" ADD CONSTRAINT "user_ban_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
-ALTER TABLE public.""character"" ADD CONSTRAINT character_check CHECK ((current_mana <= max_mana));
-ALTER TABLE public.""character"" ADD CONSTRAINT character_experience_check CHECK ((experience >= 0));
-ALTER TABLE public.""character"" ADD CONSTRAINT character_max_mana_check CHECK ((max_mana >= 0));
-ALTER TABLE public.""character"" ADD CONSTRAINT character_name_check CHECK ((TRIM(BOTH FROM name) <> ''::text));
-ALTER TABLE public.""character"" ADD CONSTRAINT character_skin_color_hex_check CHECK ((skin_color_hex ~ '^#[0-9a-fA-F]{6}$'::text));
+ALTER TABLE public."character" ADD CONSTRAINT character_check CHECK ((current_mana <= max_mana));
+ALTER TABLE public."character" ADD CONSTRAINT character_experience_check CHECK ((experience >= 0));
+ALTER TABLE public."character" ADD CONSTRAINT character_max_mana_check CHECK ((max_mana >= 0));
+ALTER TABLE public."character" ADD CONSTRAINT character_name_check CHECK ((TRIM(BOTH FROM name) <> ''::text));
+ALTER TABLE public."character" ADD CONSTRAINT character_skin_color_hex_check CHECK ((skin_color_hex ~ '^#[0-9a-fA-F]{6}$'::text));
 ALTER TABLE public.character_spell ADD CONSTRAINT character_spell_quantity_check CHECK ((quantity >= 0));
 ALTER TABLE public.enchantment ADD CONSTRAINT enchantment_ench_level_check CHECK ((ench_level > 0));
 ALTER TABLE public.item ADD CONSTRAINT item_attack_speed_check CHECK ((attack_speed > (0)::numeric));
