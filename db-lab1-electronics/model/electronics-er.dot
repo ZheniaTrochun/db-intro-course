@@ -1,0 +1,132 @@
+digraph ElectronicsStoreER {
+  graph [
+    rankdir=LR,
+    bgcolor="white",
+    pad="0.3",
+    nodesep="0.55",
+    ranksep="0.9",
+    splines=polyline,
+    fontname="Segoe UI",
+    labelloc="t",
+    label="ER-модель інтернет-магазину електроніки",
+    fontsize=20
+  ];
+  node [shape=plain, fontname="Segoe UI", fontsize=10];
+  edge [
+    color="#52657A",
+    penwidth=1.25,
+    dir=both,
+    arrowhead=none,
+    arrowtail=none,
+    fontname="Segoe UI",
+    fontsize=9,
+    fontcolor="#30445B",
+    labelfontsize=9,
+    labeldistance=1.7,
+    labelangle=25
+  ];
+
+  account [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#426A8C">
+      <TR><TD BGCOLOR="#DCEAF5"><B>ACCOUNT / Акаунт</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> account_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT">full_name : string</TD></TR>
+      <TR><TD ALIGN="LEFT">email : string (unique)</TD></TR>
+      <TR><TD ALIGN="LEFT">password : string</TD></TR>
+      <TR><TD ALIGN="LEFT">role : string</TD></TR>
+    </TABLE>
+  >];
+
+  category [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#426A8C">
+      <TR><TD BGCOLOR="#DCEAF5"><B>CATEGORY / Категорія</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> category_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT">name : string (unique)</TD></TR>
+    </TABLE>
+  >];
+
+  cart [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#5D8064">
+      <TR><TD BGCOLOR="#E2EFE3"><B>CART / Кошик</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> cart_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK, UQ</B> account_id : int</TD></TR>
+    </TABLE>
+  >];
+
+  product [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#5D8064">
+      <TR><TD BGCOLOR="#E2EFE3"><B>PRODUCT / Товар</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> product_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> category_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT">name, brand, model : string</TD></TR>
+      <TR><TD ALIGN="LEFT">price : decimal</TD></TR>
+      <TR><TD ALIGN="LEFT">stock_quantity : int</TD></TR>
+    </TABLE>
+  >];
+
+  characteristic [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#5D8064">
+      <TR><TD BGCOLOR="#E2EFE3"><B>CHARACTERISTIC / Характеристика</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> characteristic_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> category_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT">name, value_type : string</TD></TR>
+      <TR><TD ALIGN="LEFT">unit : string (optional)</TD></TR>
+    </TABLE>
+  >];
+
+  customer_order [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#9B7750">
+      <TR><TD BGCOLOR="#F5EBDD"><B>CUSTOMER_ORDER / Замовлення</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK</B> order_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>FK</B> account_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT">created_at : datetime</TD></TR>
+      <TR><TD ALIGN="LEFT">status, payment_method : string</TD></TR>
+      <TR><TD ALIGN="LEFT">recipient_name, recipient_phone : string</TD></TR>
+      <TR><TD ALIGN="LEFT">delivery_address : string</TD></TR>
+    </TABLE>
+  >];
+
+  cart_item [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#9B7750">
+      <TR><TD BGCOLOR="#F5EBDD"><B>CART_ITEM / Позиція кошика</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK, FK</B> cart_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK, FK</B> product_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT">quantity : int</TD></TR>
+    </TABLE>
+  >];
+
+  product_characteristic [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#9B7750">
+      <TR><TD BGCOLOR="#F5EBDD"><B>PRODUCT_CHARACTERISTIC</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK, FK</B> product_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK, FK</B> characteristic_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT">value : string</TD></TR>
+    </TABLE>
+  >];
+
+  order_item [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#9B7750">
+      <TR><TD BGCOLOR="#F5EBDD"><B>ORDER_ITEM / Позиція замовлення</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK, FK</B> order_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>PK, FK</B> product_id : int</TD></TR>
+      <TR><TD ALIGN="LEFT">quantity : int</TD></TR>
+      <TR><TD ALIGN="LEFT">unit_price : decimal</TD></TR>
+    </TABLE>
+  >];
+
+  { rank=same; account; category; }
+  { rank=same; cart; product; characteristic; }
+  { rank=same; customer_order; cart_item; product_characteristic; }
+  { rank=same; order_item; }
+
+  account -> cart [taillabel="1", headlabel="0..1", xlabel="має"];
+  account -> customer_order [taillabel="1", headlabel="0..N", xlabel="оформлює"];
+  category -> product [taillabel="1", headlabel="0..N", xlabel="групує"];
+  category -> characteristic [taillabel="1", headlabel="0..N", xlabel="визначає"];
+  cart -> cart_item [taillabel="1", headlabel="0..N", xlabel="містить"];
+  product -> cart_item [taillabel="1", headlabel="0..N", xlabel="додається до"];
+  product -> product_characteristic [taillabel="1", headlabel="0..N", xlabel="має значення"];
+  characteristic -> product_characteristic [taillabel="1", headlabel="0..N", xlabel="описує"];
+  customer_order -> order_item [taillabel="1", headlabel="1..N", xlabel="містить"];
+  product -> order_item [taillabel="1", headlabel="0..N", xlabel="замовлений як"];
+}
