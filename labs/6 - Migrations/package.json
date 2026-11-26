@@ -1,0 +1,28 @@
+{
+  "name": "bd",
+  "version": "1.0.0",
+  "description": "Спрощена схема бази даних PostgreSQL для системи управління складом (WMS). Використовується в лабораторних роботах 2-4; конструкції відповідають лекціям 1-7.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stefect/BD.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Stefect/BD/issues"
+  },
+  "homepage": "https://github.com/Stefect/BD#readme",
+  "devDependencies": {
+    "@prisma/client": "^6.19.3",
+    "prisma": "^6.19.3"
+  },
+  "type": "commonjs"
+}

@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Ця таблиця містить CHECK-обмеження і потребує додаткового налаштування для міграцій. Див. https://pris.ly/d/check-constraints
+model inventory_movement {
+  movement_id                                                                Int                 @id @default(autoincrement())
+  movement_type                                                              movement_kind
+  product_id                                                                 Int
+  from_location_id                                                           Int
+  to_location_id                                                             Int?
+  quantity                                                                   Int
+  reason                                                                     String?             @db.VarChar(255)
+  movement_date                                                              DateTime            @default(now()) @db.Timestamp(6)
+  created_by                                                                 String              @db.VarChar(100)
+  warehouse_location_inventory_movement_from_location_idTowarehouse_location warehouse_location  @relation("inventory_movement_from_location_idTowarehouse_location", fields: [from_location_id], references: [location_id], onDelete: NoAction, onUpdate: NoAction)
+  product                                                                    product             @relation(fields: [product_id], references: [product_id], onDelete: NoAction, onUpdate: NoAction)
+  warehouse_location_inventory_movement_to_location_idTowarehouse_location   warehouse_location? @relation("inventory_movement_to_location_idTowarehouse_location", fields: [to_location_id], references: [location_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([from_location_id], map: "idx_inventory_movement_from")
+  @@index([product_id, movement_date], map: "idx_inventory_movement_product_date")
+}
+
+/// Ця таблиця містить CHECK-обмеження і потребує додаткового налаштування для міграцій. Див. https://pris.ly/d/check-constraints
+model inventory_stock {
+  product_id         Int
+  location_id        Int
+  quantity           Int
+  warehouse_location warehouse_location @relation(fields: [location_id], references: [location_id], onDelete: NoAction, onUpdate: NoAction)
+  product            product            @relation(fields: [product_id], references: [product_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([product_id, location_id])
+  @@index([location_id], map: "idx_inventory_stock_location")
+}
+
+/// Ця таблиця містить CHECK-обмеження і потребує додаткового налаштування для міграцій. Див. https://pris.ly/d/check-constraints
+model product {
+  product_id         Int                  @id @default(autoincrement())
+  sku_code           String               @unique @db.VarChar(50)
+  name               String               @db.VarChar(100)
+  unit               unit_type            @default(piece)
+  min_stock_level    Int                  @default(0)
+  notes              String?
+  category_id        Int?
+  reorder_quantity   Int                  @default(0)
+  inventory_movement inventory_movement[]
+  inventory_stock    inventory_stock[]
+  product_category   product_category?    @relation(fields: [category_id], references: [category_id], onUpdate: NoAction)
+  supply_item        supply_item[]
+
+  @@index([category_id], map: "idx_product_category")
+}
+
+model product_category {
+  category_id Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar(100)
+  description String?
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  product     product[]
+
+  @@index([name], map: "idx_product_category_name")
+}
+
+/// Ця таблиця містить CHECK-обмеження і потребує додаткового налаштування для міграцій. Див. https://pris.ly/d/check-constraints
+model supplier {
+  supplier_id    Int            @id @default(autoincrement())
+  company_name   String         @db.VarChar(100)
+  contact_person String         @db.VarChar(100)
+  phone          String         @db.VarChar(20)
+  email          String         @unique @db.VarChar(100)
+  address        String         @db.VarChar(255)
+  version        Int            @default(1)
+  deleted_at     DateTime?      @db.Timestamp(6)
+  supply_order   supply_order[]
+}
+
+/// Ця таблиця містить CHECK-обмеження і потребує додаткового налаштування для міграцій. Див. https://pris.ly/d/check-constraints
+model supply_item {
+  order_id           Int
+  product_id         Int
+  location_id        Int
+  quantity           Int
+  unit_price         Decimal            @db.Decimal(10, 2)
+  expiry_date        DateTime?          @db.Date
+  warehouse_location warehouse_location @relation(fields: [location_id], references: [location_id], onDelete: NoAction, onUpdate: NoAction)
+  supply_order       supply_order       @relation(fields: [order_id], references: [order_id], onDelete: NoAction, onUpdate: NoAction)
+  product            product            @relation(fields: [product_id], references: [product_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([order_id, product_id])
+  @@index([location_id], map: "idx_supply_item_location")
+  @@index([product_id], map: "idx_supply_item_product")
+}
+
+/// Ця таблиця містить CHECK-обмеження і потребує додаткового налаштування для міграцій. Див. https://pris.ly/d/check-constraints
+model supply_order {
+  order_id     Int           @id @default(autoincrement())
+  order_number String        @unique @db.VarChar(50)
+  supplier_id  Int
+  supply_date  DateTime      @default(now()) @db.Timestamp(6)
+  total_cost   Decimal       @default(0) @db.Decimal(10, 2)
+  status       order_status  @default(draft)
+  batch_number String        @db.VarChar(50)
+  supply_item  supply_item[]
+  supplier     supplier      @relation(fields: [supplier_id], references: [supplier_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([supplier_id], map: "idx_supply_order_supplier")
+}
+
+/// Ця таблиця містить CHECK-обмеження і потребує додаткового налаштування для міграцій. Див. https://pris.ly/d/check-constraints
+model warehouse_location {
+  location_id                                                                Int                  @id @default(autoincrement())
+  location_code                                                              String               @unique @db.VarChar(50)
+  zone                                                                       String               @db.VarChar(50)
+  shelf_number                                                               String               @db.VarChar(50)
+  max_capacity                                                               Int
+  inventory_movement_inventory_movement_from_location_idTowarehouse_location inventory_movement[] @relation("inventory_movement_from_location_idTowarehouse_location")
+  inventory_movement_inventory_movement_to_location_idTowarehouse_location   inventory_movement[] @relation("inventory_movement_to_location_idTowarehouse_location")
+  inventory_stock                                                            inventory_stock[]
+  supply_item                                                                supply_item[]
+
+  @@unique([zone, shelf_number], map: "uk_zone_shelf")
+}
+
+enum movement_kind {
+  transfer
+  write_off
+}
+
+enum order_status {
+  draft
+  received
+  cancelled
+}
+
+enum unit_type {
+  piece
+  kg
+  liter
+  box
+  pallet
+}
