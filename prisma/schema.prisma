@@ -8,6 +8,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model world_event {
+  id         Int      @id @default(autoincrement())
+  zone_id    Int
+  title      String   @db.VarChar(128)
+  starts_at  DateTime
+  is_active  Boolean  @default(true)
+  zone       zone     @relation(fields: [zone_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
 model monster_type {
   id             Int              @id @default(autoincrement())
   name           String           @db.VarChar(128)
@@ -47,6 +56,7 @@ model zone {
   level_requirement Int?
   zone_name         String?        @db.VarChar(100)
   world_entity      world_entity[]
+  world_event world_event[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
