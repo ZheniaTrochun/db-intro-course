@@ -182,6 +182,7 @@ model spell {
 model user_ban {
   id         Int      @id @default(autoincrement())
   user_id    Int
+  banned_at  DateTime @default(now()) @db.Timestamptz(6)
   ban_until  DateTime @db.Timestamptz(6)
   ban_reason String   @db.VarChar(420)
   users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -193,8 +194,17 @@ model users {
   username      String      @db.VarChar(100)
   email         String      @unique @db.VarChar(255)
   password_hash String      @db.VarChar(128)
+  guild_id      Int?
   character     character[]
   user_ban      user_ban[]
+  guild         guild?      @relation(fields: [guild_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+}
+
+model guild {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(128)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  users      users[]
 }
 
 enum Renamedclass {
