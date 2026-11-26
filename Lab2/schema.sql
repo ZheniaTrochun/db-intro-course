@@ -139,4 +139,3 @@ SELECT * FROM Customer;
 SELECT * FROM Orders;
 SELECT * FROM Ingredient;
 SELECT * FROM ItemQuantity;
-\
