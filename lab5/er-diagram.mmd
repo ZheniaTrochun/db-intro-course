@@ -1,0 +1,96 @@
+erDiagram
+    dorms |o..o{ users : "закріплює"
+    dorms ||..o{ rooms : "містить"
+    dorms ||..o{ parking_slots : "має"
+    rooms |o..o{ students : "розміщує"
+    users ||..o| students : "має профіль студента"
+    users ||..o| dorm_admins : "має роль адміністратора"
+    users |o..o| parking_slots : "займає в своєму гуртожитку"
+    departments ||..o{ courses : "пропонує"
+    students ||..o{ enrollments : "записується"
+    courses ||..o{ enrollments : "має записи"
+    companies ||..o{ vacancies : "публікує"
+    students ||..o{ applications : "подає"
+    vacancies ||..o{ applications : "отримує заяви"
+
+    dorms {
+        int dorm_id PK
+        int dorm_number UK
+        varchar address UK
+    }
+
+    users {
+        int user_id PK
+        varchar first_name
+        varchar last_name
+        varchar email UK
+        date date_of_birth
+        date registration_date
+        user_status status
+        int dorm_id FK "NULL дозволено, UNIQUE разом із user_id"
+    }
+
+    departments {
+        int department_id PK
+        varchar department_name
+    }
+
+    rooms {
+        int room_id PK
+        int dorm_id FK
+        varchar room_number "UNIQUE разом із dorm_id"
+        int floor
+    }
+
+    students {
+        int student_id PK
+        int enrollment_year
+        int room_id FK "NULL дозволено"
+        student_status status
+        int user_id FK, UK
+    }
+
+    dorm_admins {
+        int admin_id PK
+        int user_id FK, UK
+    }
+
+    parking_slots {
+        int parking_slot_id PK
+        int dorm_id FK
+        int user_id FK, UK "NULL дозволено, складений FK разом із dorm_id"
+        varchar slot_number "UNIQUE разом із dorm_id"
+    }
+
+    courses {
+        int course_id PK
+        int department_id FK
+        varchar course_title
+    }
+
+    enrollments {
+        int enrollment_id PK
+        int student_id FK
+        int course_id FK "UNIQUE разом із student_id"
+        date enrollment_date
+        numeric grade
+    }
+
+    companies {
+        int company_id PK
+        varchar company_name UK
+    }
+
+    vacancies {
+        int vacancy_id PK
+        int company_id FK
+        varchar job_name
+    }
+
+    applications {
+        int application_id PK
+        int student_id FK
+        int vacancy_id FK "UNIQUE разом із student_id"
+        date application_date
+        application_status status
+    }
