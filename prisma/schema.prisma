@@ -8,6 +8,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model world_event {
+  id         Int      @id @default(autoincrement())
+  zone_id    Int
+  title      String   @db.VarChar(128)
+  starts_at  DateTime
+  is_active  Boolean  @default(true)
+  zone       zone     @relation(fields: [zone_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
 model monster_type {
   id             Int              @id @default(autoincrement())
   name           String           @db.VarChar(128)
@@ -47,6 +56,7 @@ model zone {
   level_requirement Int?
   zone_name         String?        @db.VarChar(100)
   world_entity      world_entity[]
+  world_event world_event[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -70,6 +80,7 @@ model character {
   character_spell character_spell[]
   inventory       inventory[]
   monster_entity  monster_entity[]
+  achievements character_achievement[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -103,7 +114,7 @@ model inventory {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model item {
   id             Int           @id @default(autoincrement())
-  item_tmpl_id   Int
+  item_template_id   Int
   inv_id         Int
   inventory_slot Int           @db.SmallInt
   quantity       Int           @default(1) @db.SmallInt
@@ -113,7 +124,7 @@ model item {
   up_health      Int?
   enchantment    enchantment?
   inventory      inventory     @relation(fields: [inv_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  item_template  item_template @relation(fields: [item_tmpl_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  item_template item_template @relation(fields: [item_template_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model item_template {
@@ -205,6 +216,27 @@ model guild {
   name       String   @db.VarChar(128)
   created_at DateTime @default(now()) @db.Timestamptz(6)
   users      users[]
+}
+
+model achievement {
+  id          Int    @id @default(autoincrement())
+  name        String @unique @db.VarChar(128)
+  description String @db.VarChar(500)
+  points      Int    @default(0)
+
+  characters character_achievement[]
+}
+
+model character_achievement {
+  character_id   Int
+  achievement_id Int
+  unlocked_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  character   character   @relation(fields: [character_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  achievement achievement @relation(fields: [achievement_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([character_id, achievement_id])
+  @@index([achievement_id])
 }
 
 enum Renamedclass {
