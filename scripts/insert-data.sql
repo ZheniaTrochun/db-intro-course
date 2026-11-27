@@ -21,8 +21,8 @@ TRUNCATE TABLE person                   RESTART IDENTITY CASCADE;
 
 
 -- =============================== person ======================================
--- person_id 1-12  -> викладачі
--- person_id 13-52 -> студенти
+-- person_id 1-11  -> викладачі
+-- person_id 12-51 -> студенти
 INSERT INTO person (first_name, last_name, date_of_birth, contact_medium, registration_date, person_status)
 VALUES
     ('Іван', 'Сіренко', '1975-03-15', '{"email": "i.sirenko@lll.kpi.ua", "phone": "+380671013171", "room": "19-101"}', '2011-02-11 09:00:00', 'registered'),  --  1 проф.
@@ -32,54 +32,54 @@ VALUES
     ('Віктор', 'Журенко', '1982-05-14', '{"email": "v.zhurenko@lll.kpi.ua", "phone": "+380671065855", "room": "20-105"}', '2015-06-15 09:00:00', 'registered'),  --  5 проф.
     ('Оксана', 'Дорошенко', '1985-09-03', '{"email": "o.doroshenko@lll.kpi.ua", "phone": "+380671079026", "room": "18-106"}', '2016-07-16 09:00:00', 'registered'),  --  6 проф.
     ('Дмитро', 'Руденко', '1968-12-19', '{"email": "d.rudenko@lll.kpi.ua", "phone": "+380671092197", "room": "19-107"}', '2017-08-17 09:00:00', 'registered'),  --  7 проф.
-    ('Сергій', 'Тимошенко', '1983-08-11', '{"email": "s.tymoshenko@lll.kpi.ua", "phone": "+380671118539", "room": "18-109"}', '2010-01-10 09:00:00', 'registered'),  --  9 проф.
-    ('Юлія', 'Андрієнко', '1986-02-07', '{"email": "i.andriienko@lll.kpi.ua", "phone": "+380671131710", "room": "19-110"}', '2011-02-11 09:00:00', 'registered'),  -- 10 проф.
-    ('Лариса', 'Коваль', '1972-04-25', '{"email": "l.koval@lll.kpi.ua", "phone": "+380671144881", "room": "20-111"}', '2012-03-12 09:00:00', 'registered'),  -- 11 проф.
-    ('Богдан', 'Мельник', '1988-10-02', NULL, '2013-04-13 09:00:00', 'registered'),  -- 12 проф.
-    ('Андрій', 'Ковальчук', '2003-06-10', '{"email": "andrii.kovalchuk@lll.kpi.ua"}', '2021-07-11 11:07:00', 'registered'),  -- 13 студ. 1
-    ('Леся', 'Павленко', '2003-09-18', '{"email": "lesia.pavlenko@lll.kpi.ua", "phone": "+380673591978"}', '2021-07-12 12:14:00', 'registered'),  -- 14 студ. 2
-    ('Павло', 'Демченко', '2003-03-05', '{"email": "pavlo.demchenko@lll.kpi.ua", "phone": "+380509755983", "telegram": "@demchenko"}', '2021-07-13 13:21:00', 'registered'),  -- 15 студ. 3
-    ('Ірина', 'Біленко', '2003-11-27', '{"email": "iryna.bilenko@lll.kpi.ua", "phone": "+380502535076", "telegram": "@bilenko"}', '2021-07-14 14:28:00', 'registered'),  -- 16 студ. 4
-    ('Максим', 'Новенко', '2003-01-14', NULL, '2021-07-15 15:35:00', 'registered'),  -- 17 студ. 5
-    ('Інна', 'Корненко', '2003-04-22', '{"email": "inna.kornenko@lll.kpi.ua"}', '2021-07-16 16:42:00', 'registered'),  -- 18 студ. 6
-    ('Роман', 'Беленко', '2002-08-09', '{"email": "roman.belenko@lll.kpi.ua", "phone": "+380958417672"}', '2021-07-17 17:49:00', 'registered'),  -- 19 студ. 7
-    ('Світлана', 'Петрушенко', '2003-12-31', '{"email": "svitlana.petrushenko@lll.kpi.ua", "phone": "+380957933478", "telegram": "@petrushenko"}', '2021-07-18 18:56:00', 'registered'),  -- 20 студ. 8
-    ('Віталій', 'Семенко', '2003-02-16', '{"email": "vitalii.semenko@lll.kpi.ua", "phone": "+380937370399", "telegram": "@semenko"}', '2021-07-19 10:03:00', 'registered'),  -- 21 студ. 9
-    ('Анна', 'Трофименко', '2003-07-03', NULL, '2021-07-20 11:10:00', 'registered'),  -- 22 студ. 10
-    ('Олег', 'Гавриленко', '2003-05-20', '{"email": "oleh.havrylenko@lll.kpi.ua"}', '2021-07-21 12:17:00', 'registered'),  -- 23 студ. 11
-    ('Катерина', 'Мироненко', '2003-10-08', '{"email": "kateryna.myronenko@lll.kpi.ua", "phone": "+380677167573"}', '2021-07-22 13:24:00', 'registered'),  -- 24 студ. 12
-    ('Михайло', 'Костенко', '2003-03-26', '{"email": "mykhailo.kostenko@lll.kpi.ua", "phone": "+380667295315", "telegram": "@kostenko"}', '2021-07-23 14:31:00', 'registered'),  -- 25 студ. 13
-    ('Тамара', 'Юрченко', '2003-06-13', '{"email": "tamara.iurchenko@lll.kpi.ua", "phone": "+380665969030", "telegram": "@iurchenko"}', '2021-07-24 15:38:00', 'registered'),  -- 26 студ. 14
-    ('Назар', 'Самойленко', '2002-09-01', NULL, '2021-07-25 16:45:00', 'registered'),  -- 27 студ. 15
-    ('Дарина', 'Литвин', '2004-02-11', '{"email": "daryna.lytvyn@lll.kpi.ua"}', '2022-07-26 17:52:00', 'registered'),  -- 28 студ. 16
-    ('Артем', 'Гончаренко', '2004-05-29', '{"email": "artem.honcharenko@lll.kpi.ua", "phone": "+380983624749"}', '2022-07-27 18:59:00', 'registered'),  -- 29 студ. 17
-    ('Софія', 'Кравець', '2004-08-17', '{"email": "sofiia.kravets@lll.kpi.ua", "phone": "+380666214085", "telegram": "@kravets"}', '2022-07-10 10:06:00', 'registered'),  -- 30 студ. 18
-    ('Данило', 'Поліщук', '2004-01-23', '{"email": "danylo.polishchuk@lll.kpi.ua", "phone": "+380939753636", "telegram": "@polishchuk"}', '2022-07-11 11:13:00', 'inactive'),  -- 31 студ. 19
-    ('Вікторія', 'Бондаренко', '2004-11-04', NULL, '2022-07-12 12:20:00', 'registered'),  -- 32 студ. 20
-    ('Тарас', 'Шевчук', '2004-04-09', '{"email": "taras.shevchuk@lll.kpi.ua"}', '2022-07-13 13:27:00', 'registered'),  -- 33 студ. 21
-    ('Олена', 'Марченко', '2004-07-15', '{"email": "olena.marchenko@lll.kpi.ua", "phone": "+380983883651"}', '2022-07-14 14:34:00', 'registered'),  -- 34 студ. 22
-    ('Юрій', 'Ткаченко', '2004-12-02', '{"email": "iurii.tkachenko@lll.kpi.ua", "phone": "+380938934428", "telegram": "@tkachenko"}', '2022-07-15 15:41:00', 'registered'),  -- 35 студ. 23
-    ('Аліна', 'Савченко', '2005-03-19', '{"email": "alina.savchenko@lll.kpi.ua", "phone": "+380933270313", "telegram": "@savchenko"}', '2023-07-16 16:48:00', 'registered'),  -- 36 студ. 24
-    ('Станіслав', 'Левченко', '2005-06-27', NULL, '2023-07-17 17:55:00', 'registered'),  -- 37 студ. 25
-    ('Марта', 'Гриценко', '2005-09-08', '{"email": "marta.hrytsenko@lll.kpi.ua"}', '2023-07-18 18:02:00', 'registered'),  -- 38 студ. 26
-    ('Ігор', 'Пилипенко', '2005-02-14', '{"email": "ihor.pylypenko@lll.kpi.ua", "phone": "+380662078830"}', '2023-07-19 10:09:00', 'registered'),  -- 39 студ. 27
-    ('Злата', 'Романюк', '2005-10-21', '{"email": "zlata.romaniuk@lll.kpi.ua", "phone": "+380931356775", "telegram": "@romaniuk"}', '2023-07-20 11:16:00', 'banned'),  -- 40 студ. 28
-    ('Остап', 'Дяченко', '2005-05-06', '{"email": "ostap.diachenko@lll.kpi.ua", "phone": "+380951885822", "telegram": "@diachenko"}', '2023-07-21 12:23:00', 'registered'),  -- 41 студ. 29
-    ('Поліна', 'Захарченко', '2005-08-30', NULL, '2023-07-22 13:30:00', 'registered'),  -- 42 студ. 30
-    ('Владислав', 'Карпенко', '2001-04-18', '{"email": "vladyslav.karpenko@lll.kpi.ua"}', '2019-07-23 14:37:00', 'registered'),  -- 43 студ. 31
-    ('Христина', 'Мазур', '2001-07-25', '{"email": "khrystyna.mazur@lll.kpi.ua", "phone": "+380504079550"}', '2019-07-24 15:44:00', 'registered'),  -- 44 студ. 32
-    ('Денис', 'Онищенко', '2001-01-12', '{"email": "denys.onyshchenko@lll.kpi.ua", "phone": "+380939345239", "telegram": "@onyshchenko"}', '2019-07-25 16:51:00', 'inactive'),  -- 45 студ. 33
-    ('Юлія', 'Ярошенко', '2001-09-29', '{"email": "iuliia.iaroshenko@lll.kpi.ua", "phone": "+380989950485", "telegram": "@iaroshenko"}', '2019-07-26 17:58:00', 'registered'),  -- 46 студ. 34
-    ('Кирило', 'Білоус', '2001-11-16', NULL, '2019-07-27 18:05:00', 'registered'),  -- 47 студ. 35
-    ('Наталя', 'Сидоренко', '2001-03-03', '{"email": "natalia.sydorenko@lll.kpi.ua"}', '2019-07-10 10:12:00', 'registered'),  -- 48 студ. 36
-    ('Андріана', 'Волошин', '1999-06-21', '{"email": "andriana.voloshyn@lll.kpi.ua", "phone": "+380986109002"}', '2024-07-11 11:19:00', 'registered'),  -- 49 студ. 37
-    ('Віктор', 'Панченко', '1998-10-14', '{"email": "viktor.panchenko@lll.kpi.ua", "phone": "+380666204673", "telegram": "@panchenko"}', '2024-07-12 12:26:00', 'registered'),  -- 50 студ. 38
-    ('Мирослава', 'Гнатюк', '1999-02-28', '{"email": "myroslava.hnatiuk@lll.kpi.ua", "phone": "+380666009126", "telegram": "@hnatiuk"}', '2024-07-13 13:33:00', 'registered'),  -- 51 студ. 39
-    ('Едуард', 'Степаненко', '2005-12-09', NULL, '2024-07-14 14:40:00', 'registered');  -- 52 студ. 40
+    ('Сергій', 'Тимошенко', '1983-08-11', '{"email": "s.tymoshenko@lll.kpi.ua", "phone": "+380671118539", "room": "18-109"}', '2010-01-10 09:00:00', 'registered'),  --  8 проф.
+    ('Юлія', 'Андрієнко', '1986-02-07', '{"email": "i.andriienko@lll.kpi.ua", "phone": "+380671131710", "room": "19-110"}', '2011-02-11 09:00:00', 'registered'),  -- 9 проф.
+    ('Лариса', 'Коваль', '1972-04-25', '{"email": "l.koval@lll.kpi.ua", "phone": "+380671144881", "room": "20-111"}', '2012-03-12 09:00:00', 'registered'),  -- 10 проф.
+    ('Богдан', 'Мельник', '1988-10-02', NULL, '2013-04-13 09:00:00', 'registered'),  -- 11 проф.
+    ('Андрій', 'Ковальчук', '2003-06-10', '{"email": "andrii.kovalchuk@lll.kpi.ua"}', '2021-07-11 11:07:00', 'registered'),  -- 12 студ. 1
+    ('Леся', 'Павленко', '2003-09-18', '{"email": "lesia.pavlenko@lll.kpi.ua", "phone": "+380673591978"}', '2021-07-12 12:14:00', 'registered'),  -- 13 студ. 2
+    ('Павло', 'Демченко', '2003-03-05', '{"email": "pavlo.demchenko@lll.kpi.ua", "phone": "+380509755983", "telegram": "@demchenko"}', '2021-07-13 13:21:00', 'registered'),  -- 14 студ. 3
+    ('Ірина', 'Біленко', '2003-11-27', '{"email": "iryna.bilenko@lll.kpi.ua", "phone": "+380502535076", "telegram": "@bilenko"}', '2021-07-14 14:28:00', 'registered'),  -- 15 студ. 4
+    ('Максим', 'Новенко', '2003-01-14', NULL, '2021-07-15 15:35:00', 'registered'),  -- 16 студ. 5
+    ('Інна', 'Корненко', '2003-04-22', '{"email": "inna.kornenko@lll.kpi.ua"}', '2021-07-16 16:42:00', 'registered'),  -- 17 студ. 6
+    ('Роман', 'Беленко', '2002-08-09', '{"email": "roman.belenko@lll.kpi.ua", "phone": "+380958417672"}', '2021-07-17 17:49:00', 'registered'),  -- 18 студ. 7
+    ('Світлана', 'Петрушенко', '2003-12-31', '{"email": "svitlana.petrushenko@lll.kpi.ua", "phone": "+380957933478", "telegram": "@petrushenko"}', '2021-07-18 18:56:00', 'registered'),  -- 19 студ. 8
+    ('Віталій', 'Семенко', '2003-02-16', '{"email": "vitalii.semenko@lll.kpi.ua", "phone": "+380937370399", "telegram": "@semenko"}', '2021-07-19 10:03:00', 'registered'),  -- 20 студ. 9
+    ('Анна', 'Трофименко', '2003-07-03', NULL, '2021-07-20 11:10:00', 'registered'),  -- 21 студ. 10
+    ('Олег', 'Гавриленко', '2003-05-20', '{"email": "oleh.havrylenko@lll.kpi.ua"}', '2021-07-21 12:17:00', 'registered'),  -- 22 студ. 11
+    ('Катерина', 'Мироненко', '2003-10-08', '{"email": "kateryna.myronenko@lll.kpi.ua", "phone": "+380677167573"}', '2021-07-22 13:24:00', 'registered'),  -- 23 студ. 12
+    ('Михайло', 'Костенко', '2003-03-26', '{"email": "mykhailo.kostenko@lll.kpi.ua", "phone": "+380667295315", "telegram": "@kostenko"}', '2021-07-23 14:31:00', 'registered'),  -- 24 студ. 13
+    ('Тамара', 'Юрченко', '2003-06-13', '{"email": "tamara.iurchenko@lll.kpi.ua", "phone": "+380665969030", "telegram": "@iurchenko"}', '2021-07-24 15:38:00', 'registered'),  -- 25 студ. 14
+    ('Назар', 'Самойленко', '2002-09-01', NULL, '2021-07-25 16:45:00', 'registered'),  -- 26 студ. 15
+    ('Дарина', 'Литвин', '2004-02-11', '{"email": "daryna.lytvyn@lll.kpi.ua"}', '2022-07-26 17:52:00', 'registered'),  -- 27 студ. 16
+    ('Артем', 'Гончаренко', '2004-05-29', '{"email": "artem.honcharenko@lll.kpi.ua", "phone": "+380983624749"}', '2022-07-27 18:59:00', 'registered'),  -- 28 студ. 17
+    ('Софія', 'Кравець', '2004-08-17', '{"email": "sofiia.kravets@lll.kpi.ua", "phone": "+380666214085", "telegram": "@kravets"}', '2022-07-10 10:06:00', 'registered'),  -- 29 студ. 18
+    ('Данило', 'Поліщук', '2004-01-23', '{"email": "danylo.polishchuk@lll.kpi.ua", "phone": "+380939753636", "telegram": "@polishchuk"}', '2022-07-11 11:13:00', 'inactive'),  -- 30 студ. 19
+    ('Вікторія', 'Бондаренко', '2004-11-04', NULL, '2022-07-12 12:20:00', 'registered'),  -- 31 студ. 20
+    ('Тарас', 'Шевчук', '2004-04-09', '{"email": "taras.shevchuk@lll.kpi.ua"}', '2022-07-13 13:27:00', 'registered'),  -- 32 студ. 21
+    ('Олена', 'Марченко', '2004-07-15', '{"email": "olena.marchenko@lll.kpi.ua", "phone": "+380983883651"}', '2022-07-14 14:34:00', 'registered'),  -- 33 студ. 22
+    ('Юрій', 'Ткаченко', '2004-12-02', '{"email": "iurii.tkachenko@lll.kpi.ua", "phone": "+380938934428", "telegram": "@tkachenko"}', '2022-07-15 15:41:00', 'registered'),  -- 34 студ. 23
+    ('Аліна', 'Савченко', '2005-03-19', '{"email": "alina.savchenko@lll.kpi.ua", "phone": "+380933270313", "telegram": "@savchenko"}', '2023-07-16 16:48:00', 'registered'),  -- 35 студ. 24
+    ('Станіслав', 'Левченко', '2005-06-27', NULL, '2023-07-17 17:55:00', 'registered'),  -- 36 студ. 25
+    ('Марта', 'Гриценко', '2005-09-08', '{"email": "marta.hrytsenko@lll.kpi.ua"}', '2023-07-18 18:02:00', 'registered'),  -- 37 студ. 26
+    ('Ігор', 'Пилипенко', '2005-02-14', '{"email": "ihor.pylypenko@lll.kpi.ua", "phone": "+380662078830"}', '2023-07-19 10:09:00', 'registered'),  -- 38 студ. 27
+    ('Злата', 'Романюк', '2005-10-21', '{"email": "zlata.romaniuk@lll.kpi.ua", "phone": "+380931356775", "telegram": "@romaniuk"}', '2023-07-20 11:16:00', 'banned'),  -- 39 студ. 28
+    ('Остап', 'Дяченко', '2005-05-06', '{"email": "ostap.diachenko@lll.kpi.ua", "phone": "+380951885822", "telegram": "@diachenko"}', '2023-07-21 12:23:00', 'registered'),  -- 40 студ. 29
+    ('Поліна', 'Захарченко', '2005-08-30', NULL, '2023-07-22 13:30:00', 'registered'),  -- 41 студ. 30
+    ('Владислав', 'Карпенко', '2001-04-18', '{"email": "vladyslav.karpenko@lll.kpi.ua"}', '2019-07-23 14:37:00', 'registered'),  -- 42 студ. 31
+    ('Христина', 'Мазур', '2001-07-25', '{"email": "khrystyna.mazur@lll.kpi.ua", "phone": "+380504079550"}', '2019-07-24 15:44:00', 'registered'),  -- 43 студ. 32
+    ('Денис', 'Онищенко', '2001-01-12', '{"email": "denys.onyshchenko@lll.kpi.ua", "phone": "+380939345239", "telegram": "@onyshchenko"}', '2019-07-25 16:51:00', 'inactive'),  -- 44 студ. 33
+    ('Юлія', 'Ярошенко', '2001-09-29', '{"email": "iuliia.iaroshenko@lll.kpi.ua", "phone": "+380989950485", "telegram": "@iaroshenko"}', '2019-07-26 17:58:00', 'registered'),  -- 45 студ. 34
+    ('Кирило', 'Білоус', '2001-11-16', NULL, '2019-07-27 18:05:00', 'registered'),  -- 46 студ. 35
+    ('Наталя', 'Сидоренко', '2001-03-03', '{"email": "natalia.sydorenko@lll.kpi.ua"}', '2019-07-10 10:12:00', 'registered'),  -- 47 студ. 36
+    ('Андріана', 'Волошин', '1999-06-21', '{"email": "andriana.voloshyn@lll.kpi.ua", "phone": "+380986109002"}', '2024-07-11 11:19:00', 'registered'),  -- 48 студ. 37
+    ('Віктор', 'Панченко', '1998-10-14', '{"email": "viktor.panchenko@lll.kpi.ua", "phone": "+380666204673", "telegram": "@panchenko"}', '2024-07-12 12:26:00', 'registered'),  -- 49 студ. 38
+    ('Мирослава', 'Гнатюк', '1999-02-28', '{"email": "myroslava.hnatiuk@lll.kpi.ua", "phone": "+380666009126", "telegram": "@hnatiuk"}', '2024-07-13 13:33:00', 'registered'),  -- 50 студ. 39
+    ('Едуард', 'Степаненко', '2005-12-09', NULL, '2024-07-14 14:40:00', 'registered');  -- 51 студ. 40
 
 
 -- ============================== professor ====================================
--- professor_id 1-12 == person_id 1-12
+-- professor_id 1-11 == person_id 1-11
 INSERT INTO professor (person_id, start_year, professor_status, professor_degree, job_title)
 VALUES
     ( 1, '2005-09-01', 'active',   'phd',       'professor'),            --  1 Сіренко
@@ -96,9 +96,10 @@ VALUES
 
 
 -- =============================== student =====================================
--- student_id 1-40 == person_id 13-52
+-- student_id 1-40 == person_id 12-51
 INSERT INTO student (person_id, student_status)
 VALUES
+    (12, 'active'),
     (13, 'active'),
     (14, 'active'),
     (15, 'active'),
@@ -116,8 +117,8 @@ VALUES
     (27, 'active'),
     (28, 'active'),
     (29, 'active'),
-    (30, 'active'),
-    (31, 'expelled'),  -- відрахований
+    (30, 'expelled'),  -- відрахований
+    (31, 'active'),
     (32, 'active'),
     (33, 'active'),
     (34, 'active'),
@@ -125,20 +126,19 @@ VALUES
     (36, 'active'),
     (37, 'active'),
     (38, 'active'),
-    (39, 'active'),
-    (40, 'academ'),  -- в академвідпустці
+    (39, 'academ'),  -- в академвідпустці
+    (40, 'active'),
     (41, 'active'),
-    (42, 'active'),
-    (43, 'graduated'),  -- бакалавр -> магістратура
-    (44, 'graduated'),
-    (45, 'expelled'),
+    (42, 'graduated'),  -- бакалавр -> магістратура
+    (43, 'graduated'),
+    (44, 'expelled'),
+    (45, 'graduated'),
     (46, 'graduated'),
     (47, 'graduated'),
-    (48, 'graduated'),
+    (48, 'active'),
     (49, 'active'),
     (50, 'active'),
-    (51, 'active'),
-    (52, 'active');  -- без групи і без записів на курси
+    (51, 'active');  -- без групи і без записів на курси
 
 
 -- ============================= specialties ===================================
@@ -183,7 +183,7 @@ VALUES
 -- =========================== course_teacher ==================================
 -- PK (course_id, professor_id): один викладач має рівно одну роль на курсі.
 -- Курс 13 ще не має викладача; викладачі 11 і 12 не ведуть жодного курсу.
-INSERT INTO course_teacher (course_id, professor_id, profesor_role)
+INSERT INTO course_teacher (course_id, professor_id, professor_role)
 VALUES
     ( 1,  1, 'lecturer'),
     ( 1, 10, 'practice'),
