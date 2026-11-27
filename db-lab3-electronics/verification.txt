@@ -1,0 +1,114 @@
+{
+  "server_version": "19.0",
+  "select_products": [
+    {
+      "product_id": 2,
+      "name": "Смартфон iPhone 16",
+      "brand": "Apple",
+      "price": "41999.00"
+    },
+    {
+      "product_id": 1,
+      "name": "Смартфон Galaxy S25",
+      "brand": "Samsung",
+      "price": "34999.00"
+    },
+    {
+      "product_id": 3,
+      "name": "Смартфон Pixel 9",
+      "brand": "Google",
+      "price": "32999.00"
+    }
+  ],
+  "select_orders": [
+    {
+      "order_id": 1,
+      "customer": "Олена Савчук",
+      "status": "paid",
+      "total": "76998.00"
+    },
+    {
+      "order_id": 2,
+      "customer": "Максим Коваль",
+      "status": "shipped",
+      "total": "52999.00"
+    }
+  ],
+  "insert_returning": [
+    {
+      "product_id": 6,
+      "name": "Тестовий смартфон OLTP",
+      "price": "1000.00",
+      "stock_quantity": 2
+    }
+  ],
+  "insert_check": [
+    {
+      "product_id": 6,
+      "name": "Тестовий смартфон OLTP",
+      "price": "1000.00",
+      "stock_quantity": 2
+    }
+  ],
+  "update_returning": [
+    {
+      "product_id": 6,
+      "name": "Тестовий смартфон OLTP",
+      "price": "950.00",
+      "stock_quantity": 3
+    }
+  ],
+  "update_check": [
+    {
+      "product_id": 6,
+      "name": "Тестовий смартфон OLTP",
+      "price": "950.00",
+      "stock_quantity": 3
+    }
+  ],
+  "delete_returning": [
+    {
+      "product_id": 6,
+      "name": "Тестовий смартфон OLTP"
+    }
+  ],
+  "delete_check": [],
+  "final_table_counts": [
+    {
+      "table_name": "accounts",
+      "rows": 5
+    },
+    {
+      "table_name": "cart_items",
+      "rows": 5
+    },
+    {
+      "table_name": "carts",
+      "rows": 3
+    },
+    {
+      "table_name": "categories",
+      "rows": 3
+    },
+    {
+      "table_name": "characteristics",
+      "rows": 9
+    },
+    {
+      "table_name": "customer_orders",
+      "rows": 4
+    },
+    {
+      "table_name": "order_items",
+      "rows": 6
+    },
+    {
+      "table_name": "product_characteristics",
+      "rows": 15
+    },
+    {
+      "table_name": "products",
+      "rows": 5
+    }
+  ]
+}
