@@ -1,0 +1,19 @@
+Лабораторна робота №2 — перевірка schema.sql
+
+Виконання: успішно
+Рушій: PGlite (вбудований PostgreSQL-сумісний рушій)
+server_version: 19.0
+
+table_name              | row_count
+------------------------+----------
+accounts                | 5
+cart_items              | 5
+carts                   | 3
+categories              | 3
+characteristics         | 9
+customer_orders         | 4
+order_items             | 6
+product_characteristics | 15
+products                | 5
+
+Усі 9 таблиць містять щонайменше 3 рядки. Запит для повторної перевірки кількості рядків розміщено в кінці schema.sql.
