@@ -1,8 +1,9 @@
-DROP TABLE IF EXISTS Category CASCADE;
-DROP TABLE IF EXISTS Recipe CASCADE;
-DROP TABLE IF EXISTS Taste CASCADE;
-DROP TABLE IF EXISTS RecipeItemQuantity CASCADE;
-DROP TABLE IF EXISTS RecipeTaste CASCADE;
+DROP TABLE IF EXISTS RecipeTaste;
+DROP TABLE IF EXISTS RecipeItemQuantity;
+DROP TABLE IF EXISTS Taste;
+DROP TABLE IF EXISTS Recipe;
+DROP TABLE IF EXISTS Category;
+
 
 CREATE TABLE Category (
 CategoryID SERIAL PRIMARY KEY,
@@ -27,7 +28,8 @@ CREATE TABLE RecipeItemQuantity (
 	CategoryID INTEGER NOT NULL,
 	FOREIGN KEY (RecipeID) REFERENCES Recipe(RecipeID),
 	FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID),
-	RecipeItemAmount NUMERIC(8,2) NOT NULL CHECK(RecipeItemAmount > 0)
+	RecipeItemAmount NUMERIC(8,3) NOT NULL CHECK(RecipeItemAmount > 0),
+	UNIQUE (RecipeID, CategoryID)
 );
 
 CREATE TABLE RecipeTaste (
@@ -36,7 +38,8 @@ CREATE TABLE RecipeTaste (
 	TasteID INTEGER NOT NULL,
 	FOREIGN KEY (RecipeID) REFERENCES Recipe(RecipeID),
 	FOREIGN KEY (TasteID) REFERENCES Taste(TasteID),
-	Intensity NUMERIC(4,2) NOT NULL CHECK(Intensity > 0) 
+	Intensity VARCHAR(10) NOT NULL CHECK (Intensity IN ('слабо', 'помірно', 'сильно')),
+    UNIQUE (RecipeID, TasteID) 
 );
 
 
@@ -66,9 +69,9 @@ VALUES
 
 	INSERT INTO RecipeTaste (RecipeID, TasteID, Intensity)
 	VALUES 
-	(1, 1, 0.80),
-	(2, 2, 0.60),
-	(3, 3, 0.90);
+	(1, 1, 'сильно'),
+	(2, 2, 'помірно'),
+	(3, 3, 'слабо');
 
 	SELECT * FROM Category;
 	SELECT * FROM Recipe;
