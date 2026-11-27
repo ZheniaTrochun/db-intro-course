@@ -72,3 +72,16 @@ ERD, яку ви тут створите, стане основою для ре�
 5. **Платформа соціальних мереж/блогу:** наприклад, *Користувач*, *Публікація*, *Коментар*, *Тег*.
 6. **Система прокату фільмів:** наприклад, *Фільм*, *Клієнт*, *Прокат*, *Оплата*.
 7. **Відстеження запасів:** наприклад *Товар*, *Постачальник*, *Склад*, *Продаж*, *Клієнт*.
+
+Не соромтеся адаптувати їх або вигадати власний сценарій. Важливо, щоб це дало змістовний набір сутностей та зв'язків для моделювання.
+
+---
+
+## Корисні посилання
+
+- [Проектування баз даних - 2-ге видання](https://openlibraryrepo.ecampusontario.ca/jspui/bitstream/123456789/247/16/Database-Design-2nd-Edition-1540829576.pdf)
+- [Основи проектування баз даних - GeeksforGeeks](https://www.geeksforgeeks.org/dbms/database-design-fundamentals/)
+- [Розділ 8 Модель даних "Сутність-зв'язок" - Проектування баз даних - 2-ге видання](https://opentextbc.ca/dbdesign01/chapter/chapter-8-entity-relationship-model/)
+- [Додаток А. Приклад моделі даних реєстрації університету - Розробка бази даних - 2-ге видання](https://opentextbc.ca/dbdesign01/back-matter/appendix-a-university-registration-data-model-example/)
+- [10 схем ER для системи управління університетом + безкоштовні шаблони | Creately](https://creately.com/guides/er-diagrams-for-a-university-management-system/)
+- [Як створити діаграми ER для веб-сайту електронної комерції - GeeksforGeeks](https://www.geeksforgeeks.org/dbms/how-to-design-er-diagrams-for-e-commerce-website/)
