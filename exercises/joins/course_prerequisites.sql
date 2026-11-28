@@ -8,3 +8,11 @@
 --          - назвою курсу, потім за назвою пре-реквізиту
 
 -- Рішення:
+
+SELECT
+    c.course_name,
+    cr.course_name AS prerequisite_name
+FROM course c
+LEFT JOIN course_prerequisite cp ON cp.course_id = c.course_id
+LEFT JOIN course cr ON cr.course_id = cp.prerequisite_course_id
+ORDER BY c.course_name, prerequisite_name
